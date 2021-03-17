@@ -14,8 +14,9 @@ You may also use the form below:</p>
 <input type="checkbox" name="print" id="print" checked><label for="print">Just print the SPARQL query; do not redirect (_print).</label><br>
 <input type="checkbox" name="html" id="html" checked><label for="html">Display as HTML; only with _print (_html).</label><br>
 <input type="checkbox" name="check" id="check"><label for="check">Check functional properties (_check).</label><br>
-<input type="checkbox" name="first" id="first"><label for="first">Output only the first result (_first).</label><br>
 <input type="checkbox" name="infer" id="infer"><label for="infer">Infer from subproperties (_infer).</label><br>
+<input type="checkbox" name="sameas" id="sameas"><label for="sameas">Use owl:sameAs (_sameas).</label><br>
+<input type="checkbox" name="first" id="first"><label for="first">Output only the first result (_first).</label><br>
 <input type="submit" value="Resolve"></p>
 </form>
 <p>The prefixes recognized by the service are combined from the <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a> and the registered <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xml">IANA URI schemes</a>. A JSON-LD context can be found <a href="context.php">here</a>.</p>

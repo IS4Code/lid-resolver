@@ -133,7 +133,7 @@ if(!empty($uri['query']))
     }else if(isset($part[1]))
     {
       $value = resolve_name($value, true);
-      if(isset($context[$key]) && (((isset($options['check']) || isset($options['infer'])) ? $key === 'rdfs' : false) || ((isset($options['check']) || !isset($options['first']) || isset($options['infer'])) ? $key === 'owl' : false)) && $context[$key] !== $value)
+      if(isset($context[$key]) && (((isset($options['check']) || isset($options['infer'])) ? $key === 'rdfs' : false) || ((isset($options['check']) || isset($options['sameas']) || isset($options['infer'])) ? $key === 'owl' : false)) && $context[$key] !== $value)
       {
         $key = htmlspecialchars($key);
         $value = htmlspecialchars(is_string($value) ? $value : "$value[0]:$value[1]");
@@ -250,39 +250,10 @@ if(isset($options['check']) || isset($options['infer']))
 {
   $query[] = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>';
 }
-if(isset($options['check']) || !isset($options['first']) || isset($options['infer']))
+if(isset($options['check']) || isset($options['sameas']) || isset($options['infer']))
 {
   $query[] = 'PREFIX owl: <http://www.w3.org/2002/07/owl#>';
   $query[] = '';
-}
-if(isset($options['first']))
-{
-  $query[] = 'DESCRIBE ?s0';
-}else{
-  $query[] = 'DESCRIBE ?s';
-}
-$query[] = 'WHERE {';
-
-if(isset($options['check']))
-{
-  $any = false;
-  foreach(array_unique($components, SORT_REGULAR) as $index => list($name, $reverse))
-  {
-    if($name == 'http://www.w3.org/2002/07/owl#sameAs') continue;
-    $any = true;
-    $name = format_name($name);
-    $query[] = '  FILTER EXISTS {';
-    $query[] = '    {';
-    $query[] = '      '.$name.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/a/(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)* owl:'.($reverse ? '' : 'Inverse').'FunctionalProperty .';
-    $query[] = '    } UNION {';
-    $query[] = '      '.$name.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)*/a/(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)* owl:'.($reverse ? 'Inverse' : '').'FunctionalProperty .';
-    $query[] = '    }';
-    $query[] = '  }';
-  }
-  if($any)
-  {
-    $query[] = '';
-  }
 }
 
 if(isset($language) && empty($language))
@@ -302,10 +273,52 @@ if(isset($language) && empty($language))
   }
 }
 
-if(!isset($options['first']))
+$query[] = 'CONSTRUCT {';
+$initial = '?s';
+foreach($components as $index => $value)
+{
+  $subj = $index == 0 ? $initial : "_:s$index";
+  $obj = $index == count($components) - 1 ? $identifier : '_:s'.($index + 1);
+  $name = format_name($value[0]);
+  if($value[1])
+  {
+    $query[] = "  $obj $name $subj .";
+  }else{
+    $query[] = "  $subj $name $obj .";
+  }
+}
+$query[] = '}';
+
+$query[] = 'WHERE {';
+
+if(isset($options['check']))
+{
+  $any = false;
+  foreach(array_unique($components, SORT_REGULAR) as $index => list($name, $reverse))
+  {
+    if($name == 'http://www.w3.org/2002/07/owl#sameAs') continue;
+    $any = true;
+    $name = format_name($name);
+    $query[] = '  FILTER EXISTS {';
+    $query[] = '    {';
+    $query[] = '      '.$name.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)*/a/(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)* owl:'.($reverse ? '' : 'Inverse').'FunctionalProperty .';
+    $query[] = '    } UNION {';
+    $query[] = '      '.$name.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)*/a/(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)* owl:'.($reverse ? 'Inverse' : '').'FunctionalProperty .';
+    $query[] = '    }';
+    $query[] = '  }';
+  }
+  if($any)
+  {
+    $query[] = '';
+  }
+}
+
+$final = $identifier;
+if(isset($options['sameas']))
 {
   $query[] = '  ?s (owl:sameAs|^owl:sameAs)* ?s0 .';
-  $query[] = '';
+  $initial = '?s0';
+  $final = '?r'.count($components);
 }
 
 if(!isset($options['infer']))
@@ -317,48 +330,71 @@ if(!isset($options['infer']))
     $value = $name;
   });
 
-  $query[] = '  ?s0 '.implode('/', $components)." $identifier .";
+  $query[] = "  $initial ".implode('/', $components)." $final .";
 }else{
   foreach($components as $index => $value)
   {
-    if($index >= 1)
+    $next = $index + 1;
+    $last = $index == count($components) - 1;
+    if($index >= 1 && isset($options['sameas']))
     {
-      $query[] = "  ?r${index} (owl:sameAs|^owl:sameAs)* ?s${index} .";
+      $query[] = "  ?r$index (owl:sameAs|^owl:sameAs)* ?s$index .";
     }
     
-    $query[] = '  {';
-    $query[] = "    SELECT ?p$index ?i$index";
-    $query[] = '    WHERE {';
-    $query[] = '      OPTIONAL {';
-    $query[] = "        ?p$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* ".format_name($value[0]).' .';
-    $query[] = '      }';
-    $query[] = '      OPTIONAL {';
-    $query[] = "        ?i$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* ".format_name($value[0]).' .';
-    $query[] = '      }';
-    $query[] = "      FILTER (bound(?p$index) || bound(?i$index))";
-    $query[] = '    }';
-    $query[] = '  }';
+    $name = format_name($value[0]);
     
-    $subj = "?s${index}";
-    $obj = '?r'.($index + 1);
-    $query[] = '  OPTIONAL {';
-    if($value[1])
+    $subj = $index > 0 ? "?s$index" : $initial;
+    $obj = isset($options['sameas']) ? "?r$next" : ($last ? $identifier : "?s$next");
+    
+    if($last && !isset($options['sameas']) && (isset($datatype) || isset($language)))
     {
-      $query[] = "    $obj ?p$index $subj .";
+      if($value[1])
+      {
+        $query[] = "  ?i$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* $name .";
+        $query[] = "  $subj ?i$index $obj .";
+      }else{
+        $query[] = "  ?p$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* $name .";
+        $query[] = "  $subj ?p$index $obj .";
+      }
     }else{
-      $query[] = "    $subj ?p$index $obj .";
+      $query[] = '  {';
+      $query[] = "    SELECT ?p$index ?i$index";
+      $query[] = '    WHERE {';
+      $query[] = '      OPTIONAL {';
+      $query[] = "        ?p$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* $name .";
+      $query[] = '      }';
+      $query[] = '      OPTIONAL {';
+      $query[] = "        ?i$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* $name .";
+      $query[] = '      }';
+      $query[] = "      FILTER (bound(?p$index) || bound(?i$index))";
+      $query[] = '    }';
+      $query[] = '  }';
+    
+      $query[] = '  OPTIONAL {';
+      if($value[1])
+      {
+        $query[] = "    $obj ?p$index $subj .";
+      }else{
+        $query[] = "    $subj ?p$index $obj .";
+      }
+      $query[] = '  }';
+      $query[] = '  OPTIONAL {';
+      if($value[1])
+      {
+        $query[] = "    $subj ?i$index $obj .";
+      }else{
+        $query[] = "    $obj ?i$index $subj .";
+      }
+      $query[] = '  }';
+      if(!$last || isset($options['sameas']))
+      {
+        $query[] = "  FILTER bound($obj)";
+      }
     }
-    $query[] = '  }';
-    $query[] = '  OPTIONAL {';
-    if($value[1])
-    {
-      $query[] = "    $subj ?i$index $obj .";
-    }else{
-      $query[] = "    $obj ?i$index $subj .";
-    }
-    $query[] = '  }';
-    $query[] = "  FILTER (bound($obj))";
   }
+}
+if(isset($options['sameas']))
+{
   $query[] = '  ?r'.count($components)." (owl:sameAs|^owl:sameAs)* $identifier .";
 }
 
