@@ -15,6 +15,7 @@ You may also use the form below:</p>
 <input type="checkbox" name="html" id="html" checked><label for="html">Display as HTML; only with _print (_html).</label><br>
 <input type="checkbox" name="check" id="check"><label for="check">Check functional properties (_check).</label><br>
 <input type="checkbox" name="infer" id="infer"><label for="infer">Infer from subproperties (_infer).</label><br>
+<input type="checkbox" name="inverse" id="inverse"><label for="inverse">Infer with more owl:inverseOf (_inverse).</label><br>
 <input type="checkbox" name="unify" id="unify"><label for="unify">Unify with owl:sameAs (_unify).</label><br>
 <input type="checkbox" name="first" id="first"><label for="first">Output only the first result (_first).</label><br>
 <input type="submit" value="Resolve"></p>
