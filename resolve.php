@@ -358,7 +358,7 @@ if(!isset($options['infer']))
     $subj = $index > 0 ? "?s$index" : $initial;
     $obj = isset($options['unify']) ? "?r$next" : ($last ? $identifier : "?s$next");
     
-    if($last && !isset($options['unify']) && (isset($datatype) || isset($language)))
+    if($last && !isset($options['unify']))
     {
       if($value[1])
       {
