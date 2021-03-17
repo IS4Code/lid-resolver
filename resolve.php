@@ -133,7 +133,7 @@ if(!empty($uri['query']))
     }else if(isset($part[1]))
     {
       $value = resolve_name($value, true);
-      if(isset($context[$key]) && (((isset($options['check']) || isset($options['infer'])) ? $key === 'rdfs' : false) || ((isset($options['check']) || isset($options['sameas']) || isset($options['infer'])) ? $key === 'owl' : false)) && $context[$key] !== $value)
+      if(isset($context[$key]) && (((isset($options['check']) || isset($options['infer'])) ? $key === 'rdfs' : false) || ((isset($options['check']) || isset($options['unify']) || isset($options['infer'])) ? $key === 'owl' : false)) && $context[$key] !== $value)
       {
         $key = htmlspecialchars($key);
         $value = htmlspecialchars(is_string($value) ? $value : "$value[0]:$value[1]");
@@ -250,7 +250,7 @@ if(isset($options['check']) || isset($options['infer']))
 {
   $query[] = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>';
 }
-if(isset($options['check']) || isset($options['sameas']) || isset($options['infer']))
+if(isset($options['check']) || isset($options['unify']) || isset($options['infer']))
 {
   $query[] = 'PREFIX owl: <http://www.w3.org/2002/07/owl#>';
   $query[] = '';
@@ -314,7 +314,7 @@ if(isset($options['check']))
 }
 
 $final = $identifier;
-if(isset($options['sameas']))
+if(isset($options['unify']))
 {
   $query[] = '  ?s (owl:sameAs|^owl:sameAs)* ?s0 .';
   $initial = '?s0';
@@ -336,7 +336,7 @@ if(!isset($options['infer']))
   {
     $next = $index + 1;
     $last = $index == count($components) - 1;
-    if($index >= 1 && isset($options['sameas']))
+    if($index >= 1 && isset($options['unify']))
     {
       $query[] = "  ?r$index (owl:sameAs|^owl:sameAs)* ?s$index .";
     }
@@ -344,9 +344,9 @@ if(!isset($options['infer']))
     $name = format_name($value[0]);
     
     $subj = $index > 0 ? "?s$index" : $initial;
-    $obj = isset($options['sameas']) ? "?r$next" : ($last ? $identifier : "?s$next");
+    $obj = isset($options['unify']) ? "?r$next" : ($last ? $identifier : "?s$next");
     
-    if($last && !isset($options['sameas']) && (isset($datatype) || isset($language)))
+    if($last && !isset($options['unify']) && (isset($datatype) || isset($language)))
     {
       if($value[1])
       {
@@ -386,14 +386,14 @@ if(!isset($options['infer']))
         $query[] = "    $obj ?i$index $subj .";
       }
       $query[] = '  }';
-      if(!$last || isset($options['sameas']))
+      if(!$last || isset($options['unify']))
       {
         $query[] = "  FILTER bound($obj)";
       }
     }
   }
 }
-if(isset($options['sameas']))
+if(isset($options['unify']))
 {
   $query[] = '  ?r'.count($components)." (owl:sameAs|^owl:sameAs)* $identifier .";
 }
