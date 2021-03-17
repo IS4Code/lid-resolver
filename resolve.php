@@ -133,7 +133,7 @@ if(!empty($uri['query']))
     }else if(isset($part[1]))
     {
       $value = resolve_name($value, true);
-      if(isset($context[$key]) && (((!isset($options['simple']) || isset($options['infer'])) ? $key === 'rdfs' : false) || ((!isset($options['simple']) || !isset($options['first']) || isset($options['infer'])) ? $key === 'owl' : false)) && $context[$key] !== $value)
+      if(isset($context[$key]) && (((isset($options['check']) || isset($options['infer'])) ? $key === 'rdfs' : false) || ((isset($options['check']) || !isset($options['first']) || isset($options['infer'])) ? $key === 'owl' : false)) && $context[$key] !== $value)
       {
         $key = htmlspecialchars($key);
         $value = htmlspecialchars(is_string($value) ? $value : "$value[0]:$value[1]");
@@ -246,11 +246,11 @@ if(isset($options['print']))
   $query[] = '';
 }
 
-if(!isset($options['simple']) || isset($options['infer']))
+if(isset($options['check']) || isset($options['infer']))
 {
   $query[] = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>';
 }
-if(!isset($options['simple']) || !isset($options['first']) || isset($options['infer']))
+if(isset($options['check']) || !isset($options['first']) || isset($options['infer']))
 {
   $query[] = 'PREFIX owl: <http://www.w3.org/2002/07/owl#>';
   $query[] = '';
@@ -263,7 +263,7 @@ if(isset($options['first']))
 }
 $query[] = 'WHERE {';
 
-if(!isset($options['simple']))
+if(isset($options['check']))
 {
   $any = false;
   foreach(array_unique($components, SORT_REGULAR) as $index => list($name, $reverse))
@@ -341,14 +341,15 @@ if(!isset($options['infer']))
     
     $subj = "?s${index}";
     $obj = '?r'.($index + 1);
-    $query[] = '  {';
+    $query[] = '  OPTIONAL {';
     if($value[1])
     {
       $query[] = "    $obj ?p$index $subj .";
     }else{
       $query[] = "    $subj ?p$index $obj .";
     }
-    $query[] = '  } UNION {';
+    $query[] = '  }';
+    $query[] = '  OPTIONAL {';
     if($value[1])
     {
       $query[] = "    $subj ?i$index $obj .";
@@ -356,6 +357,7 @@ if(!isset($options['infer']))
       $query[] = "    $obj ?i$index $subj .";
     }
     $query[] = '  }';
+    $query[] = "  FILTER (bound($obj))";
   }
   $query[] = '  ?r'.count($components)." (owl:sameAs|^owl:sameAs)* $identifier .";
 }
