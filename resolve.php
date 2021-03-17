@@ -289,7 +289,12 @@ foreach($components as $index => $value)
 }
 $query[] = '}';
 
-$query[] = 'WHERE {';
+if(isset($datatype) || isset($language))
+{
+  $query[] = "WHERE { SELECT DISTINCT $initial WHERE {";
+}else{
+  $query[] = "WHERE { SELECT DISTINCT $initial $identifier WHERE {";
+}
 
 if(isset($options['check']))
 {
@@ -435,7 +440,7 @@ if(isset($options['first']))
 {
   $query[] = 'LIMIT 1';
 }
-$query[] = '';
+$query[] = '}';
 
 if(!isset($options['print']))
 {
