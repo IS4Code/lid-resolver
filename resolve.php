@@ -325,33 +325,36 @@ if(!isset($options['infer']))
     {
       $query[] = "  ?r${index} (owl:sameAs|^owl:sameAs)* ?s${index} .";
     }
+    
+    $query[] = '  {';
+    $query[] = "    SELECT ?p$index ?i$index";
+    $query[] = '    WHERE {';
+    $query[] = '      OPTIONAL {';
+    $query[] = "        ?p$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* ".format_name($value[0]).' .';
+    $query[] = '      }';
+    $query[] = '      OPTIONAL {';
+    $query[] = "        ?i$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* ".format_name($value[0]).' .';
+    $query[] = '      }';
+    $query[] = "      FILTER (bound(?p$index) || bound(?i$index))";
+    $query[] = '    }';
+    $query[] = '  }';
+    
     $subj = "?s${index}";
     $obj = '?r'.($index + 1);
     $query[] = '  {';
-    $query[] = "    SELECT $subj $obj";
-    $query[] = '    WHERE {';
-    $query[] = '      OPTIONAL {';
-    $query[] = '        ?p'.$index.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* '.format_name($value[0]).' .';
     if($value[1])
     {
-      $query[] = "        $obj ?p$index $subj .";
+      $query[] = "    $obj ?p$index $subj .";
     }else{
-      $query[] = "        $subj ?p$index $obj .";
+      $query[] = "    $subj ?p$index $obj .";
     }
-    $query[] = '      }';
-    $query[] = '      OPTIONAL {';
-    $query[] = '        ?p'.$index.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* '.format_name($value[0]).' .';
-    $subj = "?s${index}";
-    $obj = '?r'.($index + 1);
+    $query[] = '  } UNION {';
     if($value[1])
     {
-      $query[] = "        $subj ?p$index $obj .";
+      $query[] = "    $subj ?i$index $obj .";
     }else{
-      $query[] = "        $obj ?p$index $subj .";
+      $query[] = "    $obj ?i$index $subj .";
     }
-    $query[] = '      }';
-    $query[] = "      FILTER (bound($subj) && bound($obj))";
-    $query[] = '    }';
     $query[] = '  }';
   }
   $query[] = '  ?r'.count($components)." (owl:sameAs|^owl:sameAs)* $identifier .";
