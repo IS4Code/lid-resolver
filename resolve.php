@@ -270,22 +270,12 @@ if(!isset($options['simple']))
   {
     if($name == 'http://www.w3.org/2002/07/owl#sameAs') continue;
     $any = true;
-    $query[] = '  {';
-    $query[] = '    SELECT ?t'.$index;
-    $query[] = '    WHERE {';
-    $query[] = '      ?tp (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> .';
-    $query[] = '      ?ip (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* owl:inverseOf .';
     $name = format_name($name);
-    $query[] = '      OPTIONAL {';
-    $query[] = '        '.$name.' ?tp ?t'.$index.' .';
-    $query[] = '        ?t'.$index.' (rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)* owl:'.($reverse ? '' : 'Inverse').'FunctionalProperty .';
-    $query[] = '      } ';
-    $query[] = '      OPTIONAL {';
-    $query[] = '        '.$name.' ?ip ?i .';
-    $query[] = '        ?i ?tp ?t .';
-    $query[] = '        ?t'.$index.' (rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)* owl:'.($reverse ? 'Inverse' : '').'FunctionalProperty .';
-    $query[] = '      }';
-    $query[] = '      FILTER (bound(?t'.$index.'))';
+    $query[] = '  FILTER EXISTS {';
+    $query[] = '    {';
+    $query[] = '      '.$name.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/a/(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)* owl:'.($reverse ? '' : 'Inverse').'FunctionalProperty .';
+    $query[] = '    } UNION {';
+    $query[] = '      '.$name.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)*/a/(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)* owl:'.($reverse ? 'Inverse' : '').'FunctionalProperty .';
     $query[] = '    }';
     $query[] = '  }';
   }
@@ -335,26 +325,33 @@ if(!isset($options['infer']))
     {
       $query[] = "  ?r${index} (owl:sameAs|^owl:sameAs)* ?s${index} .";
     }
+    $subj = "?s${index}";
+    $obj = '?r'.($index + 1);
     $query[] = '  {';
-    $query[] = '    ?p'.$index.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* '.format_name($value[0]).' .';
+    $query[] = "    SELECT $subj $obj";
+    $query[] = '    WHERE {';
+    $query[] = '      OPTIONAL {';
+    $query[] = '        ?p'.$index.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* '.format_name($value[0]).' .';
+    if($value[1])
+    {
+      $query[] = "        $obj ?p$index $subj .";
+    }else{
+      $query[] = "        $subj ?p$index $obj .";
+    }
+    $query[] = '      }';
+    $query[] = '      OPTIONAL {';
+    $query[] = '        ?p'.$index.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* '.format_name($value[0]).' .';
     $subj = "?s${index}";
     $obj = '?r'.($index + 1);
     if($value[1])
     {
-      $query[] = "    $obj ?p$index $subj .";
+      $query[] = "        $subj ?p$index $obj .";
     }else{
-      $query[] = "    $subj ?p$index $obj .";
+      $query[] = "        $obj ?p$index $subj .";
     }
-    $query[] = '  } UNION {';
-    $query[] = '    ?p'.$index.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* '.format_name($value[0]).' .';
-    $subj = "?s${index}";
-    $obj = '?r'.($index + 1);
-    if($value[1])
-    {
-      $query[] = "    $subj ?p$index $obj .";
-    }else{
-      $query[] = "    $obj ?p$index $subj .";
-    }
+    $query[] = '      }';
+    $query[] = "      FILTER (bound($subj) && bound($obj))";
+    $query[] = '    }';
     $query[] = '  }';
   }
   $query[] = '  ?r'.count($components)." (owl:sameAs|^owl:sameAs)* $identifier .";
