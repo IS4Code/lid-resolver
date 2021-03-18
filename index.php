@@ -10,12 +10,12 @@
 <p>This website is configured to resolve URIs in the form: <mark><code>https://<?=$_SERVER[HTTP_HOST]?>/lid://<span contenteditable="true">example.org/ex:id/1</span></code></mark>.<br>
 You may also use the form below:</p>
 <form method="GET" action="resolve.php">
-<p><textarea name="uri" rows="1" cols="100" onkeypress="if(event.which===13&&!event.shiftKey){event.target.form.submit();event.preventDefault();}">lid://example.org/ex:id/1</textarea></p>
+<p><textarea name="uri" rows="1" cols="100" onkeypress="if(event.which===13&&!event.shiftKey){event.target.form.submit();event.preventDefault();}">lid://dbpedia.org/'foaf:depiction/myprefix:label/Earth?myprefix=rdfs:</textarea></p>
 <input type="checkbox" name="print" id="print" checked><label for="print">Just print the SPARQL query; do not redirect (_print).</label><br>
 <input type="checkbox" name="html" id="html" checked><label for="html">Display as HTML; only with _print (_html).</label><br>
 <input type="checkbox" name="check" id="check"><label for="check">Check functional properties (_check).</label><br>
 <input type="checkbox" name="infer" id="infer"><label for="infer">Infer from subproperties (_infer).</label><br>
-<input type="checkbox" name="inverse" id="inverse"><label for="inverse">Include additional owl:inverseOf (_inverse).</label><br>
+<input type="checkbox" name="inverse" id="inverse"><label for="inverse">Include additional owl:inverseOf in paths (_inverse).</label><br>
 <input type="checkbox" name="unify" id="unify"><label for="unify">Unify with owl:sameAs (_unify).</label><br>
 <input type="checkbox" name="first" id="first"><label for="first">Output only the first result (_first).</label><br>
 <input type="submit" value="Resolve"></p>

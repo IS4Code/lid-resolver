@@ -1,0 +1,77 @@
+/* PrismJS 1.23.0
+https://prismjs.com/download.html#themes=prism&languages=sparql+turtle */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #888;
+}
+
+.token.punctuation {
+	color: #BBB;
+}
+
+.token.prefix,
+.token.namespace {
+	opacity: 0.9;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #0BB;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+	color: #0B8;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+	color: #B50;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted,
+.token.function,
+.token.class-name {
+	color: #BB0;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+	color: #0AF;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+

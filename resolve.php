@@ -476,9 +476,10 @@ if(isset($options['print']))
 <head>
 <title>lid: resolver</title>
 <link rel="stylesheet" href="//is4.site/styles/terminal.css?theme=4">
+<link rel="stylesheet" href="prism.css" />
 </head>
 <body>
-<pre style="white-space:pre-wrap"><?=$query?></pre>
+<pre style="white-space:pre-wrap"><code class="language-sparql"><?=$query?></code></pre>
 <p style="float:left"><a href=".">Back to the main page.</a></p>
 <form method="POST" action="http://www.sparql.org/validate/query" style="float:right">
 <textarea name="query" style="display:none"><?=$query?></textarea>
@@ -486,6 +487,7 @@ if(isset($options['print']))
 <input type="hidden" name="outputFormat" value="sparql">
 <input type="submit" value="Validate">
 </form>
+<script src="prism.js"></script>
 </body>
 </html><?php
   }
