@@ -28,5 +28,27 @@ You may also use the form below:</p>
 <input type="submit" value="Resolve">
 </form>
 <p>The prefixes recognized by the service are combined from the <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a> and the registered <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xml">IANA URI schemes</a>. A JSON-LD context can be found <a href="context.php">here</a>.</p>
+<section>
+<h2>Examples</h2>
+<p>The options above can be also specified in the query part of the URI. Any query parameter starting with <mark><code>__</code></mark> is passed to the target endpoint.</p>
+<dl>
+<dt><code>lid://example.org/rdfs:label/1</code></dt>
+<dd>Identifies anything that has a property <mark><code>rdfs:label</code></mark> (known prefix) with a literal value of <mark><q>1</q></mark> (any type).</dd>
+<dt><code>lid://example.org/rdfs:label/1@xsd:integer</code></dt>
+<dd>Identifies anything that has the property with a literal value of <mark><code>"1"^^xsd:integer</code></mark>.</dd>
+<dt><code>lid://example.org/rdfs:label/Person@en</code></dt>
+<dd>Identifies anything that has the property with a literal value of <mark><code>"Person"@en</code></mark> (English language tag).</dd>
+<dt><code>lid://example.org/ex:id/1</code></dt>
+<dd>Identifies anything that has a property <mark><code>ex:id</code></mark> with the specified value. The resolution of <mark><code>ex:</code></mark> is performed by the target endpoint, as it is an undefined prefix.</dd>
+<dt><code>lid://example.org/foaf:mbox/mailto:address%40example.org@</code></dt>
+<dd>Identifies anything that has a property <mark><code>foaf:mbox</code></mark> (known prefix) with a value of <mark><code>&lt;mailto:address@example.org&gt;</code></mark>.</dd>
+<dt><code>lid://example.org/'foaf:age/foaf:mbox/mailto:address%40example.org@</code></dt>
+<dd>Identifies the <mark><code>foaf:age</code></mark> of the specified entity.</dd>
+<dt><code>lid://example.org/ex:id/1?ex=http://example.org/</code></dt>
+<dd>Identifies anything with the specified value of <mark><code>&lt;http://example.org/id&gt;</code></mark> (<mark><code>http:</code></mark> is a known prefix).</dd>
+<dt><code>lid://example.org/base:id/1</code></dt>
+<dd>Identifies anything with the specified value of <mark><code>&lt;id&gt;</code></mark> (<mark><code>base:</code></mark> is a known prefix).</dd>
+</dl>
+</section>
 </body>
 </html>
