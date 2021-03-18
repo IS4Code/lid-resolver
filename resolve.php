@@ -182,8 +182,13 @@ if(isset($identifier[1]))
     $identifier = resolve_name($identifier[0]);
   }else if(!preg_match('/^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$/', $language))
   {
+    if(preg_match('/^(?:[a-zA-Z]{1,8}|\*)(-(?:[a-zA-Z0-9]{1,8}|\*))*$/', $language))
+    {
+      $langRange = $language;
+    }else{
+      $datatype = resolve_name($identifier[1]);
+    }
     unset($language);
-    $datatype = resolve_name($identifier[1]);
     $identifier = urldecode($identifier[0]);
   }else{
     $identifier = urldecode($identifier[0]);
@@ -278,6 +283,10 @@ if(isset($language) && empty($language))
   {
     $identifier = "$identifier^^".format_name($datatype);
   }else{
+    if(isset($langRange))
+    {
+      $langRange = '"'.addslashes($langRange).'"';
+    }
     $filter = $identifier;
     $identifier = '?id';
   }
@@ -461,7 +470,12 @@ if(isset($options['unify']))
 
 if(isset($filter))
 {
-  $query2[] = '  FILTER (isLiteral(?id) && str(?id) = '.$filter.')';
+  if(isset($langRange))
+  {
+    $query2[] = "  FILTER (isLiteral($identifier) && str(?id) = $filter && langMatches(lang($identifier), $langRange))";
+  }else{
+    $query2[] = "  FILTER (isLiteral($identifier) && str($identifier) = $filter)";
+  }
 }
 
 $query2[] = '}';
