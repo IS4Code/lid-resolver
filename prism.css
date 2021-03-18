@@ -6,20 +6,53 @@ https://prismjs.com/download.html#themes=prism&languages=sparql+turtle */
  * @author Lea Verou
  */
 
+code {
+  color: #999;
+}  
+ 
+@keyframes anim1 {
+  from { color: inherit; }
+  to { color: #888; }
+}
+
 .token.comment,
 .token.prolog,
 .token.doctype,
 .token.cdata {
-	color: #888;
+  color: #888;
+  animation-name: anim1;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+}
+ 
+@keyframes anim2 {
+  from { color: inherit; }
+  to { color: #AAA; }
 }
 
 .token.punctuation {
-	color: #BBB;
+	color: #AAA;
+  animation-name: anim2;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+}
+ 
+@keyframes anim3 {
+  from { opacity: inherit; }
+  to { opacity: 0.9; }
 }
 
 .token.prefix,
 .token.namespace {
 	opacity: 0.9;
+  animation-name: anim3;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+}
+ 
+@keyframes anim4 {
+  from { color: inherit; }
+  to { color: #0BB; }
 }
 
 .token.selector,
@@ -29,6 +62,14 @@ https://prismjs.com/download.html#themes=prism&languages=sparql+turtle */
 .token.builtin,
 .token.inserted {
 	color: #0BB;
+  animation-name: anim4;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+}
+ 
+@keyframes anim5 {
+  from { color: inherit; }
+  to { color: #0B8; }
 }
 
 .token.operator,
@@ -37,12 +78,28 @@ https://prismjs.com/download.html#themes=prism&languages=sparql+turtle */
 .language-css .token.string,
 .style .token.string {
 	color: #0B8;
+  animation-name: anim5;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+}
+ 
+@keyframes anim6 {
+  from { color: inherit; }
+  to { color: #B50; }
 }
 
 .token.atrule,
 .token.attr-value,
 .token.keyword {
 	color: #B50;
+  animation-name: anim6;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+}
+ 
+@keyframes anim7 {
+  from { color: inherit; }
+  to { color: #BB0; }
 }
 
 .token.property,
@@ -55,23 +112,21 @@ https://prismjs.com/download.html#themes=prism&languages=sparql+turtle */
 .token.function,
 .token.class-name {
 	color: #BB0;
+  animation-name: anim7;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+}
+ 
+@keyframes anim8 {
+  from { color: inherit; }
+  to { color: #0AF; }
 }
 
 .token.regex,
 .token.important,
 .token.variable {
 	color: #0AF;
+  animation-name: anim8;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
 }
-
-.token.important,
-.token.bold {
-	font-weight: bold;
-}
-.token.italic {
-	font-style: italic;
-}
-
-.token.entity {
-	cursor: help;
-}
-
