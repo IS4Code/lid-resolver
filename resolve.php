@@ -472,6 +472,9 @@ if(isset($options['print']))
     echo $query;
   }else{
     $query = htmlspecialchars($query);
+    $inputs = get_query(null);
+    unset($uri['query']);
+    unset($inputs['query']);
     ?><!DOCTYPE html>
 <html lang="en">
 <head>
@@ -481,9 +484,17 @@ if(isset($options['print']))
 </head>
 <body>
 <pre style="white-space:pre-wrap"><code class="language-sparql"><?=$query?></code></pre>
+<script src="prism.js"></script>
 <p style="float:left"><a href=".">Back to the main page.</a></p>
 <div style="float:right">
 <form style="display:inline" method="GET" action="<?=unparse_url($uri)?>">
+<?php
+foreach($inputs as $key => $value)
+{
+  ?><input type="hidden" name="<?=htmlspecialchars($key)?>" value="<?=htmlspecialchars($value)?>">
+<?php
+}
+?>
 <textarea name="query" style="display:none"><?=$query?></textarea>
 <input type="submit" value="Send">
 </form>
@@ -494,7 +505,6 @@ if(isset($options['print']))
 <input type="submit" value="Validate">
 </form>
 </div>
-<script src="prism.js"></script>
 </body>
 </html><?php
   }
