@@ -473,8 +473,9 @@ if(isset($options['print']))
   }else{
     $query = htmlspecialchars($query);
     $inputs = get_query(null);
-    unset($uri['query']);
     unset($inputs['query']);
+    unset($uri['query']);
+    $uri = unparse_url($uri);
     ?><!DOCTYPE html>
 <html lang="en">
 <head>
@@ -487,7 +488,7 @@ if(isset($options['print']))
 <script src="prism.js"></script>
 <p style="float:left"><a href=".">Back to the main page.</a></p>
 <div style="float:right">
-<form style="display:inline" method="GET" action="<?=unparse_url($uri)?>">
+<form style="display:inline" method="GET" action="<?=$uri?>">
 <?php
 foreach($inputs as $key => $value)
 {
@@ -497,6 +498,11 @@ foreach($inputs as $key => $value)
 ?>
 <textarea name="query" style="display:none"><?=$query?></textarea>
 <input type="submit" value="Send">
+</form>
+<form style="display:inline" method="GET" action="<?=$uri?>">
+<input type="hidden" name="explain" value="on">
+<textarea name="query" style="display:none"><?=$query?></textarea>
+<input type="submit" value="Analyze">
 </form>
 <form style="display:inline" method="POST" action="http://www.sparql.org/validate/query">
 <textarea name="query" style="display:none"><?=$query?></textarea>
