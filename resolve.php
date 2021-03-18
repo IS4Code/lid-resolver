@@ -524,7 +524,7 @@ if(isset($options['print']))
 <link rel="stylesheet" href="prism.css" />
 </head>
 <body>
-<pre style="white-space:pre-wrap"><code class="language-sparql"><?=$query?></code></pre>
+<pre><code class="language-sparql"><?=$query?></code></pre>
 <script src="prism.js"></script>
 <p style="float:left"><a href=".">Back to the main page.</a></p>
 <div style="float:right">
