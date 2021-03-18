@@ -287,12 +287,6 @@ $initial = '?s';
 switch(@$options['form'])
 {
   case 'select':
-    if(isset($filter))
-    {
-      $query[] = "SELECT $initial $identifier";
-    }else{
-      $query[] = "SELECT $initial";
-    }
     break;
   case 'describe':
     $query[] = "DESCRIBE $initial";
@@ -315,18 +309,21 @@ switch(@$options['form'])
     break;
 }
 
-if(isset($datatype) || isset($language))
+if(@$options['form'] !== 'select')
 {
   $query[] = "WHERE {";
-  $query[] = "  SELECT DISTINCT $initial";
-  $query[] = "  WHERE {";
+  $query2 = array();
 }else{
-  $query[] = "WHERE {";
-  $query[] = "  SELECT DISTINCT $initial $identifier";
-  $query[] = "  WHERE {";
+  $query2 = &$query;
 }
-
-$query2 = array();
+if(!isset($filter))
+{
+  $query2[] = "SELECT DISTINCT $initial";
+  $query2[] = "WHERE {";
+}else{
+  $query2[] = "SELECT DISTINCT $initial $identifier";
+  $query2[] = "WHERE {";
+}
 
 if(isset($options['check']))
 {
@@ -472,11 +469,14 @@ if(isset($options['first']))
 {
   $query2[] = 'LIMIT 1';
 }
-foreach($query2 as $line)
+if(@$options['form'] !== 'select')
 {
-  $query[] = "  $line";
+  foreach($query2 as $line)
+  {
+    $query[] = "  $line";
+  }
+  $query[] = '}';
 }
-$query[] = '}';
 
 if(!isset($options['print']))
 {
