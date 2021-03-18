@@ -273,21 +273,37 @@ if(isset($language) && empty($language))
   }
 }
 
-$query[] = 'CONSTRUCT {';
 $initial = '?s';
-foreach($components as $index => $value)
+switch(@$options['form'])
 {
-  $subj = $index == 0 ? $initial : "_:s$index";
-  $obj = $index == count($components) - 1 ? $identifier : '_:s'.($index + 1);
-  $name = format_name($value[0]);
-  if($value[1])
-  {
-    $query[] = "  $obj $name $subj .";
-  }else{
-    $query[] = "  $subj $name $obj .";
-  }
+  case 'select':
+    if(isset($filter))
+    {
+      $query[] = "SELECT $initial $identifier";
+    }else{
+      $query[] = "SELECT $initial";
+    }
+    break;
+  case 'describe':
+    $query[] = "DESCRIBE $initial";
+    break;
+  default:
+    $query[] = 'CONSTRUCT {';
+    foreach($components as $index => $value)
+    {
+      $subj = $index == 0 ? $initial : "_:s$index";
+      $obj = $index == count($components) - 1 ? $identifier : '_:s'.($index + 1);
+      $name = format_name($value[0]);
+      if($value[1])
+      {
+        $query[] = "  $obj $name $subj .";
+      }else{
+        $query[] = "  $subj $name $obj .";
+      }
+    }
+    $query[] = '}';
+    break;
 }
-$query[] = '}';
 
 if(isset($datatype) || isset($language))
 {
