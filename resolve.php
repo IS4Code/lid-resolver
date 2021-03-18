@@ -462,6 +462,7 @@ if(!isset($options['print']))
 
 $query = implode("\n", $query);
 
+unset($uri['scheme']);
 if(isset($options['print']))
 {
   if(!isset($options['html']))
@@ -481,12 +482,18 @@ if(isset($options['print']))
 <body>
 <pre style="white-space:pre-wrap"><code class="language-sparql"><?=$query?></code></pre>
 <p style="float:left"><a href=".">Back to the main page.</a></p>
-<form method="POST" action="http://www.sparql.org/validate/query" style="float:right">
+<div style="float:right">
+<form style="display:inline" method="GET" action="<?=unparse_url($uri)?>">
+<textarea name="query" style="display:none"><?=$query?></textarea>
+<input type="submit" value="Send">
+</form>
+<form style="display:inline" method="POST" action="http://www.sparql.org/validate/query">
 <textarea name="query" style="display:none"><?=$query?></textarea>
 <input type="hidden" name="languageSyntax" value="SPARQL">
 <input type="hidden" name="outputFormat" value="sparql">
 <input type="submit" value="Validate">
 </form>
+</div>
 <script src="prism.js"></script>
 </body>
 </html><?php
