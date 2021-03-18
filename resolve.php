@@ -56,6 +56,11 @@ function unparse_url($uri)
   return "$scheme$start$user$pass$host$port$path$query$fragment";
 }
 
+if($uri === false)
+{
+  report_error(400, 'The URI is invalid!');
+}
+
 if(!isset($uri['scheme']))
 {
   report_error(400, 'The URI must be absolute and have the <mark>lid:</mark> scheme!');
@@ -77,6 +82,11 @@ $uri['path'] = '/sparql/';
 
 $components = explode('/', $path);
 $identifier = array_pop($components);
+
+if(count($components) === 0)
+{
+  report_error(400, "There must be at least one property component!");
+}
 
 require '.internal.php';
 $data = get_context();
@@ -103,7 +113,7 @@ function resolve_name($name, $allowEmpty = false)
     }else if(!preg_match('/^(|[a-zA-Z]([-a-zA-Z0-9_.]*[-a-zA-Z0-9_])?)$/', $prefix))
     {
       $prefix = htmlspecialchars($prefix);
-      report_error(400, "An unknown prefix contains invalid characters (prefix <q>$prefix</q>)!");
+      report_error(400, "An undefined prefix contains invalid characters (prefix <q>$prefix</q>)!");
     }else{
       return $qname;
     }
