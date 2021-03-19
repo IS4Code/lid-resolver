@@ -526,7 +526,7 @@ if(isset($options['print']))
 <body>
 <pre><code class="language-sparql"><?=$query?></code></pre>
 <script src="prism.js"></script>
-<p style="float:left"><a href=".">Back to the main page.</a></p>
+<p style="float:left"><a href="/lid/">Back to the main page.</a></p>
 <div style="float:right">
 <form style="display:inline" method="GET" action="<?=$uri?>">
 <?php
