@@ -1,16 +1,57 @@
 <?php
 
+function get_updated_json_file($file)
+{
+  if(file_exists($file))
+  {
+    if(time() - filemtime($file) < (48 * 60 + rand(-120, 120)) * 60 && ($data = json_decode(file_get_contents($file), true)) !== null)
+    {
+      return $data;
+    }
+    touch($file);
+  }
+  return null;
+}
+
+function get_common_context()
+{
+  static $cache_file = '.common.json';
+  
+  if(($data = get_updated_json_file($cache_file)) !== null)
+  {
+    return $data;
+  }
+  
+  $info = stream_context_create(array('http' => array('user_agent' => 'IS4 lid: resolver', 'header' => 'Connection: close\r\n')));
+  
+  $json = file_get_contents('https://prefix.cc/context.jsonld', false, $info);
+  if($json === false)
+  {
+    return null;
+  }
+  $data = json_decode($json, true);
+  if($data === null)
+  {
+    return null;
+  }
+  if(!isset($data['@context']))
+  {
+    return null;
+  }
+  if(file_exists($cache_file))
+  {
+    file_put_contents($cache_file, json_encode($data, JSON_UNESCAPED_SLASHES));
+  }
+  return $data;
+}
+
 function get_context()
 {
   static $cache_file = '.context.json';
   
-  if(file_exists($cache_file))
+  if(($data = get_updated_json_file($cache_file)) !== null)
   {
-    if(time() - filemtime($cache_file) < (48 * 60 + rand(-120, 120)) * 60 && ($data = json_decode(file_get_contents($cache_file), true)) !== null)
-    {
-      return $data;
-    }
-    touch($cache_file);
+    return $data;
   }
   
   $info = stream_context_create(array('http' => array('user_agent' => 'IS4 lid: resolver', 'header' => 'Connection: close\r\n')));
