@@ -6,10 +6,10 @@
 </head>
 <body>
 <h1><code>lid:</code> URI resolver</h1>
-<p>This service can be used as a resolver for URIs in the <mark><code>lid:</code></mark> scheme (described <a href="structure.php">here</a>).</p>
+<p>This service can be used as a resolver for URIs in the <mark><code>lid:</code></mark> scheme (described <a href="structure">here</a>).</p>
 <p>This website is configured to resolve URIs in the form: <mark><code>https://<?=$_SERVER[HTTP_HOST]?>/lid://<span contenteditable="true">example.org/ex:id/1</span></code></mark>.<br>
 You may also use the form below:</p>
-<form method="GET" action="resolve.php">
+<form method="GET" action="resolve">
 <p><textarea name="uri" rows="1" cols="100" onkeypress="if(event.which===13&&!event.shiftKey){event.target.form.submit();event.preventDefault();}">lid://dbpedia.org/'foaf:depiction/myprefix:label/Earth?myprefix=rdfs:</textarea></p>
 <input type="checkbox" name="print" id="print" checked><label for="print">Just print the SPARQL query; do not redirect (_print).</label><br>
 <input type="checkbox" name="html" id="html" checked><label for="html">Display as HTML; only with _print (_html).</label><br>
@@ -27,7 +27,7 @@ You may also use the form below:</p>
 </select><br>
 <input type="submit" value="Resolve">
 </form>
-<p>The prefixes recognized by the service are combined from the <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a> and the registered <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml">IANA URI schemes</a>. A JSON-LD context can be found <a href="context.php">here</a>.</p>
+<p>The prefixes recognized by the service are combined from the <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a> and the registered <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml">IANA URI schemes</a>. A JSON-LD context can be found <a href="context.jsonld">here</a>.</p>
 <section>
 <h2>Examples</h2>
 <p>The options above can be also specified in the query part of the URI. Any query parameter starting with <mark><code>__</code></mark> is passed to the target endpoint.</p>

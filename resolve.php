@@ -1,6 +1,6 @@
 <?php
 
-///*
+/*
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -24,7 +24,7 @@ function report_error($code, $message)
   die;
 }
 
-if(isset($_SERVER['REDIRECT_URL']))
+if(isset($_SERVER['REDIRECT_URL']) && $_SERVER['REDIRECT_URL'] !== '/lid/resolve')
 {
   $uri = substr($_SERVER['REQUEST_URI'], 1);
   $options = array();

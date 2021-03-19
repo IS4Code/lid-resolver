@@ -47,7 +47,7 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <li>Recommended <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a>. Only defintions that end on <mark><code>#</code></mark> or <mark><code>/</code></mark> are considered.</li>
 <li>Provisional and historical IANA URI schemes. Defined like the other schemes.</li>
 </ol>
-<p>This means that some common prefixes may be treated as URI schemes (see <a href="conflicts.php">here</a> for examples). Such a prefix can be undefined or redefined to the intended value manually.</p>
+<p>This means that some common prefixes may be treated as URI schemes (see <a href="conflicts">here</a> for examples). Such a prefix can be undefined or redefined to the intended value manually.</p>
 <p>The list of default prefixes is periodically synchronized with the source documents.</p>
 <p><a href=".">Back to the main page.</a></p>
 </body>

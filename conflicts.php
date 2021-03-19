@@ -19,7 +19,7 @@ $context2 = &$data['@context'];
 </head>
 <body>
 <p>These are some commonly used prefixes (courtesy of <a href="//prefix.cc">prefix.cc</a>) that are redefined by a URI scheme of the same name.</p>
-<p><a href="structure.php">Back to the scheme description.</a></p>
+<p><a href="structure">Back to the scheme description.</a></p>
 <table>
 <tr><th>Prefix</th><th>Namespace</th></tr>
 <?php
