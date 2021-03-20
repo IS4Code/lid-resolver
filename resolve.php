@@ -71,14 +71,14 @@ if($uri['scheme'] !== 'lid')
   $uri['scheme'] = htmlspecialchars($uri['scheme']);
   report_error(400, "Scheme must be <mark>lid:</mark> (was <q>$uri[scheme]</q>)!");
 }
+unset($uri['scheme']);
 
-$uri['scheme'] = 'http';
 $path = @$uri['path'];
 if(isset($uri['host']))
 {
   $path = substr($path, 1);
 }
-$uri['path'] = '/sparql/';
+unset($uri['path']);
 
 $components = explode('/', $path);
 $identifier = array_pop($components);
@@ -504,50 +504,76 @@ if(!isset($options['print']))
 
 $query = implode("\n", $query);
 
-$visible_uri = unparse_url($uri);
-unset($uri['scheme']);
+if(isset($options['path']))
+{
+  $uri['path'] = "/$options[path]";
+}else{
+  $uri['path'] = '/sparql/';
+}
+
+if(isset($options['scheme']))
+{
+  $uri['scheme'] = $options['scheme'];
+}
+
 if(isset($options['print']))
 {
+  $target_uri = unparse_url($uri);
   if(!isset($options['html']))
   {
     header('Content-Type: application/sparql-query');
     header('Content-Disposition: inline; filename="query.sparql"');
+    echo "# This query would be sent to $target_uri\n\n";
     echo $query;
   }else{
     $query = htmlspecialchars($query);
     $inputs = get_query(null);
     unset($inputs['query']);
     unset($uri['query']);
-    $uri = unparse_url($uri);
+    $target_uri = htmlspecialchars($target_uri);
+    $endpoint_uri = htmlspecialchars(unparse_url($uri));
+    
     ?><!DOCTYPE html>
 <html lang="en">
 <head>
 <title>lid: resolver</title>
 <link rel="stylesheet" href="//is4.site/styles/terminal.css?theme=4">
-<link rel="stylesheet" href="prism.css" />
+<link rel="stylesheet" href="prism.css">
 </head>
 <body>
 <pre><code class="language-sparql"><?php
 
-echo "# This query would be sent to $visible_uri\n\n";
-echo $query;
+    echo "# This query would be sent to $target_uri\n\n";
+    echo $query;
 
 ?></code></pre>
 <script src="prism.js"></script>
 <p style="float:left"><a href="/lid/">Back to the main page.</a></p>
 <div style="float:right">
-<form style="display:inline" method="GET" action="<?=$uri?>">
+<form style="display:inline" method="GET" action="<?=$endpoint_uri?>">
 <?php
-foreach($inputs as $key => $value)
-{
-  ?><input type="hidden" name="<?=htmlspecialchars($key)?>" value="<?=htmlspecialchars($value)?>">
+
+    foreach($inputs as $key => $value)
+    {
+      ?><input type="hidden" name="<?=htmlspecialchars($key)?>" value="<?=htmlspecialchars($value)?>">
 <?php
-}
+    }
+
 ?>
 <textarea name="query" style="display:none"><?=$query?></textarea>
 <input type="submit" value="Send">
 </form>
-<form style="display:inline" method="GET" action="<?=$uri?>">
+<form style="display:inline" method="GET" action="<?=$endpoint_uri?>">
+<?php
+
+    foreach($inputs as $key => $value)
+    {
+      if($key === 'explain') continue;
+      ?><input type="hidden" name="<?=htmlspecialchars($key)?>" value="<?=htmlspecialchars($value)?>">
+<?php
+    }
+
+?>
 <input type="hidden" name="explain" value="on">
 <textarea name="query" style="display:none"><?=$query?></textarea>
 <input type="submit" value="Analyze">
@@ -555,17 +581,17 @@ foreach($inputs as $key => $value)
 <form style="display:inline" method="POST" action="http://www.sparql.org/validate/query">
 <textarea name="query" style="display:none"><?php
 
-if(count($unresolved_prefixes) > 0)
-{
-  echo "# These prefixes are supposed to be resolved by the target endpoint:\n";
-  foreach($unresolved_prefixes as $prefix => $_)
-  {
-    $prefix = htmlspecialchars($prefix);
-    echo "PREFIX $prefix: <$prefix#>\n";
-  }
-  echo "\n";
-}
-echo $query;
+    if(count($unresolved_prefixes) > 0)
+    {
+      echo "# These prefixes are supposed to be resolved by the target endpoint:\n";
+      foreach($unresolved_prefixes as $prefix => $_)
+      {
+        $prefix = htmlspecialchars($prefix);
+        echo "PREFIX $prefix: <$prefix#>\n";
+      }
+      echo "\n";
+    }
+    echo $query;
 
 ?></textarea>
 <input type="hidden" name="languageSyntax" value="SPARQL">
@@ -578,6 +604,7 @@ echo $query;
   }
 }else{
   $uri['query'] = http_build_query(get_query($query), null, '&');
+  $target_uri = unparse_url($uri);
   http_response_code(303);
-  header('Location: '.unparse_url($uri));
+  header("Location: $target_uri");
 }
