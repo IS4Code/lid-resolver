@@ -215,15 +215,19 @@ function validate_name($name)
   }
 }
 
+$unresolved_prefixes = array();
+
 function format_name($name)
 {
   static $escape = '_~.-!$&\'()*+,;=/?#@%';
+  global $unresolved_prefixes;
   if(is_string($name))
   {
     validate_name($name);
     return "<$name>";
   }
   validate_name($name[1]);
+  $unresolved_prefixes[$name[0]] = null;
   return $name[0].':'.addcslashes($name[1], $escape);
 }
 
@@ -257,8 +261,6 @@ if(isset($options['print']))
   {
     unset($uri['query']);
   }
-  $query[] = '# This query would be sent to '.unparse_url($uri);
-  $query[] = '';
 }
 
 if(isset($options['check']) || isset($options['infer']))
@@ -502,6 +504,7 @@ if(!isset($options['print']))
 
 $query = implode("\n", $query);
 
+$visible_uri = unparse_url($uri);
 unset($uri['scheme']);
 if(isset($options['print']))
 {
@@ -524,7 +527,12 @@ if(isset($options['print']))
 <link rel="stylesheet" href="prism.css" />
 </head>
 <body>
-<pre><code class="language-sparql"><?=$query?></code></pre>
+<pre><code class="language-sparql"><?php
+
+echo "# This query would be sent to $visible_uri\n\n";
+echo $query;
+
+?></code></pre>
 <script src="prism.js"></script>
 <p style="float:left"><a href="/lid/">Back to the main page.</a></p>
 <div style="float:right">
@@ -545,7 +553,21 @@ foreach($inputs as $key => $value)
 <input type="submit" value="Analyze">
 </form>
 <form style="display:inline" method="POST" action="http://www.sparql.org/validate/query">
-<textarea name="query" style="display:none"><?=$query?></textarea>
+<textarea name="query" style="display:none"><?php
+
+if(count($unresolved_prefixes) > 0)
+{
+  echo "# These prefixes are supposed to be resolved by the target endpoint:\n";
+  foreach($unresolved_prefixes as $prefix => $_)
+  {
+    $prefix = htmlspecialchars($prefix);
+    echo "PREFIX $prefix: <$prefix#>\n";
+  }
+  echo "\n";
+}
+echo $query;
+
+?></textarea>
 <input type="hidden" name="languageSyntax" value="SPARQL">
 <input type="hidden" name="outputFormat" value="sparql">
 <input type="submit" value="Validate">
