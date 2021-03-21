@@ -422,14 +422,12 @@ if(!isset($options['infer']))
       $query2[] = '  {';
       $query2[] = "    SELECT ?p$index ?i$index";
       $query2[] = '    WHERE {';
-      $query2[] = '      OPTIONAL {';
       if(isset($options['inverse']))
       {
-        $query2[] = "        ?p$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* $name .";
+        $query2[] = "      ?p$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* $name .";
       }else{
-        $query2[] = "        ?p$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* $name .";
+        $query2[] = "      ?p$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* $name .";
       }
-      $query2[] = '      }';
       $query2[] = '      OPTIONAL {';
       if(isset($options['inverse']))
       {
@@ -438,7 +436,6 @@ if(!isset($options['infer']))
         $query2[] = "        ?i$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* $name .";
       }
       $query2[] = '      }';
-      $query2[] = "      FILTER (bound(?p$index) || bound(?i$index))";
       $query2[] = '    }';
       $query2[] = '  }';
     
