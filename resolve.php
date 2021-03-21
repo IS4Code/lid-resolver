@@ -533,6 +533,7 @@ if(isset($options['print']))
 <html lang="en">
 <head>
 <title>lid: resolver</title>
+<base href="/lid/">
 <link rel="stylesheet" href="//is4.site/styles/terminal.css?theme=4">
 <link rel="stylesheet" href="prism.css">
 </head>
@@ -544,7 +545,7 @@ if(isset($options['print']))
 
 ?></code></pre>
 <script src="prism.js"></script>
-<p style="float:left"><a href="/lid/">Back to the main page.</a></p>
+<p style="float:left"><a href=".">Back to the main page.</a></p>
 <div style="float:right">
 <form style="display:inline" method="GET" action="<?=$endpoint_uri?>">
 <?php
