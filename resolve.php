@@ -115,6 +115,7 @@ function resolve_name($name, $allowEmpty = false)
       $prefix = htmlspecialchars($prefix);
       report_error(400, "An undefined prefix contains invalid characters (prefix <q>$prefix</q>)!");
     }else{
+      $context[$prefix] = array($prefix, '');
       return $qname;
     }
   }else if(empty($name))
@@ -143,12 +144,6 @@ if(!empty($uri['query']))
     }else if(isset($part[1]))
     {
       $value = resolve_name($value, true);
-      if(isset($context[$key]) && (((isset($options['check']) || isset($options['infer'])) ? $key === 'rdfs' : false) || ((isset($options['check']) || isset($options['unify']) || isset($options['infer'])) ? $key === 'owl' : false)) && $context[$key] !== $value)
-      {
-        $key = htmlspecialchars($key);
-        $value = htmlspecialchars(is_string($value) ? $value : "$value[0]:$value[1]");
-        report_error(400, empty($value) ? "This prefix must not be undefined (prefix <q>$key</q>)!" : "This prefix must not be redefined (prefix <q>$key</q>, value <q>$value</q>)!");
-      }
       if($value === null)
       {
         unset($context[$key]);
@@ -263,13 +258,30 @@ if(isset($options['print']))
   }
 }
 
+function use_prefix($name, &$prefix)
+{
+  global $context;
+  $suffix = '';
+  while(isset($context[$name.$suffix]) && !is_string($context[$name.$suffix]))
+  {
+    $suffix++;
+  }
+  $prefix = $name.$suffix;
+}
+
+use_prefix('rdf', $rdf);
+use_prefix('rdfs', $rdfs);
+use_prefix('owl', $owl);
+use_prefix('skos', $skos);
+use_prefix('xsd', $xsd);
+
 if(isset($options['check']) || isset($options['infer']))
 {
-  $query[] = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>';
+  $query[] = "PREFIX $rdfs: <http://www.w3.org/2000/01/rdf-schema#>";
 }
 if(isset($options['check']) || isset($options['unify']) || isset($options['infer']))
 {
-  $query[] = 'PREFIX owl: <http://www.w3.org/2002/07/owl#>';
+  $query[] = "PREFIX $owl: <http://www.w3.org/2002/07/owl#>";
   $query[] = '';
 }
 
@@ -336,11 +348,11 @@ if(!isset($filter))
   $query2[] = "WHERE {";
 }
 
-$subproperty_path = '(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*';
-$inverse_path = '/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*';
+$subproperty_path = "($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*";
+$inverse_path = "/$owl:inverseOf/($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*";
 if(isset($options['inverse']))
 {
-  $additional_path = '/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)*';
+  $additional_path = "/($owl:inverseOf/($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*/$owl:inverseOf/($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*)*";
 }else{
   $additional_path = '';
 }
@@ -350,7 +362,7 @@ $infer_inverse_path = "$subproperty_path$inverse_path$additional_path";
 if(isset($options['check']))
 {
   $any = false;
-  $subclass_path = '(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)*';
+  $subclass_path = "($rdfs:subClassOf|$owl:equivalentClass|^$owl:equivalentClass)*";
   foreach(array_unique($components, SORT_REGULAR) as $index => list($name, $reverse))
   {
     if($name == 'http://www.w3.org/2002/07/owl#sameAs') continue;
@@ -358,9 +370,9 @@ if(isset($options['check']))
     $name = format_name($name);
     $query2[] = '  FILTER EXISTS {';
     $query2[] = '    {';
-    $query2[] = "      $name $infer_path/a/$subclass_path owl:".($reverse?'':'Inverse').'FunctionalProperty .';
+    $query2[] = "      $name $infer_path/a/$subclass_path $owl:".($reverse?'':'Inverse').'FunctionalProperty .';
     $query2[] = '    } UNION {';
-    $query2[] = "      $name $infer_inverse_path/a/$subclass_path owl:".($reverse?'Inverse':'').'FunctionalProperty .';
+    $query2[] = "      $name $infer_inverse_path/a/$subclass_path $owl:".($reverse?'Inverse':'').'FunctionalProperty .';
     $query2[] = '    }';
     $query2[] = '  }';
   }
@@ -373,7 +385,7 @@ if(isset($options['check']))
 $final = $identifier;
 if(isset($options['unify']))
 {
-  $query2[] = '  ?s (owl:sameAs|^owl:sameAs)* ?s0 .';
+  $query2[] = "  ?s ($owl:sameAs|^$owl:sameAs)* ?s0 .";
   $initial = '?s0';
   $final = '?r'.count($components);
 }
@@ -395,7 +407,7 @@ if(!isset($options['infer']))
     $last = $index == count($components) - 1;
     if($index >= 1 && isset($options['unify']))
     {
-      $query2[] = "  ?r$index (owl:sameAs|^owl:sameAs)* ?s$index .";
+      $query2[] = "  ?r$index ($owl:sameAs|^$owl:sameAs)* ?s$index .";
     }
     
     $name = format_name($value[0]);
@@ -449,7 +461,7 @@ if(!isset($options['infer']))
 }
 if(isset($options['unify']))
 {
-  $query2[] = '  ?r'.count($components)." (owl:sameAs|^owl:sameAs)* $identifier .";
+  $query2[] = '  ?r'.count($components)." ($owl:sameAs|^$owl:sameAs)* $identifier .";
 }
 
 if(isset($filter))

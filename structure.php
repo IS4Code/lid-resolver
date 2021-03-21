@@ -28,8 +28,9 @@
 <dt>Common prefixes</dt><dd><pre>PREFIX rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
 PREFIX owl: &lt;http://www.w3.org/2002/07/owl#&gt;
+PREFIX skos: &lt;http://www.w3.org/2004/02/skos/core#&gt;
 PREFIX xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;</pre>
-<p>Some of these prefixes may not even be redefined in certain cases.</p></dd>
+<p>These prefixes are always available and sometimes also used in the constructed queries. Redefining them will only affect their specific usage in the URI, not their generated usage in the query.</p></dd>
 <dt>Common URI schemes</dt><dd><pre>PREFIX http: &lt;http:&gt;
 PREFIX https: &lt;https:&gt;
 PREFIX urn: &lt;urn:&gt;
