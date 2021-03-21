@@ -496,6 +496,8 @@ if(isset($options['path']))
 if(isset($options['scheme']))
 {
   $uri['scheme'] = $options['scheme'];
+}else{
+  $uri['scheme'] = @$_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 }
 
 if(isset($options['print']))
