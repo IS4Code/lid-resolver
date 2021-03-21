@@ -336,9 +336,21 @@ if(!isset($filter))
   $query2[] = "WHERE {";
 }
 
+$subproperty_path = '(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*';
+$inverse_path = '/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*';
+if(isset($options['inverse']))
+{
+  $additional_path = '/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)*';
+}else{
+  $additional_path = '';
+}
+$infer_path = "$subproperty_path$additional_path";
+$infer_inverse_path = "$subproperty_path$inverse_path$additional_path";
+
 if(isset($options['check']))
 {
   $any = false;
+  $subclass_path = '(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)*';
   foreach(array_unique($components, SORT_REGULAR) as $index => list($name, $reverse))
   {
     if($name == 'http://www.w3.org/2002/07/owl#sameAs') continue;
@@ -346,16 +358,9 @@ if(isset($options['check']))
     $name = format_name($name);
     $query2[] = '  FILTER EXISTS {';
     $query2[] = '    {';
-    if(isset($options['inverse']))
-    {
-      $query2[] = '      '.$name.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)*/a/(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)* owl:'.($reverse ? '' : 'Inverse').'FunctionalProperty .';
-      $query2[] = '    } UNION {';
-      $query2[] = '      '.$name.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)*/a/(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)* owl:'.($reverse ? 'Inverse' : '').'FunctionalProperty .';
-    }else{
-      $query2[] = '      '.$name.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/a/(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)* owl:'.($reverse ? '' : 'Inverse').'FunctionalProperty .';
-      $query2[] = '    } UNION {';
-      $query2[] = '      '.$name.' (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/a/(rdfs:subClassOf|owl:equivalentClass|^owl:equivalentClass)* owl:'.($reverse ? 'Inverse' : '').'FunctionalProperty .';
-    }
+    $query2[] = "      $name $infer_path/a/$subclass_path owl:".($reverse?'':'Inverse').'FunctionalProperty .';
+    $query2[] = '    } UNION {';
+    $query2[] = "      $name $infer_inverse_path/a/$subclass_path owl:".($reverse?'Inverse':'').'FunctionalProperty .';
     $query2[] = '    }';
     $query2[] = '  }';
   }
@@ -402,39 +407,19 @@ if(!isset($options['infer']))
     {
       if($value[1])
       {
-        if(isset($options['inverse']))
-        {
-          $query2[] = "  ?i$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* $name .";
-        }else{
-          $query2[] = "  ?i$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* $name .";
-        }
+        $query2[] = "  ?i$index $infer_inverse_path $name .";
         $query2[] = "  $subj ?i$index $obj .";
       }else{
-        if(isset($options['inverse']))
-        {
-          $query2[] = "  ?p$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* $name .";
-        }else{
-          $query2[] = "  ?p$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* $name .";
-        }
+        $query2[] = "  ?p$index $infer_path $name .";
         $query2[] = "  $subj ?p$index $obj .";
       }
     }else{
       $query2[] = '  {';
       $query2[] = "    SELECT ?p$index ?i$index";
       $query2[] = '    WHERE {';
-      if(isset($options['inverse']))
-      {
-        $query2[] = "      ?p$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* $name .";
-      }else{
-        $query2[] = "      ?p$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* $name .";
-      }
+      $query2[] = "      ?p$index $infer_path $name .";
       $query2[] = '      OPTIONAL {';
-      if(isset($options['inverse']))
-      {
-        $query2[] = "        ?i$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/(owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*)* $name .";
-      }else{
-        $query2[] = "        ?i$index (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)*/owl:inverseOf/(rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty)* $name .";
-      }
+      $query2[] = "        ?i$index $infer_inverse_path $name .";
       $query2[] = '      }';
       $query2[] = '    }';
       $query2[] = '  }';
