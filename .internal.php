@@ -15,7 +15,7 @@ function get_updated_json_file($file)
 
 function get_common_context()
 {
-  static $cache_file = '.common.json';
+  static $cache_file = __DIR__ . '/.common.json';
   
   if(($data = get_updated_json_file($cache_file)) !== null)
   {
@@ -47,7 +47,7 @@ function get_common_context()
 
 function get_context()
 {
-  static $cache_file = '.context.json';
+  static $cache_file = __DIR__ . '/.context.json';
   
   if(($data = get_updated_json_file($cache_file)) !== null)
   {
