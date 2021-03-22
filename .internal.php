@@ -4,11 +4,13 @@ function get_updated_json_file($file)
 {
   if(file_exists($file))
   {
-    if(time() - filemtime($file) < (48 * 60 + rand(-120, 120)) * 60 && ($data = json_decode(file_get_contents($file), true)) !== null)
+    if(time() - filemtime($file) >= (48 * 60 + rand(-120, 120)) * 60)
+    {
+      touch($file);
+    }else if(($data = json_decode(file_get_contents($file), true)) !== null)
     {
       return $data;
     }
-    touch($file);
   }
   return null;
 }
