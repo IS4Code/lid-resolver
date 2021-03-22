@@ -24,7 +24,7 @@ function get_common_context()
   
   $info = stream_context_create(array('http' => array('user_agent' => 'IS4 lid: resolver', 'header' => 'Connection: close\r\n')));
   
-  $json = file_get_contents('https://prefix.cc/context.jsonld', false, $info);
+  $json = file_get_contents('http://prefix.cc/context.jsonld', false, $info);
   if($json === false)
   {
     return null;
