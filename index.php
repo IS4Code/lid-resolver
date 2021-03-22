@@ -16,7 +16,8 @@ You may also use the form below:</p>
 <input type="checkbox" name="check" id="check"><label for="check">Check functional properties (_check).</label><br>
 <input type="checkbox" name="infer" id="infer"><label for="infer">Infer from subproperties (_infer).</label><br>
 <input type="checkbox" name="inverse" id="inverse"><label for="inverse">Include additional owl:inverseOf in paths (_inverse).</label><br>
-<input type="checkbox" name="unify" id="unify"><label for="unify">Unify with owl:sameAs (_unify).</label><br>
+<input type="checkbox" name="unify_owl" id="unify_owl"><label for="unify_owl">Unify with owl:sameAs (_unify_owl).</label><br>
+<input type="checkbox" name="unify_skos" id="unify_skos"><label for="unify_skos">Unify with skos:exactMatch (_unify_skos).</label><br>
 <input type="checkbox" name="first" id="first"><label for="first">Output only the first result (_first).</label><br>
 <label for="form">Query form (_form): </label><select id="form" name="form">
 <option value="construct">CONSTRUCT</option><option value="select">SELECT</option><option value="describe">DESCRIBE</option>

@@ -269,19 +269,27 @@ function use_prefix($name, &$prefix)
   $prefix = $name.$suffix;
 }
 
-use_prefix('rdf', $rdf);
-use_prefix('rdfs', $rdfs);
-use_prefix('owl', $owl);
-use_prefix('skos', $skos);
-use_prefix('xsd', $xsd);
+//use_prefix('rdf', $rdf);
+//use_prefix('xsd', $xsd);
 
 if(isset($options['check']) || isset($options['infer']))
 {
+  use_prefix('rdfs', $rdfs);
   $query[] = "PREFIX $rdfs: <http://www.w3.org/2000/01/rdf-schema#>";
 }
-if(isset($options['check']) || isset($options['unify']) || isset($options['infer']))
+if(isset($options['check']) || isset($options['unify_owl']) || isset($options['infer']))
 {
+  use_prefix('owl', $owl);
   $query[] = "PREFIX $owl: <http://www.w3.org/2002/07/owl#>";
+}
+if(isset($options['unify_skos']))
+{
+  use_prefix('skos', $skos);
+  $query[] = "PREFIX $skos: <http://www.w3.org/2004/02/skos/core#>";
+}
+
+if(isset($rdf) || isset($rdfs) || isset($owl) || isset($skos) || isset($xsd))
+{
   $query[] = '';
 }
 
@@ -382,10 +390,23 @@ if(isset($options['check']))
   }
 }
 
-$final = $identifier;
-if(isset($options['unify']))
+if(isset($options['unify_owl']))
 {
-  $query2[] = "  ?s ($owl:sameAs|^$owl:sameAs)* ?s0 .";
+  if(isset($options['unify_skos']))
+  {
+    $unify_path = "($owl:sameAs|^$owl:sameAs|$skos:exactMatch|^$skos:exactMatch)*";
+  }else{
+    $unify_path = "($owl:sameAs|^$owl:sameAs)*";
+  }
+}else if(isset($options['unify_skos']))
+{
+  $unify_path = "($skos:exactMatch|^$skos:exactMatch)*";
+}
+
+$final = $identifier;
+if(isset($unify_path))
+{
+  $query2[] = "  ?s $unify_path ?s0 .";
   $initial = '?s0';
   $final = '?r'.count($components);
 }
@@ -405,17 +426,17 @@ if(!isset($options['infer']))
   {
     $next = $index + 1;
     $last = $index == count($components) - 1;
-    if($index >= 1 && isset($options['unify']))
+    if($index >= 1 && isset($unify_path))
     {
-      $query2[] = "  ?r$index ($owl:sameAs|^$owl:sameAs)* ?s$index .";
+      $query2[] = "  ?r$index $unify_path ?s$index .";
     }
     
     $name = format_name($value[0]);
     
     $subj = $index > 0 ? "?s$index" : $initial;
-    $obj = isset($options['unify']) ? "?r$next" : ($last ? $identifier : "?s$next");
+    $obj = isset($unify_path) ? "?r$next" : ($last ? $identifier : "?s$next");
     
-    if($last && !isset($options['unify']))
+    if($last && !isset($unify_path))
     {
       if($value[1])
       {
@@ -452,16 +473,16 @@ if(!isset($options['infer']))
         $query2[] = "    $obj ?i$index $subj .";
       }
       $query2[] = '  }';
-      if(!$last || isset($options['unify']))
+      if(!$last || isset($unify_path))
       {
         $query2[] = "  FILTER bound($obj)";
       }
     }
   }
 }
-if(isset($options['unify']))
+if(isset($unify_path))
 {
-  $query2[] = '  ?r'.count($components)." ($owl:sameAs|^$owl:sameAs)* $identifier .";
+  $query2[] = '  ?r'.count($components)." $unify_path $identifier .";
 }
 
 if(isset($filter))
