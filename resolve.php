@@ -39,6 +39,10 @@ if(isset($_SERVER['REDIRECT_URL']) && $_SERVER['REDIRECT_URL'] !== '/lid/resolve
   die;
 }
 
+if(strpos($uri, '?') === false && strpos($uri, '#') === false)
+{
+  $uri = "$uri?";
+}
 $uri = parse_url($uri);
 
 function unparse_url($uri)
@@ -83,11 +87,6 @@ unset($uri['path']);
 $components = explode('/', $path);
 $identifier = array_pop($components);
 
-if(count($components) === 0)
-{
-  report_error(400, "There must be at least one property component!");
-}
-
 require '.internal.php';
 $data = get_context();
 $context = &$data['@context'];
@@ -121,7 +120,7 @@ function resolve_name($name, $allowEmpty = false)
   }else if(empty($name))
   {
     if($allowEmpty) return null;
-    report_error(400, "URI component must not be empty!");
+    report_error(400, "URI component must be a prefixed name or an absolute URI (was empty)!");
   }else if(strpos($qname[0], ':') === false)
   {
     $qname[0] = htmlspecialchars($qname[0]);
@@ -347,9 +346,27 @@ if(@$options['form'] !== 'select')
 }else{
   $query2 = &$query;
 }
+
+if(isset($options['unify_owl']))
+{
+  if(isset($options['unify_skos']))
+  {
+    $unify_path = "($owl:sameAs|^$owl:sameAs|$skos:exactMatch|^$skos:exactMatch)*";
+  }else{
+    $unify_path = "($owl:sameAs|^$owl:sameAs)*";
+  }
+}else if(isset($options['unify_skos']))
+{
+  $unify_path = "($skos:exactMatch|^$skos:exactMatch)*";
+}
+
 if(!isset($filter))
 {
   $query2[] = "SELECT DISTINCT $initial";
+  $query2[] = "WHERE {";
+}else if(empty($components) && !isset($unify_path))
+{
+  $query2[] = "SELECT DISTINCT $identifier";
   $query2[] = "WHERE {";
 }else{
   $query2[] = "SELECT DISTINCT $initial $identifier";
@@ -390,99 +407,98 @@ if(isset($options['check']))
   }
 }
 
-if(isset($options['unify_owl']))
+if(empty($components))
 {
-  if(isset($options['unify_skos']))
+  if(isset($filter))
   {
-    $unify_path = "($owl:sameAs|^$owl:sameAs|$skos:exactMatch|^$skos:exactMatch)*";
-  }else{
-    $unify_path = "($owl:sameAs|^$owl:sameAs)*";
+    $query2[] = "  ?ls ?lp $identifier .";
+  }else if(!isset($unify_path))
+  {
+    $query2[] = "  BIND($identifier AS $initial)";
   }
-}else if(isset($options['unify_skos']))
-{
-  $unify_path = "($skos:exactMatch|^$skos:exactMatch)*";
-}
-
-$final = $identifier;
-if(isset($unify_path))
-{
-  $query2[] = "  ?s $unify_path ?s0 .";
-  $initial = '?s0';
-  $final = '?r'.count($components);
-}
-
-if(!isset($options['infer']))
-{
-  array_walk($components, function(&$value)
-  {
-    $name = format_name($value[0]);
-    if($value[1]) $name = "^$name";
-    $value = $name;
-  });
-
-  $query2[] = "  $initial ".implode('/', $components)." $final .";
 }else{
-  foreach($components as $index => $value)
+  $final = $identifier;
+  if(isset($unify_path))
   {
-    $next = $index + 1;
-    $last = $index == count($components) - 1;
-    if($index >= 1 && isset($unify_path))
+    $query2[] = "  ?s $unify_path ?s0 .";
+    $initial = '?s0';
+    $final = '?r'.count($components);
+  }
+
+  if(!isset($options['infer']))
+  {
+    array_walk($components, function(&$value)
     {
-      $query2[] = "  ?r$index $unify_path ?s$index .";
-    }
-    
-    $name = format_name($value[0]);
-    
-    $subj = $index > 0 ? "?s$index" : $initial;
-    $obj = isset($unify_path) ? "?r$next" : ($last ? $identifier : "?s$next");
-    
-    if($last && !isset($unify_path))
+      $name = format_name($value[0]);
+      if($value[1]) $name = "^$name";
+      $value = $name;
+    });
+  
+    $query2[] = "  $initial ".implode('/', $components)." $final .";
+  }else{
+    foreach($components as $index => $value)
     {
-      if($value[1])
+      $next = $index + 1;
+      $last = $index == count($components) - 1;
+      if($index >= 1 && isset($unify_path))
       {
-        $query2[] = "  ?i$index $infer_inverse_path $name .";
-        $query2[] = "  $subj ?i$index $obj .";
-      }else{
-        $query2[] = "  ?p$index $infer_path $name .";
-        $query2[] = "  $subj ?p$index $obj .";
+        $query2[] = "  ?r$index $unify_path ?s$index .";
       }
-    }else{
-      $query2[] = '  {';
-      $query2[] = "    SELECT ?p$index ?i$index";
-      $query2[] = '    WHERE {';
-      $query2[] = "      ?p$index $infer_path $name .";
-      $query2[] = '      OPTIONAL {';
-      $query2[] = "        ?i$index $infer_inverse_path $name .";
-      $query2[] = '      }';
-      $query2[] = '    }';
-      $query2[] = '  }';
-    
-      $query2[] = '  OPTIONAL {';
-      if($value[1])
+      
+      $name = format_name($value[0]);
+      
+      $subj = $index > 0 ? "?s$index" : $initial;
+      $obj = isset($unify_path) ? "?r$next" : ($last ? $identifier : "?s$next");
+      
+      if($last && !isset($unify_path))
       {
-        $query2[] = "    $obj ?p$index $subj .";
+        if($value[1])
+        {
+          $query2[] = "  ?i$index $infer_inverse_path $name .";
+          $query2[] = "  $subj ?i$index $obj .";
+        }else{
+          $query2[] = "  ?p$index $infer_path $name .";
+          $query2[] = "  $subj ?p$index $obj .";
+        }
       }else{
-        $query2[] = "    $subj ?p$index $obj .";
-      }
-      $query2[] = '  }';
-      $query2[] = '  OPTIONAL {';
-      if($value[1])
-      {
-        $query2[] = "    $subj ?i$index $obj .";
-      }else{
-        $query2[] = "    $obj ?i$index $subj .";
-      }
-      $query2[] = '  }';
-      if(!$last || isset($unify_path))
-      {
-        $query2[] = "  FILTER bound($obj)";
+        $query2[] = '  {';
+        $query2[] = "    SELECT ?p$index ?i$index";
+        $query2[] = '    WHERE {';
+        $query2[] = "      ?p$index $infer_path $name .";
+        $query2[] = '      OPTIONAL {';
+        $query2[] = "        ?i$index $infer_inverse_path $name .";
+        $query2[] = '      }';
+        $query2[] = '    }';
+        $query2[] = '  }';
+      
+        $query2[] = '  OPTIONAL {';
+        if($value[1])
+        {
+          $query2[] = "    $obj ?p$index $subj .";
+        }else{
+          $query2[] = "    $subj ?p$index $obj .";
+        }
+        $query2[] = '  }';
+        $query2[] = '  OPTIONAL {';
+        if($value[1])
+        {
+          $query2[] = "    $subj ?i$index $obj .";
+        }else{
+          $query2[] = "    $obj ?i$index $subj .";
+        }
+        $query2[] = '  }';
+        if(!$last || isset($unify_path))
+        {
+          $query2[] = "  FILTER bound($obj)";
+        }
       }
     }
   }
 }
 if(isset($unify_path))
 {
-  $query2[] = '  ?r'.count($components)." $unify_path $identifier .";
+  $last = empty($components) ? $initial : '?r'.count($components);
+  $query2[] = "  $last $unify_path $identifier .";
 }
 
 if(isset($filter))
