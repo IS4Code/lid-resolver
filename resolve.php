@@ -313,7 +313,9 @@ if(isset($rdf) || isset($rdfs) || isset($owl) || isset($skos) || isset($xsd))
   $query[] = '';
 }
 
-if(isset($language) && empty($language))
+$identifier_is_literal = !(isset($language) && empty($language));
+
+if(!$identifier_is_literal)
 {
   $identifier = format_name($identifier);
 }else{
@@ -479,7 +481,7 @@ if(empty($components))
       $inverse = $value[1];
       
       $subj = $index > 0 ? "?s$index" : $initial;
-      $obj = isset($unify_path) ? "?r$next" : ($last ? $identifier : "?s$next");
+      $obj = isset($unify_path) ? "?r$next" : ($last && (isset($filter) || !isset($options['infer'])) ? $identifier : "?s$next");
       
       if($inverse)
       {
@@ -494,7 +496,7 @@ if(empty($components))
       {
         $query2[] = "  $triple_subj $name $triple_obj .";
       }else{
-        if($last && !isset($unify_path))
+        if($last && !isset($unify_path) && $identifier_is_literal)
         {
           if($inverse)
           {
@@ -514,17 +516,19 @@ if(empty($components))
           $query2[] = '      }';
           $query2[] = '    }';
           $query2[] = '  }';
-        
+          
           $query2[] = '  OPTIONAL {';
           $query2[] = "    $triple_subj ?p$index $triple_obj .";
           $query2[] = '  }';
           $query2[] = '  OPTIONAL {';
           $query2[] = "    $triple_obj ?i$index $triple_subj .";
           $query2[] = '  }';
-          
           if(!$last || isset($unify_path))
           {
             $query2[] = "  FILTER bound($obj)";
+          }else if(!isset($filter))
+          {
+            $query2[] = "  FILTER ($obj = $identifier)";
           }
         }
       }
