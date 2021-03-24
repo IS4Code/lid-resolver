@@ -455,7 +455,7 @@ if(empty($components))
     $final = '?r'.count($components);
   }
 
-  if(!isset($options['infer']))
+  if(!isset($options['infer']) && !isset($unify_path))
   {
     array_walk($components, function(&$value)
     {
@@ -476,50 +476,56 @@ if(empty($components))
       }
       
       $name = format_name($value[0]);
+      $inverse = $value[1];
       
       $subj = $index > 0 ? "?s$index" : $initial;
       $obj = isset($unify_path) ? "?r$next" : ($last ? $identifier : "?s$next");
       
-      if($last && !isset($unify_path))
+      if($inverse)
       {
-        if($value[1])
-        {
-          $query2[] = "  ?i$index $infer_inverse_path $name .";
-          $query2[] = "  $subj ?i$index $obj .";
-        }else{
-          $query2[] = "  ?p$index $infer_path $name .";
-          $query2[] = "  $subj ?p$index $obj .";
-        }
+        $triple_subj = $obj;
+        $triple_obj = $subj;
       }else{
-        $query2[] = '  {';
-        $query2[] = "    SELECT ?p$index ?i$index";
-        $query2[] = '    WHERE {';
-        $query2[] = "      ?p$index $infer_path $name .";
-        $query2[] = '      OPTIONAL {';
-        $query2[] = "        ?i$index $infer_inverse_path $name .";
-        $query2[] = '      }';
-        $query2[] = '    }';
-        $query2[] = '  }';
+        $triple_subj = $subj;
+        $triple_obj = $obj;
+      }
       
-        $query2[] = '  OPTIONAL {';
-        if($value[1])
+      if(!isset($options['infer']))
+      {
+        $query2[] = "  $triple_subj $name $triple_obj .";
+      }else{
+        if($last && !isset($unify_path))
         {
-          $query2[] = "    $obj ?p$index $subj .";
+          if($inverse)
+          {
+            $query2[] = "  ?i$index $infer_inverse_path $name .";
+            $query2[] = "  $subj ?i$index $obj .";
+          }else{
+            $query2[] = "  ?p$index $infer_path $name .";
+            $query2[] = "  $subj ?p$index $obj .";
+          }
         }else{
-          $query2[] = "    $subj ?p$index $obj .";
-        }
-        $query2[] = '  }';
-        $query2[] = '  OPTIONAL {';
-        if($value[1])
-        {
-          $query2[] = "    $subj ?i$index $obj .";
-        }else{
-          $query2[] = "    $obj ?i$index $subj .";
-        }
-        $query2[] = '  }';
-        if(!$last || isset($unify_path))
-        {
-          $query2[] = "  FILTER bound($obj)";
+          $query2[] = '  {';
+          $query2[] = "    SELECT ?p$index ?i$index";
+          $query2[] = '    WHERE {';
+          $query2[] = "      ?p$index $infer_path $name .";
+          $query2[] = '      OPTIONAL {';
+          $query2[] = "        ?i$index $infer_inverse_path $name .";
+          $query2[] = '      }';
+          $query2[] = '    }';
+          $query2[] = '  }';
+        
+          $query2[] = '  OPTIONAL {';
+          $query2[] = "    $triple_subj ?p$index $triple_obj .";
+          $query2[] = '  }';
+          $query2[] = '  OPTIONAL {';
+          $query2[] = "    $triple_obj ?i$index $triple_subj .";
+          $query2[] = '  }';
+          
+          if(!$last || isset($unify_path))
+          {
+            $query2[] = "  FILTER bound($obj)";
+          }
         }
       }
     }
