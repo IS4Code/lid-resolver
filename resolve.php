@@ -123,6 +123,13 @@ function resolve_name($name, $allowEmpty = false)
     report_error(400, "URI component must be a prefixed name or an absolute URI (was empty)!");
   }else if(strpos($qname[0], ':') === false)
   {
+    switch($qname[0])
+    {
+      case 'a':
+        return 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+      case 'uri':
+        return array('_', 'uri');
+    }
     $qname[0] = htmlspecialchars($qname[0]);
     report_error(400, "URI component must be a prefixed name or an absolute URI (was <q>$qname[0]</q>)!");
   }else{
@@ -211,6 +218,15 @@ function validate_name($name)
 
 $unresolved_prefixes = array();
 
+function get_special_name($name)
+{
+  if(!is_string($name) && $name[0] == '_')
+  {
+    return $name[1];
+  }
+  return null;
+}
+
 function format_name($name)
 {
   static $escape = '_~.-!$&\'()*+,;=/?#@%';
@@ -219,6 +235,11 @@ function format_name($name)
   {
     validate_name($name);
     return "<$name>";
+  }
+  if(($special = get_special_name($name)) !== null)
+  {
+    $special = htmlspecialchars($special);
+    report_error(400, "Special name <q>$special</q> was used in an unsupported position!");
   }
   validate_name($name[1]);
   $unresolved_prefixes[$name[0]] = null;
@@ -391,6 +412,15 @@ if(isset($options['check']))
   foreach(array_unique($components, SORT_REGULAR) as $index => list($name, $reverse))
   {
     if($name == 'http://www.w3.org/2002/07/owl#sameAs') continue;
+    if(get_special_name($name) == 'uri')
+    {
+      if($reverse)
+      {
+        report_error(400, "Special property <q>uri</q> is not functional!");
+      }else{
+        continue;
+      }      
+    }    
     $any = true;
     $name = format_name($name);
     $query2[] = '  FILTER EXISTS {';
