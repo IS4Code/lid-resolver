@@ -21,6 +21,7 @@
 <dd>Additional key-value pairs. If the key starts on <mark><code>_</code></mark>, it is an option, otherwise it is a prefix (re)definition. The prefixes are processed in order. Assigning an empty literal value to a prefix name undefines the prefix.</dd>
 </dl>
 <p>The path portion of the URI consists of a property path, followed by an identifier. Each property corresponds to a step in the corresponding property chain with the identifier at its end and the identified entity at its beginning. <q>'</q> before a property represents its inverse.</p>
+<p>There is one special property, <mark><code>uri</code></mark> which links a URI node to its string representation.</p>
 <p>Every occurence of a <mark><code>name</code></mark> with a prefix is interpreted according to the defined prefixes in the current context. Definitions in the query portion are processed before the path.</p>
 <p>Every variable portion of the URI is eventually percent-decoded exactly once. International characters (valid in IRI but not URI) are left unchanged.</p>
 <p>There are several prefixes known initially. They are divided into three categories:</p>

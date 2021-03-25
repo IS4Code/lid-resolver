@@ -41,7 +41,7 @@ You may also use the form below:</p>
 <dd>Identifies anything that has the property with a literal value of <mark><code>"Person"@en</code></mark> (English language tag).</dd>
 <dt><code>lid://example.org/ex:id/1</code></dt>
 <dd>Identifies anything that has a property <mark><code>ex:id</code></mark> with the specified value. The resolution of <mark><code>ex:</code></mark> is performed by the target endpoint, as it is an undefined prefix.</dd>
-<dt><code>lid://example.org/foaf:mbox/mailto:address%40example.org@</code></dt>
+<dt><code>lid://example.org/foaf:mbox/uri/mailto:address%40example.org@</code></dt>
 <dd>Identifies anything that has a property <mark><code>foaf:mbox</code></mark> (known prefix) with a value of <mark><code>&lt;mailto:address@example.org&gt;</code></mark>.</dd>
 <dt><code>lid://example.org/'foaf:age/foaf:mbox/mailto:address%40example.org@</code></dt>
 <dd>Identifies the <mark><code>foaf:age</code></mark> of the specified entity.</dd>
