@@ -196,7 +196,7 @@ if(isset($identifier[1]))
     {
       $langRange = rtrim($language, '-');
     }else{
-      $datatype = resolve_name($identifier[1]);
+      $datatype = resolve_name($language);
     }
     unset($language);
   }
@@ -331,7 +331,7 @@ $identifier_is_literal = true;
 if(!empty($components))
 {
   $last = $components[count($components) - 1];
-  if(get_special_name($last[0]) == 'uri' && !$last[1] && !isset($language) && !isset($langRange) && (!isset($datatype) || $dataype == 'http://www.w3.org/2001/XMLSchema#anyURI'))
+  if(get_special_name($last[0]) == 'uri' && !$last[1] && !isset($language) && !isset($langRange) && (!isset($datatype) || $datatype === 'http://www.w3.org/2001/XMLSchema#anyURI'))
   {
     array_pop($components);
     $identifier_is_literal = false;
@@ -375,7 +375,9 @@ if($identifier_is_literal)
   {
     $needs_filter = true;
     $langRange = '"'.addslashes($langRange).'"';
-    $filter = "$filter && LANGMATCHES(lang(?id), $langRange";
+    $filter = "$filter && LANGMATCHES(lang(?id), $langRange)";
+  }else{
+    $needs_filter = true;
   }
   $filter = "$filter && STR(?id) = $identifier";
   
