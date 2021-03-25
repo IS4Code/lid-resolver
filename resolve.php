@@ -175,25 +175,35 @@ array_walk($components, function(&$value)
 });
 
 $identifier = explode('@', $identifier, 2);
+$is_prefixed = false;
 if(isset($identifier[1]))
 {
   $language = urldecode($identifier[1]);
   if(empty($language))
   {
-    $identifier = resolve_name($identifier[0]);
+    $is_prefixed = true;
+  }else if(substr($language, 0, 1) === '@' && strlen($language) > 1)
+  {
+    $is_prefixed = true;
+    $language = substr($language, 1);
+  }
+  if(empty($language))
+  {
+    unset($language);
   }else if(!preg_match('/^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$/', $language))
   {
-    if(preg_match('/^(?:[a-zA-Z]{1,8}|\*)(-(?:[a-zA-Z0-9]{1,8}|\*))*$/', $language))
+    if(preg_match('/^(?:[a-zA-Z]{1,8}|\*)(-(?:[a-zA-Z0-9]{1,8}|\*))*-?$/', $language))
     {
-      $langRange = $language;
+      $langRange = rtrim($language, '-');
     }else{
       $datatype = resolve_name($identifier[1]);
     }
     unset($language);
-    $identifier = urldecode($identifier[0]);
-  }else{
-    $identifier = urldecode($identifier[0]);
   }
+}
+if($is_prefixed)
+{
+  $identifier = resolve_name($identifier[0]);
 }else{
   $identifier = urldecode($identifier[0]);
 }
@@ -220,7 +230,7 @@ $unresolved_prefixes = array();
 
 function get_special_name($name)
 {
-  if(!is_string($name) && $name[0] == '_')
+  if(!is_string($name) && $name[0] === '_')
   {
     return $name[1];
   }
@@ -236,7 +246,11 @@ function format_name($name)
     validate_name($name);
     return "<$name>";
   }
-  if(($special = get_special_name($name)) !== null)
+  $special = get_special_name($name);
+  if($special === 'uri')
+  {
+    return '<http://www.w3.org/2000/10/swap/log#uri>';
+  }else if($special !== null)
   {
     $special = htmlspecialchars($special);
     report_error(400, "Special name <q>$special</q> was used in an unsupported position!");
@@ -313,53 +327,90 @@ if(isset($rdf) || isset($rdfs) || isset($owl) || isset($skos) || isset($xsd))
   $query[] = '';
 }
 
-$identifier_is_literal = !(isset($language) && empty($language));
-
-if(!$identifier_is_literal)
+$identifier_is_literal = true;
+if(!empty($components))
 {
-  $identifier = format_name($identifier);
-}else{
-  $identifier = '"'.addslashes($identifier).'"';
+  $last = $components[count($components) - 1];
+  if(get_special_name($last[0]) == 'uri' && !$last[1] && !isset($language) && !isset($langRange) && (!isset($datatype) || $dataype == 'http://www.w3.org/2001/XMLSchema#anyURI'))
+  {
+    array_pop($components);
+    $identifier_is_literal = false;
+    $identifier = format_name($identifier);
+  }
+} 
+
+if($identifier_is_literal)
+{
+  $needs_filter = false;
+  $filter = 'isLITERAL(?id)';
+  if(!is_string($identifier))
+  {
+    $identifier = 'STR('.format_name($identifier).')';
+    $needs_filter = true;
+  }else{
+    $identifier = '"'.addslashes($identifier).'"';
+  }
+  
   if(isset($language))
   {
-    $identifier = "$identifier@$language";
+    if($needs_filter)
+    {
+      $language = '"'.addslashes($language).'"';
+      $filter = "$filter && LANG(?id) = $language";
+      $constructor = "STRLANG($identifier, $language)";
+    }else{
+      $identifier = "$identifier@$language";
+    }
   }else if(isset($datatype))
   {
-    $identifier = "$identifier^^".format_name($datatype);
-  }else{
-    if(isset($langRange))
+    $datatype = format_name($datatype);
+    if($needs_filter)
     {
-      $langRange = '"'.addslashes($langRange).'"';
+      $filter = "$filter && DATATYPE(?id) = $datatype";
+      $constructor = "STRDT($identifier, $datatype)";
+    }else{
+      $identifier = "$identifier^^$datatype";
     }
-    $filter = $identifier;
+  }else if(isset($langRange))
+  {
+    $needs_filter = true;
+    $langRange = '"'.addslashes($langRange).'"';
+    $filter = "$filter && LANGMATCHES(lang(?id), $langRange";
+  }
+  $filter = "$filter && STR(?id) = $identifier";
+  
+  if($needs_filter)
+  {
     $identifier = '?id';
+  }else{
+    unset($filter);
   }
 }
 
 $initial = '?s';
 switch(@$options['form'])
 {
-  case 'select':
-    break;
-  case 'describe':
-    $query[] = "DESCRIBE $initial";
-    break;
-  default:
-    $query[] = 'CONSTRUCT {';
-    foreach($components as $index => $value)
+case 'select':
+  break;
+case 'describe':
+  $query[] = "DESCRIBE $initial";
+  break;
+default:
+  $query[] = 'CONSTRUCT {';
+  foreach($components as $index => $value)
+  {
+    $subj = $index == 0 ? $initial : "_:s$index";
+    $obj = $index == count($components) - 1 ? $identifier : '_:s'.($index + 1);
+    $name = format_name($value[0]);
+    if($value[1])
     {
-      $subj = $index == 0 ? $initial : "_:s$index";
-      $obj = $index == count($components) - 1 ? $identifier : '_:s'.($index + 1);
-      $name = format_name($value[0]);
-      if($value[1])
-      {
-        $query[] = "  $obj $name $subj .";
-      }else{
-        $query[] = "  $subj $name $obj .";
-      }
+      $query[] = "  $obj $name $subj .";
+    }else{
+      $query[] = "  $subj $name $obj .";
     }
-    $query[] = '}';
-    break;
+  }
+  $query[] = '}';
+  break;
 }
 
 if(@$options['form'] !== 'select')
@@ -383,7 +434,7 @@ if(isset($options['unify_owl']))
   $unify_path = "($skos:exactMatch|^$skos:exactMatch)*";
 }
 
-if(!isset($filter))
+if(!isset($filter) || isset($constructor))
 {
   $query2[] = "SELECT DISTINCT $initial";
   $query2[] = "WHERE {";
@@ -439,17 +490,35 @@ if(isset($options['check']))
   }
 }
 
+function array_any(&$array, $callable)
+{
+  foreach($array as $value)
+  {
+    if($callable($value)) return true;
+  }
+  return false;
+}
+
 if(empty($components))
 {
-  if(isset($filter))
+  if(isset($unify_path))
+  {
+    $query2[] = "  $initial $unify_path $identifier .";
+  }else if($constructor)
+  {
+    $query2[] = "  BIND ($constructor AS $initial)";
+    unset($filter);
+  }else if(isset($filter))
   {
     $query2[] = "  ?ls ?lp $identifier .";
-  }else if(!isset($unify_path))
-  {
-    $query2[] = "  BIND($identifier AS $initial)";
+  }else{
+    $query2[] = "  BIND ($identifier AS $initial)";
   }
 }else{
-  if(!isset($options['infer']))
+  if(!isset($options['infer']) && !array_any($components, function($val)
+  {
+    return get_special_name($val[0]);
+  }))
   {
     array_walk($components, function(&$value)
     {
@@ -470,7 +539,6 @@ if(empty($components))
     {
       $query2[] = "  ?s $unify_path ?s0 .";
       $initial = '?s0';
-      //$final = '?r'.count($components);
     }
     
     foreach($components as $index => $value)
@@ -482,58 +550,81 @@ if(empty($components))
         $query2[] = "  ?r$index $unify_path ?s$index .";
       }
       
-      $name = format_name($value[0]);
       $inverse = $value[1];
       
-      $subj = $index > 0 ? "?s$index" : $initial;
-      $obj = isset($unify_path) ? "?r$next" : ($last && (isset($filter) || !isset($options['infer'])) ? $identifier : "?s$next");
+      $not_variable = $last && !isset($filter) && !isset($unify_path);
+      $step_input = $index > 0 ? "?s$index" : $initial;
+      $step_output = isset($unify_path) ? "?r$next" : ($not_variable ? $identifier : "?s$next");
       
-      if($inverse)
+      $special = get_special_name($value[0]);
+      if($special === 'uri')
       {
-        $triple_subj = $obj;
-        $triple_obj = $subj;
-      }else{
-        $triple_subj = $subj;
-        $triple_obj = $obj;
-      }
-      
-      if(!isset($options['infer']))
-      {
-        $query2[] = "  $triple_subj $name $triple_obj .";
-      }else{
-        if($last && !isset($unify_path) && $identifier_is_literal)
+        if($inverse)
         {
-          if($inverse)
+          $query2[] = "  FILTER (DATATYPE($step_input) = <http://www.w3.org/2001/XMLSchema#anyURI>)";
+          if($not_variable)
           {
-            $query2[] = "  ?i$index $infer_inverse_path $name .";
-            $query2[] = "  $subj ?i$index $obj .";
+            $query2[] = "  FILTER (IRI(STR($step_input)) = $step_output)";
           }else{
-            $query2[] = "  ?p$index $infer_path $name .";
-            $query2[] = "  $subj ?p$index $obj .";
+            $query2[] = "  BIND (IRI(STR($step_input)) as $step_output)";
           }
         }else{
-          $query2[] = '  {';
-          $query2[] = "    SELECT ?p$index ?i$index";
-          $query2[] = '    WHERE {';
-          $query2[] = "      ?p$index $infer_path $name .";
-          $query2[] = '      OPTIONAL {';
-          $query2[] = "        ?i$index $infer_inverse_path $name .";
-          $query2[] = '      }';
-          $query2[] = '    }';
-          $query2[] = '  }';
-          
-          $query2[] = '  OPTIONAL {';
-          $query2[] = "    $triple_subj ?p$index $triple_obj .";
-          $query2[] = '  }';
-          $query2[] = '  OPTIONAL {';
-          $query2[] = "    $triple_obj ?i$index $triple_subj .";
-          $query2[] = '  }';
-          if(!$last || isset($unify_path))
+          if($not_variable)
           {
-            $query2[] = "  FILTER bound($obj)";
-          }else if(!isset($filter))
+            $query2[] = "  FILTER (STRDT(STR($step_input), <http://www.w3.org/2001/XMLSchema#anyURI>) = $step_output)";
+          }else{
+            $query2[] = "  BIND (STRDT(STR($step_input), <http://www.w3.org/2001/XMLSchema#anyURI>) as $step_output)";
+          }
+        }
+      }else{
+        $name = format_name($value[0]);
+        if($inverse)
+        {
+          $triple_subj = $step_output;
+          $triple_obj = $step_input;
+        }else{
+          $triple_subj = $step_input;
+          $triple_obj = $step_output;
+        }
+        
+        if(!isset($options['infer']))
+        {
+          $query2[] = "  $triple_subj $name $triple_obj .";
+        }else{
+          if($last && !isset($unify_path) && $identifier_is_literal)
           {
-            $query2[] = "  FILTER ($obj = $identifier)";
+            if($inverse)
+            {
+              $query2[] = "  ?i$index $infer_inverse_path $name .";
+              $query2[] = "  $step_input ?i$index $step_output .";
+            }else{
+              $query2[] = "  ?p$index $infer_path $name .";
+              $query2[] = "  $step_input ?p$index $step_output .";
+            }
+          }else{
+            $query2[] = '  {';
+            $query2[] = "    SELECT ?p$index ?i$index";
+            $query2[] = '    WHERE {';
+            $query2[] = "      ?p$index $infer_path $name .";
+            $query2[] = '      OPTIONAL {';
+            $query2[] = "        ?i$index $infer_inverse_path $name .";
+            $query2[] = '      }';
+            $query2[] = '    }';
+            $query2[] = '  }';
+            
+            $query2[] = '  OPTIONAL {';
+            $query2[] = "    $triple_subj ?p$index $triple_obj .";
+            $query2[] = '  }';
+            $query2[] = '  OPTIONAL {';
+            $query2[] = "    $triple_obj ?i$index $triple_subj .";
+            $query2[] = '  }';
+            if(!$last || isset($unify_path))
+            {
+              $query2[] = "  FILTER BOUND($step_output)";
+            }else if(!isset($filter))
+            {
+              $query2[] = "  FILTER ($step_output = $identifier)";
+            }
           }
         }
       }
@@ -541,7 +632,7 @@ if(empty($components))
     
     if(isset($unify_path))
     {
-      $last = empty($components) ? $initial : '?r'.count($components);
+      $last = '?r'.count($components);
       $query2[] = "  $last $unify_path $identifier .";
     }
   }
@@ -549,12 +640,7 @@ if(empty($components))
 
 if(isset($filter))
 {
-  if(isset($langRange))
-  {
-    $query2[] = "  FILTER (isLiteral($identifier) && str(?id) = $filter && langMatches(lang($identifier), $langRange))";
-  }else{
-    $query2[] = "  FILTER (isLiteral($identifier) && str($identifier) = $filter)";
-  }
+  $query2[] = "  FILTER ($filter)";
 }
 
 $query2[] = '}';
