@@ -449,15 +449,7 @@ if(empty($components))
     $query2[] = "  BIND($identifier AS $initial)";
   }
 }else{
-  $final = $identifier;
-  if(isset($unify_path))
-  {
-    $query2[] = "  ?s $unify_path ?s0 .";
-    $initial = '?s0';
-    $final = '?r'.count($components);
-  }
-
-  if(!isset($options['infer']) && !isset($unify_path))
+  if(!isset($options['infer']))
   {
     array_walk($components, function(&$value)
     {
@@ -465,9 +457,22 @@ if(empty($components))
       if($value[1]) $name = "^$name";
       $value = $name;
     });
-  
-    $query2[] = "  $initial ".implode('/', $components)." $final .";
+    
+    $delimiter = '/';
+    if(isset($unify_path))
+    {
+      $query2[] = "  $initial $unify_path/".implode("/$unify_path/", $components)."/$unify_path $identifier .";
+    }else{
+      $query2[] = "  $initial ".implode($delimiter, $components)." $identifier .";
+    }
   }else{
+    if(isset($unify_path))
+    {
+      $query2[] = "  ?s $unify_path ?s0 .";
+      $initial = '?s0';
+      //$final = '?r'.count($components);
+    }
+    
     foreach($components as $index => $value)
     {
       $next = $index + 1;
@@ -533,12 +538,13 @@ if(empty($components))
         }
       }
     }
+    
+    if(isset($unify_path))
+    {
+      $last = empty($components) ? $initial : '?r'.count($components);
+      $query2[] = "  $last $unify_path $identifier .";
+    }
   }
-}
-if(isset($unify_path))
-{
-  $last = empty($components) ? $initial : '?r'.count($components);
-  $query2[] = "  $last $unify_path $identifier .";
 }
 
 if(isset($filter))
