@@ -6,8 +6,9 @@
 </head>
 <body>
 <h1><code>lid:</code> URI scheme</h1>
-<p>A <mark><code>lid:</code></mark> URI has the following structure:</p>
+<p>A <mark><code>lid:</code></mark> URI has one of the following structures:</p>
 <pre><mark><q>lid://</q> host <q>/</q> ( [ <q>'</q> ] name <q>/</q> )+ value [ <q>@</q> type ] [ <q>?</q> context ]</mark></pre>
+<pre><mark><q>lid:</q> ( [ <q>'</q> ] name <q>/</q> )+ value [ <q>@</q> type ] [ <q>?</q> context ]</mark></pre>
 <dl>
 <dt><code>host</code></dt>
 <dd>The hostname of the server storing the target dataset.</dd>
