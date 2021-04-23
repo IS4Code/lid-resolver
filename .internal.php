@@ -108,11 +108,15 @@ function get_context()
       
       foreach($context as $key => $value)
       {
-        $char = substr($value, -1);
-        if($char !== '#' && $char !== '/' && $char !== ':')
+        if($key !== '' && is_string($value))
         {
-          unset($context[$key]);
+          $char = substr($value, -1);
+          if($char === '#' || $char === '/' || $char === ':')
+          {
+            continue;
+          }
         }
+        unset($context[$key]);
       }
       
       foreach($xpath->query('//reg:record[reg:status = "Permanent"]/reg:value/text()') as $scheme)
