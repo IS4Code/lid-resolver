@@ -109,7 +109,7 @@ function get_context()
       foreach($context as $key => $value)
       {
         $char = substr($value, -1);
-        if($char !== '#' && $char !== '/')
+        if($char !== '#' && $char !== '/' && $char !== ':')
         {
           unset($context[$key]);
         }

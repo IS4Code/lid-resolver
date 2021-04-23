@@ -46,7 +46,7 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <p>In addition to the prefixes declared above, a particular resolver (such as the one on this site) may define additional prefixes. The ones used here are as follows (ordered by priority):</p>
 <ol>
 <li>Permanent <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml">IANA URI schemes</a>. They are defined as themselves, like above.</li>
-<li>Recommended <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a>. Only defintions that end on <mark><code>#</code></mark> or <mark><code>/</code></mark> are considered.</li>
+<li>Recommended <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a>. Only defintions that end on <mark><code>#</code></mark>, <mark><code>/</code></mark> or <mark><code>:</code></mark> are considered.</li>
 <li>Provisional and historical IANA URI schemes. Defined like the other schemes.</li>
 </ol>
 <p>This means that some common prefixes may be treated as URI schemes (see <a href="conflicts">here</a> for examples). Such a prefix can be undefined or redefined to the intended value manually.</p>
