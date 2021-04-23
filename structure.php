@@ -45,6 +45,7 @@ PREFIX https: &lt;https:&gt;
 PREFIX urn: &lt;urn:&gt;
 PREFIX tag: &lt;tag:&gt;
 PREFIX mailto: &lt;mailto:&gt;
+PREFIX data: &lt;data:&gt;
 PREFIX lid: &lt;lid:&gt;</pre>
 <p>These prefixes are defined in order to make it possible to write <q>:</q> instead of <mark><code>%3A</code></mark> in a <mark><code>name</code></mark> without relying on the target endpoint to support these prefixes.</p></li>
 <dt>Supplemental prefixes</dt><dd><pre>PREFIX base: &lt;&gt;</pre>
@@ -56,7 +57,7 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <ol>
 <li>Permanent <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml">IANA URI schemes</a>. They are defined as themselves, like above.</li>
 <li>Recommended <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a>. Only defintions that end on <mark><code>#</code></mark>, <mark><code>/</code></mark> or <mark><code>:</code></mark> are considered.</li>
-<li>Provisional and historical IANA URI schemes. Defined like the other schemes.</li>
+<li>Provisional and historical IANA URI schemes longer than 3 characters. Defined like the other schemes.</li>
 </ol>
 <p>This means that some common prefixes may be treated as URI schemes (see <a href="conflicts">here</a> for examples). The syntax still allows to redefine any such prefix manually.</p>
 <p>The list of default prefixes (<a href="context.jsonld">JSON-LD context</a>) is periodically synchronized with the source documents.</p>
