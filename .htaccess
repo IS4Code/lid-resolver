@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteRule conflicts conflicts.php
+RewriteRule resolve resolve.php
+RewriteRule structure structure.php
+RewriteRule context.jsonld context.php
