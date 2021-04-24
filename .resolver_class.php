@@ -234,6 +234,13 @@ class Resolver
     }
   }
   
+  private function debug_mode()
+  {
+    $options = &$this->options;
+    
+    return @$options['action'] === 'print' || @$options['action'] === 'debug';
+  }
+  
   function build_query(&$uri, $components, $identifier)
   {
     $options = &$this->options;
@@ -242,7 +249,7 @@ class Resolver
     
     $query = array();
     
-    if(is_option($options, 'print'))
+    if($this->debug_mode())
     {
       $uriquery = create_query_array(null, $options);
       $uri['query'] = get_query_string($uriquery);
@@ -566,7 +573,7 @@ class Resolver
     
     $query[] = '';
     
-    if(!is_option($options, 'print'))
+    if(!$this->debug_mode())
     {
       $query_filtered = array();
       foreach($query as $line)

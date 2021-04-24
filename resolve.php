@@ -86,7 +86,7 @@ if(!empty($options['scheme']))
   $uri['scheme'] = @$_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 }
 
-if(!is_option($options, 'print'))
+if(!isset($options['action']) || $options['action'] == 'redirect')
 {
   $uri['query'] = get_query_string(create_query_array($sparql, $options));
   $target_uri = unparse_url($uri);
@@ -95,7 +95,7 @@ if(!is_option($options, 'print'))
 }else{
   $target_uri = unparse_url($uri);
   $reconstructed_uri = unparse_url($reconstructed_uri);
-  if(!is_option($options, 'html'))
+  if($options['action'] !== 'debug')
   {
     header('Content-Type: application/sparql-query');
     header('Content-Disposition: inline; filename="query.sparql"');

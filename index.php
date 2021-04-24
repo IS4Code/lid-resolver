@@ -11,14 +11,15 @@
 You may also use the form below:</p>
 <form method="GET" action="resolve">
 <p><textarea name="uri" rows="1" cols="100" onkeypress="if(event.which===13&&!event.shiftKey){event.target.form.submit();event.preventDefault();}">lid://my.data.is4.site/:nick/IS4?=foaf:</textarea></p>
-<input type="checkbox" name="print" id="print" checked><label for="print">Just print the SPARQL query; do not redirect (_print).</label><br>
-<input type="checkbox" name="html" id="html" checked><label for="html">Display as HTML; only with _print (_html).</label><br>
 <input type="checkbox" name="check" id="check"><label for="check">Check functional properties (_check).</label><br>
 <input type="checkbox" name="infer" id="infer"><label for="infer">Infer from subproperties (_infer).</label><br>
 <input type="checkbox" name="inverse" id="inverse"><label for="inverse">Include additional owl:inverseOf in paths (_inverse).</label><br>
 <input type="checkbox" name="unify_owl" id="unify_owl"><label for="unify_owl">Unify with owl:sameAs (_unify_owl).</label><br>
 <input type="checkbox" name="unify_skos" id="unify_skos"><label for="unify_skos">Unify with skos:exactMatch (_unify_skos).</label><br>
 <input type="checkbox" name="first" id="first"><label for="first">Output only the first result (_first).</label><br>
+<label for="method">Query action (_action): </label><select id="action" name="action">
+<option value="redirect">Redirect</option><option value="print" selected>Print</option><option value="debug" selected>Debug</option>
+</select><br>
 <label for="form">Query form (_form): </label><select id="form" name="form">
 <option value="construct">CONSTRUCT</option><option value="select">SELECT</option><option value="describe">DESCRIBE</option>
 </select><br>
