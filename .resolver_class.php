@@ -585,8 +585,24 @@ class Resolver
         }
       }
       $query = $query_filtered;
+      
+      if(@$options['form'] === 'select')
+      {
+        $query_inner = $query;
+      }else{
+        $query_inner_filtered = array();
+        foreach($query_inner as $line)
+        {
+          $line = trim($line);
+          if($line !== '')
+          {
+            $query_inner_filtered[] = $line;
+          }
+        }
+        $query_inner = $query_inner_filtered;
+      }
     }
     
-    return implode("\n", $query);
+    return array(implode("\n", $query), implode("\n", $query_inner));
   }
 }

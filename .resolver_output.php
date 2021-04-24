@@ -1,14 +1,85 @@
 <?php
 
-function output_redirect($uri, $sparql, $options, $reconstructed_uri, $unresolved_prefixes)
+function output_redirect($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes)
 {
   $uri['query'] = get_query_string(create_query_array($sparql, $options));
   $target_uri = unparse_url($uri);
+  
   http_response_code(303);
   header("Location: $target_uri");
 }
 
-function output_print($uri, $sparql, $options, $reconstructed_uri, $unresolved_prefixes)
+function output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes)
+{
+  $uri['query'] = get_query_string(create_query_array($sparql, $options));
+  $target_uri = unparse_url($uri);
+  
+  $reconstructed_uri = unparse_url($reconstructed_uri);
+  
+  $options['_format'] = 'application/javascript';
+  $uri['query'] = get_query_string(create_query_array($sparql_inner, $options));
+  $javascript_uri = unparse_url($uri); 
+  
+  ?><!DOCTYPE html>
+<html lang="en">
+<head>
+<title><?=htmlspecialchars($reconstructed_uri)?></title>
+<link rel="stylesheet" href="//is4.site/styles/terminal.css?theme=4">
+<noscript>
+<meta http-equiv="refresh" content="1;url=<?=htmlspecialchars($target_uri)?>">
+</noscript>
+</head>
+<body>
+<p>Querying the server...</p>
+<noscript>
+<p>You have scripts disabled, you will be redirected to the <a id="redirect" href="<?=htmlspecialchars($target_uri)?>">query results</a>.</p>
+</noscript>
+<div id="query_results" hidden style="display:none"><script type="text/javascript" src="<?=htmlspecialchars($javascript_uri)?>"></script></div>
+<script type="text/javascript">
+var container = document.getElementById('query_results');
+var rows = container.getElementsByTagName('tr');
+if(rows.length == 0)
+{
+  document.write('<p>The SPARQL endopoint did not return any loadable results, executing directly...</p>');
+  location.replace(document.getElementById('redirect').href);
+}else{
+  var header = rows[0].getElementsByTagName('th');
+  var index = -1;
+  for(var i = 0; i < header.length; i++)
+  {
+    if(header[i].textContent === 's')
+    {
+      index = i;
+    }
+  }
+  if(index == -1)
+  {
+    document.write('<p>Unrecognized results were returned, executing directly...</p>');
+    location.replace(document.getElementById('redirect').href);
+  }else{
+    if(rows.length > 2)
+    {
+      document.write('<p>More than one result returned:</p><ul>');
+      for(var i = 1; i < rows.length; i++)
+      {
+        document.write('<li>');
+        document.write(rows[i].getElementsByTagName('td')[index].innerHTML);
+        document.write('</li>');
+      }
+      document.write('</ul>')
+    }else{
+      document.write('<p>Navigating to result...</p>');
+      location.replace(rows[1].getElementsByTagName('td')[index].getElementsByTagName('a')[0].href);
+    }
+  }
+}
+</script>
+<p><a href=".">Back to the main page.</a></p>
+</body>
+</html><?php
+}
+
+function output_print($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes)
 {
   $target_uri = unparse_url($uri);
   $reconstructed_uri = unparse_url($reconstructed_uri);
@@ -20,7 +91,7 @@ function output_print($uri, $sparql, $options, $reconstructed_uri, $unresolved_p
   echo $sparql;
 }
 
-function output_debug($uri, $sparql, $options, $reconstructed_uri, $unresolved_prefixes)
+function output_debug($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes)
 {
   $target_uri = unparse_url($uri);
   $reconstructed_uri = unparse_url($reconstructed_uri);

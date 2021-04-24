@@ -68,7 +68,7 @@ $resolver->parse_properties($components);
 
 $identifier = $resolver->parse_identifier($identifier);
 
-$sparql = $resolver->build_query($uri, $components, $identifier);
+list($sparql, $sparql_inner) = $resolver->build_query($uri, $components, $identifier);
 
 $unresolved_prefixes = $resolver->unresolved_prefixes;
 
@@ -90,13 +90,16 @@ require '.resolver_output.php';
 
 switch(@$options['action'])
 {
+  case 'navigate':
+    output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes);
+    break;
   case 'debug':
-    output_debug($uri, $sparql, $options, $reconstructed_uri, $unresolved_prefixes);
+    output_debug($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes);
     break;
   case 'print':
-    output_print($uri, $sparql, $options, $reconstructed_uri, $unresolved_prefixes);
+    output_print($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes);
     break;
   default:
-    output_redirect($uri, $sparql, $options, $reconstructed_uri, $unresolved_prefixes);
+    output_redirect($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes);
     break;
 }
