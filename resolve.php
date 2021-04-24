@@ -84,10 +84,10 @@ if(isset($options['scheme']))
   $uri['scheme'] = @$_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 }
 
-if(isset($options['print']))
+if(is_option($options, 'print'))
 {
   $target_uri = unparse_url($uri);
-  if(!isset($options['html']))
+  if(!is_option($options, 'html'))
   {
     header('Content-Type: application/sparql-query');
     header('Content-Disposition: inline; filename="query.sparql"');

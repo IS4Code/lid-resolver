@@ -241,7 +241,7 @@ class Resolver
     
     $query = array();
     
-    if(isset($options['print']))
+    if(is_option($options, 'print'))
     {
       $uriquery = create_query_array(null, $options);
       $uri['query'] = get_query_string($uriquery);
@@ -251,7 +251,7 @@ class Resolver
       }
     }
     
-    if(isset($options['check']) || isset($options['infer']))
+    if(is_option($options, 'check') || is_option($options, 'infer'))
     {
       $this->use_prefix('rdfs', $rdfs);
       $query[] = "PREFIX $rdfs: <http://www.w3.org/2000/01/rdf-schema#>";
@@ -259,7 +259,7 @@ class Resolver
       $rdfs = '';
     }
     
-    if(isset($options['check']) || isset($options['unify_owl']) || isset($options['infer']))
+    if(is_option($options, 'check') || is_option($options, 'unify_owl') || is_option($options, 'infer'))
     {
       $this->use_prefix('owl', $owl);
       $query[] = "PREFIX $owl: <http://www.w3.org/2002/07/owl#>";
@@ -267,7 +267,7 @@ class Resolver
       $owl = '';
     }
     
-    if(isset($options['unify_skos']))
+    if(is_option($options, 'unify_skos'))
     {
       $this->use_prefix('skos', $skos);
       $query[] = "PREFIX $skos: <http://www.w3.org/2004/02/skos/core#>";
@@ -331,15 +331,15 @@ class Resolver
       $query2 = &$query;
     }
     
-    if(isset($options['unify_owl']))
+    if(is_option($options, 'unify_owl'))
     {
-      if(isset($options['unify_skos']))
+      if(is_option($options, 'unify_skos'))
       {
         $unify_path = "($owl:sameAs|^$owl:sameAs|$skos:exactMatch|^$skos:exactMatch)*";
       }else{
         $unify_path = "($owl:sameAs|^$owl:sameAs)*";
       }
-    }else if(isset($options['unify_skos']))
+    }else if(is_option($options, 'unify_skos'))
     {
       $unify_path = "($skos:exactMatch|^$skos:exactMatch)*";
     }
@@ -359,7 +359,7 @@ class Resolver
     
     $subproperty_path = "($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*";
     $inverse_path = "/$owl:inverseOf/($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*";
-    if(isset($options['inverse']))
+    if(is_option($options, 'inverse'))
     {
       $additional_path = "/($owl:inverseOf/($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*/$owl:inverseOf/($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*)*";
     }else{
@@ -368,7 +368,7 @@ class Resolver
     $infer_path = "$subproperty_path$additional_path";
     $infer_inverse_path = "$subproperty_path$inverse_path$additional_path";
     
-    if(isset($options['check']))
+    if(is_option($options, 'check'))
     {
       $any = false;
       $subclass_path = "($rdfs:subClassOf|$owl:equivalentClass|^$owl:equivalentClass)*";
@@ -416,7 +416,7 @@ class Resolver
         $query2[] = "  BIND ($identifier AS $initial)";
       }
     }else{
-      if(!isset($options['infer']) && !array_any($components, function($val)
+      if(!is_option($options, 'infer') && !array_any($components, function($val)
       {
         return get_special_name($val[0]);
       }))
@@ -488,7 +488,7 @@ class Resolver
               $triple_obj = $step_output;
             }
             
-            if(!isset($options['infer']))
+            if(!is_option($options, 'infer'))
             {
               $query2[] = "  $triple_subj $name $triple_obj .";
             }else{
@@ -545,7 +545,7 @@ class Resolver
     }
     
     $query2[] = '}';
-    if(isset($options['first']))
+    if(is_option($options, 'first'))
     {
       $query2[] = 'LIMIT 1';
     }
@@ -558,7 +558,7 @@ class Resolver
       $query[] = '}';
     }
     
-    if(!isset($options['print']))
+    if(!is_option($options, 'print'))
     {
       array_walk($query, function(&$value)
       {

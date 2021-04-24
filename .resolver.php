@@ -29,6 +29,16 @@ function array_any(&$array, $callable)
   return false;
 }
 
+function is_option($options, $key)
+{
+  if(isset($options[$key]))
+  {
+    $value = $options[$key];
+    return !($value === 'off' || $value === 'false' || $value === '0' || $value === 0);
+  }
+  return false;
+}
+
 function analyze_uri($uri, &$components, &$identifier, &$query)
 {
   if(strpos($uri, '?') === false && strpos($uri, '#') === false)
