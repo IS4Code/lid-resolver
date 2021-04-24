@@ -326,9 +326,9 @@ class Resolver
     if(@$options['form'] !== 'select')
     {
       $query[] = "WHERE {";
-      $query2 = array();
+      $query_inner = array();
     }else{
-      $query2 = &$query;
+      $query_inner = &$query;
     }
     
     if(is_option($options, 'unify_owl'))
@@ -353,14 +353,14 @@ class Resolver
     
     if(!isset($filter) || isset($constructor))
     {
-      $query2[] = "$selection $initial";
+      $query_inner[] = "$selection $initial";
     }else if(empty($components) && !isset($unify_path))
     {
-      $query2[] = "$selection $identifier";
+      $query_inner[] = "$selection $identifier";
     }else{
-      $query2[] = "$selection $initial $identifier";
+      $query_inner[] = "$selection $initial $identifier";
     }
-    $query2[] = "WHERE {";
+    $query_inner[] = "WHERE {";
     
     $subproperty_path = "($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*";
     $inverse_path = "/$owl:inverseOf/($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*";
@@ -391,17 +391,17 @@ class Resolver
         }    
         $any = true;
         $name = $this->format_name($name);
-        $query2[] = '  FILTER EXISTS {';
-        $query2[] = '    {';
-        $query2[] = "      $name $infer_path/a/$subclass_path $owl:".($reverse?'':'Inverse').'FunctionalProperty .';
-        $query2[] = '    } UNION {';
-        $query2[] = "      $name $infer_inverse_path/a/$subclass_path $owl:".($reverse?'Inverse':'').'FunctionalProperty .';
-        $query2[] = '    }';
-        $query2[] = '  }';
+        $query_inner[] = '  FILTER EXISTS {';
+        $query_inner[] = '    {';
+        $query_inner[] = "      $name $infer_path/a/$subclass_path $owl:".($reverse?'':'Inverse').'FunctionalProperty .';
+        $query_inner[] = '    } UNION {';
+        $query_inner[] = "      $name $infer_inverse_path/a/$subclass_path $owl:".($reverse?'Inverse':'').'FunctionalProperty .';
+        $query_inner[] = '    }';
+        $query_inner[] = '  }';
       }
       if($any)
       {
-        $query2[] = '';
+        $query_inner[] = '';
       }
     }
     
@@ -409,16 +409,16 @@ class Resolver
     {
       if(isset($unify_path))
       {
-        $query2[] = "  $initial $unify_path $identifier .";
+        $query_inner[] = "  $initial $unify_path $identifier .";
       }else if($constructor)
       {
-        $query2[] = "  BIND ($constructor AS $initial)";
+        $query_inner[] = "  BIND ($constructor AS $initial)";
         unset($filter);
       }else if(isset($filter))
       {
-        $query2[] = "  ?ls ?lp $identifier .";
+        $query_inner[] = "  ?ls ?lp $identifier .";
       }else{
-        $query2[] = "  BIND ($identifier AS $initial)";
+        $query_inner[] = "  BIND ($identifier AS $initial)";
       }
     }else{
       if(!is_option($options, 'infer') && !array_any($components, function($val)
@@ -436,14 +436,14 @@ class Resolver
         $delimiter = '/';
         if(isset($unify_path))
         {
-          $query2[] = "  $initial $unify_path/".implode("/$unify_path/", $components)."/$unify_path $identifier .";
+          $query_inner[] = "  $initial $unify_path/".implode("/$unify_path/", $components)."/$unify_path $identifier .";
         }else{
-          $query2[] = "  $initial ".implode($delimiter, $components)." $identifier .";
+          $query_inner[] = "  $initial ".implode($delimiter, $components)." $identifier .";
         }
       }else{
         if(isset($unify_path))
         {
-          $query2[] = "  ?s $unify_path ?s0 .";
+          $query_inner[] = "  ?s $unify_path ?s0 .";
           $initial = '?s0';
         }
         
@@ -453,7 +453,7 @@ class Resolver
           $last = $index == count($components) - 1;
           if($index >= 1 && isset($unify_path))
           {
-            $query2[] = "  ?r$index $unify_path ?s$index .";
+            $query_inner[] = "  ?r$index $unify_path ?s$index .";
           }
           
           $inverse = $value[1];
@@ -467,19 +467,19 @@ class Resolver
           {
             if($inverse)
             {
-              $query2[] = "  FILTER (DATATYPE($step_input) = <http://www.w3.org/2001/XMLSchema#anyURI>)";
+              $query_inner[] = "  FILTER (DATATYPE($step_input) = <http://www.w3.org/2001/XMLSchema#anyURI>)";
               if($not_variable)
               {
-                $query2[] = "  FILTER (IRI(STR($step_input)) = $step_output)";
+                $query_inner[] = "  FILTER (IRI(STR($step_input)) = $step_output)";
               }else{
-                $query2[] = "  BIND (IRI(STR($step_input)) as $step_output)";
+                $query_inner[] = "  BIND (IRI(STR($step_input)) as $step_output)";
               }
             }else{
               if($not_variable)
               {
-                $query2[] = "  FILTER (STRDT(STR($step_input), <http://www.w3.org/2001/XMLSchema#anyURI>) = $step_output)";
+                $query_inner[] = "  FILTER (STRDT(STR($step_input), <http://www.w3.org/2001/XMLSchema#anyURI>) = $step_output)";
               }else{
-                $query2[] = "  BIND (STRDT(STR($step_input), <http://www.w3.org/2001/XMLSchema#anyURI>) as $step_output)";
+                $query_inner[] = "  BIND (STRDT(STR($step_input), <http://www.w3.org/2001/XMLSchema#anyURI>) as $step_output)";
               }
             }
           }else{
@@ -495,41 +495,41 @@ class Resolver
             
             if(!is_option($options, 'infer'))
             {
-              $query2[] = "  $triple_subj $name $triple_obj .";
+              $query_inner[] = "  $triple_subj $name $triple_obj .";
             }else{
               if($last && !isset($unify_path) && $identifier_is_literal)
               {
                 if($inverse)
                 {
-                  $query2[] = "  ?i$index $infer_inverse_path $name .";
-                  $query2[] = "  $step_input ?i$index $step_output .";
+                  $query_inner[] = "  ?i$index $infer_inverse_path $name .";
+                  $query_inner[] = "  $step_input ?i$index $step_output .";
                 }else{
-                  $query2[] = "  ?p$index $infer_path $name .";
-                  $query2[] = "  $step_input ?p$index $step_output .";
+                  $query_inner[] = "  ?p$index $infer_path $name .";
+                  $query_inner[] = "  $step_input ?p$index $step_output .";
                 }
               }else{
-                $query2[] = '  {';
-                $query2[] = "    SELECT ?p$index ?i$index";
-                $query2[] = '    WHERE {';
-                $query2[] = "      ?p$index $infer_path $name .";
-                $query2[] = '      OPTIONAL {';
-                $query2[] = "        ?i$index $infer_inverse_path $name .";
-                $query2[] = '      }';
-                $query2[] = '    }';
-                $query2[] = '  }';
+                $query_inner[] = '  {';
+                $query_inner[] = "    SELECT ?p$index ?i$index";
+                $query_inner[] = '    WHERE {';
+                $query_inner[] = "      ?p$index $infer_path $name .";
+                $query_inner[] = '      OPTIONAL {';
+                $query_inner[] = "        ?i$index $infer_inverse_path $name .";
+                $query_inner[] = '      }';
+                $query_inner[] = '    }';
+                $query_inner[] = '  }';
                 
-                $query2[] = '  OPTIONAL {';
-                $query2[] = "    $triple_subj ?p$index $triple_obj .";
-                $query2[] = '  }';
-                $query2[] = '  OPTIONAL {';
-                $query2[] = "    $triple_obj ?i$index $triple_subj .";
-                $query2[] = '  }';
+                $query_inner[] = '  OPTIONAL {';
+                $query_inner[] = "    $triple_subj ?p$index $triple_obj .";
+                $query_inner[] = '  }';
+                $query_inner[] = '  OPTIONAL {';
+                $query_inner[] = "    $triple_obj ?i$index $triple_subj .";
+                $query_inner[] = '  }';
                 if(!$last || isset($unify_path))
                 {
-                  $query2[] = "  FILTER BOUND($step_output)";
+                  $query_inner[] = "  FILTER BOUND($step_output)";
                 }else if(!isset($filter))
                 {
-                  $query2[] = "  FILTER ($step_output = $identifier)";
+                  $query_inner[] = "  FILTER ($step_output = $identifier)";
                 }
               }
             }
@@ -539,24 +539,24 @@ class Resolver
         if(isset($unify_path))
         {
           $last = '?r'.count($components);
-          $query2[] = "  $last $unify_path $identifier .";
+          $query_inner[] = "  $last $unify_path $identifier .";
         }
       }
     }
     
     if(isset($filter))
     {
-      $query2[] = "  FILTER ($filter)";
+      $query_inner[] = "  FILTER ($filter)";
     }
     
-    $query2[] = '}';
+    $query_inner[] = '}';
     if(is_option($options, 'first'))
     {
-      $query2[] = 'LIMIT 1';
+      $query_inner[] = 'LIMIT 1';
     }
     if(@$options['form'] !== 'select')
     {
-      foreach($query2 as $line)
+      foreach($query_inner as $line)
       {
         $query[] = "  $line";
       }
@@ -565,10 +565,16 @@ class Resolver
     
     if(!is_option($options, 'print'))
     {
-      array_walk($query, function(&$value)
+      $query_filtered = array();
+      foreach($query as $line)
       {
-        $value = trim($value);
-      });
+        $line = trim($line);
+        if($line !== '')
+        {
+          $query_filtered[] = $line;
+        }
+      }
+      $query = $query_filtered;
     }
     
     return implode("\n", $query);
