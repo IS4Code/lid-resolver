@@ -45,30 +45,24 @@ require '.resolver_class.php';
 
 $uri = analyze_uri($uri, $components, $identifier, $query);
 
-function create_query(&$options, $uri, $components, $identifier, $query, &$unresolved_prefixes)
-{
-  $data = get_context();
-  $context = &$data['@context'];
-  
-  $resolver = new Resolver($context, $options);
-  
-  if(!empty($query))
-  {
-    $resolver->parse_query($query);
-  }
-  
-  $resolver->parse_properties($components);
-  
-  $identifier = $resolver->parse_identifier($identifier);
-  
-  $result = $resolver->build_query($uri, $components, $identifier);
-  
-  $unresolved_prefixes = $resolver->unresolved_prefixes;
-  
-  return $result;
-}
+$data = get_context();
+$context = &$data['@context'];
 
-$query = create_query($options, $uri, $components, $identifier, $query, $unresolved_prefixes);
+$resolver = new Resolver($context, $options);
+
+if(!empty($query))
+{
+  $resolver->parse_query($query);
+}
+unset($query);
+  
+$resolver->parse_properties($components);
+
+$identifier = $resolver->parse_identifier($identifier);
+
+$query = $resolver->build_query($uri, $components, $identifier);
+
+$unresolved_prefixes = $resolver->unresolved_prefixes;
 
 if(isset($options['path']))
 {
