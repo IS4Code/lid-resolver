@@ -24,7 +24,12 @@ You may also use the form below:</p>
 </select><br>
 <label for="_format">Results format (__format): </label><select id="_format" name="_format">
 <option disabled selected value></option>
+<optgroup label="Graph formats">
 <option value="text/turtle">Turtle</option><option value="application/x-nice-turtle">Turtle (beautified)</option><option value="application/rdf+json">RDF/JSON</option><option value="application/rdf+xml">RDF/XML</option><option value="text/plain">N-Triples</option><option value="application/xhtml+xml">XHTML+RDFa</option><option value="application/atom+xml">ATOM+XML</option><option value="application/odata+json">ODATA/JSON</option><option value="application/x-ld+json">JSON-LD (plain)</option><option value="application/ld+json">JSON-LD (with context)</option><option value="text/x-html+ul">HTML (list)</option><option value="text/x-html+tr">HTML (table)</option><option value="text/html">HTML+Microdata (basic)</option><option value="application/x-nice-microdata">HTML+Microdata (table)</option><option value="text/x-html-script-ld+json">HTML+JSON-LD (basic)</option><option value="text/x-html-script-turtle">HTML+Turtle (basic)</option><option value="text/x-html-nice-turtle">Turtle (beautified - browsing oriented)</option><option value="application/microdata+json">Microdata/JSON</option><option value="text/csv">CSV</option><option value="text/tab-separated-values">TSV</option><option value="application/x-trig">TriG</option><option value="text/cxml">CXML (Pivot Collection)</option><option value="text/cxml+qrcode">CXML (Pivot Collection with QRcodes)</option>
+</optgroup>
+<optgroup label="Table formats">
+<option value="text/html">HTML</option><option value="text/x-html+tr">HTML (Faceted Browsing Links)</option><option value="application/vnd.ms-excel">Spreadsheet</option><option value="application/sparql-results+xml">XML</option><option value="application/sparql-results+json">JSON</option><option value="application/javascript">Javascript</option><option value="text/turtle">Turtle</option><option value="application/rdf+xml">RDF/XML</option><option value="text/plain">N-Triples</option><option value="text/csv">CSV</option><option value="text/tab-separated-values">TSV</option>
+</optgroup>
 </select><br>
 <input type="submit" value="Resolve">
 </form>
