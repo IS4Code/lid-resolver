@@ -1,10 +1,10 @@
 <?php
 
-/*
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-//*/
+//
 
 function report_error($code, $message)
 {
@@ -41,32 +41,30 @@ if(isset($_SERVER['REDIRECT_URL']) && $_SERVER['REDIRECT_URL'] !== '/lid/resolve
 
 require '.internal.php';
 require '.resolver.php';
+require '.resolver_class.php';
 
 $uri = analyze_uri($uri, $components, $identifier, $query);
 
-$data = get_context();
-$context = &$data['@context'];
-unset($data);
-
-if(!empty($query))
+function create_query($uri, $components, $identifier, $query)
 {
-  parse_query($query);
+  $data = get_context();
+  $context = &$data['@context'];
+  
+  $resolver = new Resolver($context, $options);
+  
+  if(!empty($query))
+  {
+    $resolver->parse_query($query);
+  }
+  
+  array_walk($components, $resolver->parse_property);
+  
+  $identifier = $resolver->parse_identifier($identifier, $language, $langRange, $datatype);
+  
+  return $resolver->build_query($uri, $components, $identifier, $language, $langRange, $datatype);
 }
-unset($query);
 
-array_walk($components, parse_property);
-
-$identifier = parse_identifier($identifier, $language, $langRange, $datatype);
-
-/*
-var_dump($uri);
-var_dump($components);
-var_dump($identifier);
-var_dump($language);
-var_dump($datatype);
-*/
-
-$query = build_query($uri, $components, $identifier, $language, $langRange, $datatype);
+$query = create_query($uri, $components, $identifier, $query);
 
 if(isset($options['path']))
 {
