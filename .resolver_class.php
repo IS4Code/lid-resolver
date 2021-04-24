@@ -178,6 +178,61 @@ class Resolver
     $prefix = $name.$suffix;
   }
   
+  private function build_identifier_literal(&$identifier, &$idkind, &$idtype, &$constructor, &$filter_out)
+  {
+    $needs_filter = false;
+    $filter = 'isLITERAL(?id)';
+    if(!is_string($identifier))
+    {
+      $identifier = 'STR('.$this->format_name($identifier).')';
+      $needs_filter = true;
+    }else{
+      $identifier = '"'.addslashes($identifier).'"';
+    }
+    
+    if($idkind === 'language')
+    {
+      if($needs_filter)
+      {
+        $idtype = '"'.addslashes($idtype).'"';
+        $filter = "$filter && LANG(?id) = $idtype";
+        $constructor = "STRLANG($identifier, $idtype)";
+      }else{
+        $identifier = "$identifier@$idtype";
+      }
+    }else if($idkind === 'datatype')
+    {
+      $idtype = $this->format_name($idtype);
+      if($needs_filter)
+      {
+        $filter = "$filter && DATATYPE(?id) = $idtype";
+        $constructor = "STRDT($identifier, $idtype)";
+      }else{
+        $identifier = "$identifier^^$idtype";
+      }
+    }else if($idkind === 'langrange')
+    {
+      $needs_filter = true;
+      $idtype = '"'.addslashes($idtype).'"';
+      $filter = "$filter && LANGMATCHES(lang(?id), $idtype)";
+    }else{
+      $needs_filter = true;
+    }
+    $filter = "$filter && STR(?id) = $identifier";
+    
+    if($needs_filter)
+    {
+      $identifier = '?id';
+    }else{
+      unset($filter);
+    }
+    
+    if(isset($filter))
+    {
+      $filter_out = $filter;
+    }
+  }
+  
   function build_query(&$uri, $components, $identifier)
   {
     $options = &$this->options;
@@ -239,52 +294,7 @@ class Resolver
     
     if($identifier_is_literal)
     {
-      $needs_filter = false;
-      $filter = 'isLITERAL(?id)';
-      if(!is_string($identifier))
-      {
-        $identifier = 'STR('.$this->format_name($identifier).')';
-        $needs_filter = true;
-      }else{
-        $identifier = '"'.addslashes($identifier).'"';
-      }
-      
-      if($idkind === 'language')
-      {
-        if($needs_filter)
-        {
-          $idtype = '"'.addslashes($idtype).'"';
-          $filter = "$filter && LANG(?id) = $idtype";
-          $constructor = "STRLANG($identifier, $idtype)";
-        }else{
-          $identifier = "$identifier@$idtype";
-        }
-      }else if($idkind === 'datatype')
-      {
-        $idtype = $this->format_name($idtype);
-        if($needs_filter)
-        {
-          $filter = "$filter && DATATYPE(?id) = $idtype";
-          $constructor = "STRDT($identifier, $idtype)";
-        }else{
-          $identifier = "$identifier^^$idtype";
-        }
-      }else if($idkind === 'langrange')
-      {
-        $needs_filter = true;
-        $idtype = '"'.addslashes($idtype).'"';
-        $filter = "$filter && LANGMATCHES(lang(?id), $idtype)";
-      }else{
-        $needs_filter = true;
-      }
-      $filter = "$filter && STR(?id) = $identifier";
-      
-      if($needs_filter)
-      {
-        $identifier = '?id';
-      }else{
-        unset($filter);
-      }
+      $this->build_identifier_literal($identifier, $idkind, $idtype, $constructor, $filter);
     }
     
     $initial = '?s';
