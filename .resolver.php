@@ -15,6 +15,11 @@ function unparse_url($uri)
   return "$scheme$start$user$pass$host$port$path$query$fragment";
 }
 
+function get_query_string($query)
+{
+  return http_build_query($query, null, '&', PHP_QUERY_RFC3986);
+}
+
 function array_any(&$array, $callable)
 {
   foreach($array as $value)
@@ -45,8 +50,8 @@ function analyze_uri($uri, &$components, &$identifier, &$query)
   
   if($uri['scheme'] !== 'lid')
   {
-    $uri['scheme'] = htmlspecialchars($uri['scheme']);
-    report_error(400, "Scheme must be <mark>lid:</mark> (was <q>$uri[scheme]</q>)!");
+    $scheme = htmlspecialchars($uri['scheme']);
+    report_error(400, "Scheme must be <mark>lid:</mark> (was <q>$scheme</q>)!");
   }
   unset($uri['scheme']);
   
@@ -84,8 +89,6 @@ function validate_name($name)
   }
 }
 
-$unresolved_prefixes = array();
-
 function get_special_name($name)
 {
   if(!is_string($name) && $name[0] === '_')
@@ -95,9 +98,13 @@ function get_special_name($name)
   return null;
 }
 
-function get_query($query, $options)
+function create_query_array($query, $options)
 {
-  $query = array('query' => $query);
+  $arr = array();
+  if($query !== null)
+  {
+    $arr['query'] = $query;
+  }
   foreach($options as $key => $value)
   {
     if(substr($key, 0, 1) === '_')
@@ -107,8 +114,8 @@ function get_query($query, $options)
       {
         report_error(400, "This query parameter must not be redefined (name <q>$name</q>)!");
       }
-      $query[$key] = $value;
+      $arr[$key] = $value;
     }
   }
-  return $query;
+  return $arr;
 }

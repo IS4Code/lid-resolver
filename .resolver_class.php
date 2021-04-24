@@ -53,15 +53,18 @@ class Resolver
       return $qname[0];
     }
   }
-
-  function parse_property(&$value)
+  
+  function parse_properties(&$components)
   {
-    if(substr($value, 0, 1) === "'")
+    array_walk($components, function(&$value)
     {
-      $value = array($this->resolve_name(substr($value, 1)), true);
-    }else{
-      $value = array($this->resolve_name($value), false);
-    }
+      if(substr($value, 0, 1) === "'")
+      {
+        $value = array($this->resolve_name(substr($value, 1)), true);
+      }else{
+        $value = array($this->resolve_name($value), false);
+      }
+    });
   }
   
   function parse_identifier($identifier, &$lang, &$langRange, &$datatype)
@@ -180,17 +183,13 @@ class Resolver
     
     if(isset($options['print']))
     {
-      $uriquery = get_query('', $options);
-      unset($uriquery['query']);
-      $uri['query'] = http_build_query($uriquery, null, '&');
+      $uriquery = create_query_array(null, $options);
+      $uri['query'] = get_query_string($uriquery);
       if(empty($uri['query']))
       {
         unset($uri['query']);
       }
     }
-    
-    //$this->use_prefix('rdf', $rdf);
-    //$this->use_prefix('xsd', $xsd);
     
     if(isset($options['check']) || isset($options['infer']))
     {
