@@ -39,14 +39,19 @@ function is_option($options, $key)
   return false;
 }
 
-function analyze_uri($uri, &$components, &$identifier, &$query)
+function parse_uri($uri)
 {
   if(strpos($uri, '?') === false && strpos($uri, '#') === false)
   {
     $uri = "$uri?";
   }
   
-  $uri = parse_url($uri);
+  return parse_url($uri);
+}
+
+function analyze_uri($uri, &$components, &$identifier, &$query)
+{
+  $uri = parse_uri($uri);
   
   if($uri === false)
   {

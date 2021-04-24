@@ -112,19 +112,20 @@ class Resolver
     return array($identifier, $kind, $type);
   }
   
-  function parse_query($query)
+  function parse_query(&$query)
   {
     $context = &$this->context;
     $options = &$this->options;
     
-    foreach($query as $part)
+    foreach($query as $index => &$item)
     {
-      $part = explode('=', $part, 2);
+      $part = explode('=', $item, 2);
       $key = urldecode($part[0]);
       $value = @$part[1];
       if(substr($part[0], 0, 1) === '_')
       {
         $options[substr($key, 1)] = urldecode($value);
+        unset($query[$index]);
       }else if(isset($part[1]))
       {
         $value = $this->resolve_name($value, true);

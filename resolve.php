@@ -54,7 +54,15 @@ if(!empty($query))
 {
   $resolver->parse_query($query);
 }
-unset($query);
+
+$reconstructed_uri = $uri;
+$reconstructed_uri['scheme'] = 'lid';
+foreach($options as $key => $value)
+{
+  $query[] = '_'.rawurlencode($key).'='.rawurlencode($value);
+}
+$reconstructed_uri['query'] = implode('&', $query);
+$reconstructed_uri['path'] = implode('/', array_merge(isset($uri['host']) ? array('') : null, $components, array($identifier)));
   
 $resolver->parse_properties($components);
 
@@ -86,17 +94,22 @@ if(!is_option($options, 'print'))
   header("Location: $target_uri");
 }else{
   $target_uri = unparse_url($uri);
+  $reconstructed_uri = unparse_url($reconstructed_uri);
   if(!is_option($options, 'html'))
   {
     header('Content-Type: application/sparql-query');
     header('Content-Disposition: inline; filename="query.sparql"');
+    echo "# Generated from $reconstructed_uri\n";
     echo "# This query would be sent to $target_uri\n\n";
     echo $sparql;
   }else{
     $sparql = htmlspecialchars($sparql);
     $inputs = create_query_array(null, $options);
-    unset($uri['query']);
+    
     $target_uri = htmlspecialchars($target_uri);
+    $reconstructed_uri = htmlspecialchars($reconstructed_uri);
+    
+    unset($uri['query']);
     $endpoint_uri = htmlspecialchars(unparse_url($uri));
     
     ?><!DOCTYPE html>
@@ -110,6 +123,7 @@ if(!is_option($options, 'print'))
 <body>
 <pre><code class="language-sparql"><?php
 
+    echo "# Generated from $reconstructed_uri\n";
     echo "# This query would be sent to $target_uri\n\n";
     echo $sparql;
 
