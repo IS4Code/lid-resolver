@@ -216,7 +216,7 @@ class Resolver
       $skos = '';
     }
     
-    if(isset($rdf) || isset($rdfs) || isset($owl) || isset($skos) || isset($xsd))
+    if(!empty($rdf) || !empty($rdfs) || !empty($owl) || !empty($skos) || !empty($xsd))
     {
       $query[] = '';
     }

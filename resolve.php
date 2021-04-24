@@ -45,7 +45,7 @@ require '.resolver_class.php';
 
 $uri = analyze_uri($uri, $components, $identifier, $query);
 
-function create_query($uri, $components, $identifier, $query)
+function create_query($options, $uri, $components, $identifier, $query)
 {
   $data = get_context();
   $context = &$data['@context'];
@@ -64,7 +64,7 @@ function create_query($uri, $components, $identifier, $query)
   return $resolver->build_query($uri, $components, $identifier, $language, $langRange, $datatype);
 }
 
-$query = create_query($uri, $components, $identifier, $query);
+$query = create_query($options, $uri, $components, $identifier, $query);
 
 if(isset($options['path']))
 {
