@@ -62,7 +62,7 @@ foreach($options as $key => $value)
   $query[] = '_'.rawurlencode($key).'='.rawurlencode($value);
 }
 $reconstructed_uri['query'] = implode('&', $query);
-$reconstructed_uri['path'] = implode('/', array_merge(isset($uri['host']) ? array('') : null, $components, array($identifier)));
+$reconstructed_uri['path'] = implode('/', array_merge(isset($uri['host']) ? array('') : array(), $components, array($identifier)));
   
 $resolver->parse_properties($components);
 
