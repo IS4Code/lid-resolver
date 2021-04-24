@@ -57,7 +57,7 @@ function create_query($uri, $components, $identifier, $query)
     $resolver->parse_query($query);
   }
   
-  array_walk($components, $resolver->parse_property);
+  array_walk($components, [$resolver, 'parse_property']);
   
   $identifier = $resolver->parse_identifier($identifier, $language, $langRange, $datatype);
   
@@ -91,7 +91,7 @@ if(isset($options['print']))
     echo $query;
   }else{
     $query = htmlspecialchars($query);
-    $inputs = get_query(null);
+    $inputs = get_query(null, $options);
     unset($inputs['query']);
     unset($uri['query']);
     $target_uri = htmlspecialchars($target_uri);
@@ -168,7 +168,7 @@ if(isset($options['print']))
 </html><?php
   }
 }else{
-  $uri['query'] = http_build_query(get_query($query), null, '&');
+  $uri['query'] = http_build_query(get_query($query, $options), null, '&');
   $target_uri = unparse_url($uri);
   http_response_code(303);
   header("Location: $target_uri");

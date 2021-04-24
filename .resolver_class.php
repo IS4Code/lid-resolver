@@ -1,7 +1,4 @@
 <?php
-/*global $options;
-global $context;
-global $unresolved_prefixes;*/
 
 class Resolver
 {
@@ -10,13 +7,13 @@ class Resolver
   private $context;
   private $options;
   
-  public __construct(&$context, &$options)
+  public function __construct(&$context, &$options)
   {
     $this->context = &$context;
     $this->options = &$options;
   }
 
-  function resolve_name($name, $allowEmpty = false)
+  private function resolve_name($name, $allowEmpty = false)
   {
     $context = &$this->context;
     
@@ -61,9 +58,9 @@ class Resolver
   {
     if(substr($value, 0, 1) === "'")
     {
-      $value = array(resolve_name(substr($value, 1)), true);
+      $value = array($this->resolve_name(substr($value, 1)), true);
     }else{
-      $value = array(resolve_name($value), false);
+      $value = array($this->resolve_name($value), false);
     }
   }
   
@@ -91,14 +88,14 @@ class Resolver
         {
           $langRange = rtrim($language, '-');
         }else{
-          $datatype = resolve_name($language);
+          $datatype = $this->resolve_name($language);
         }
         unset($language);
       }
     }
     if($is_prefixed)
     {
-      $identifier = resolve_name($identifier[0]);
+      $identifier = $this->resolve_name($identifier[0]);
     }else{
       $identifier = urldecode($identifier[0]);
     }
@@ -124,7 +121,7 @@ class Resolver
         $options[substr($key, 1)] = urldecode($value);
       }else if(isset($part[1]))
       {
-        $value = resolve_name($value, true);
+        $value = $this->resolve_name($value, true);
         if($value === null)
         {
           unset($context[$key]);
@@ -138,7 +135,7 @@ class Resolver
     }
   }
   
-  function format_name($name)
+  private function format_name($name)
   {
     static $escape = '_~.-!$&\'()*+,;=/?#@%';
     
@@ -163,27 +160,7 @@ class Resolver
     return $name[0].':'.addcslashes($name[1], $escape);
   }
   
-  function get_query($query)
-  {
-    $options = &$this->options;
-    
-    $query = array('query' => $query);
-    foreach($options as $key => $value)
-    {
-      if(substr($key, 0, 1) === '_')
-      {
-        $key = substr($key, 1);
-        if($key === 'query')
-        {
-          report_error(400, "This query parameter must not be redefined (name <q>$name</q>)!");
-        }
-        $query[$key] = $value;
-      }
-    }
-    return $query;
-  }
-  
-  function use_prefix($name, &$prefix)
+  private function use_prefix($name, &$prefix)
   {
     $context = &$this->context;
     
@@ -203,7 +180,7 @@ class Resolver
     
     if(isset($options['print']))
     {
-      $uriquery = get_query('');
+      $uriquery = get_query('', $options);
       unset($uriquery['query']);
       $uri['query'] = http_build_query($uriquery, null, '&');
       if(empty($uri['query']))
@@ -212,23 +189,31 @@ class Resolver
       }
     }
     
-    //use_prefix('rdf', $rdf);
-    //use_prefix('xsd', $xsd);
+    //$this->use_prefix('rdf', $rdf);
+    //$this->use_prefix('xsd', $xsd);
     
     if(isset($options['check']) || isset($options['infer']))
     {
-      use_prefix('rdfs', $rdfs);
+      $this->use_prefix('rdfs', $rdfs);
       $query[] = "PREFIX $rdfs: <http://www.w3.org/2000/01/rdf-schema#>";
+    }else{
+      $rdfs = '';
     }
+    
     if(isset($options['check']) || isset($options['unify_owl']) || isset($options['infer']))
     {
-      use_prefix('owl', $owl);
+      $this->use_prefix('owl', $owl);
       $query[] = "PREFIX $owl: <http://www.w3.org/2002/07/owl#>";
+    }else{
+      $owl = '';
     }
+    
     if(isset($options['unify_skos']))
     {
-      use_prefix('skos', $skos);
+      $this->use_prefix('skos', $skos);
       $query[] = "PREFIX $skos: <http://www.w3.org/2004/02/skos/core#>";
+    }else{
+      $skos = '';
     }
     
     if(isset($rdf) || isset($rdfs) || isset($owl) || isset($skos) || isset($xsd))
@@ -244,7 +229,7 @@ class Resolver
       {
         array_pop($components);
         $identifier_is_literal = false;
-        $identifier = format_name($identifier);
+        $identifier = $this->format_name($identifier);
       }
     } 
     
@@ -254,7 +239,7 @@ class Resolver
       $filter = 'isLITERAL(?id)';
       if(!is_string($identifier))
       {
-        $identifier = 'STR('.format_name($identifier).')';
+        $identifier = 'STR('.$this->format_name($identifier).')';
         $needs_filter = true;
       }else{
         $identifier = '"'.addslashes($identifier).'"';
@@ -272,7 +257,7 @@ class Resolver
         }
       }else if(isset($datatype))
       {
-        $datatype = format_name($datatype);
+        $datatype = $this->format_name($datatype);
         if($needs_filter)
         {
           $filter = "$filter && DATATYPE(?id) = $datatype";
@@ -312,7 +297,7 @@ class Resolver
       {
         $subj = $index == 0 ? $initial : "_:s$index";
         $obj = $index == count($components) - 1 ? $identifier : '_:s'.($index + 1);
-        $name = format_name($value[0]);
+        $name = $this->format_name($value[0]);
         if($value[1])
         {
           $query[] = "  $obj $name $subj .";
@@ -386,7 +371,7 @@ class Resolver
           }      
         }    
         $any = true;
-        $name = format_name($name);
+        $name = $this->format_name($name);
         $query2[] = '  FILTER EXISTS {';
         $query2[] = '    {';
         $query2[] = "      $name $infer_path/a/$subclass_path $owl:".($reverse?'':'Inverse').'FunctionalProperty .';
@@ -424,7 +409,7 @@ class Resolver
       {
         array_walk($components, function(&$value)
         {
-          $name = format_name($value[0]);
+          $name = $this->format_name($value[0]);
           if($value[1]) $name = "^$name";
           $value = $name;
         });
@@ -479,7 +464,7 @@ class Resolver
               }
             }
           }else{
-            $name = format_name($value[0]);
+            $name = $this->format_name($value[0]);
             if($inverse)
             {
               $triple_subj = $step_output;

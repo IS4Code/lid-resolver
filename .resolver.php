@@ -94,3 +94,21 @@ function get_special_name($name)
   }
   return null;
 }
+
+function get_query($query, $options)
+{
+  $query = array('query' => $query);
+  foreach($options as $key => $value)
+  {
+    if(substr($key, 0, 1) === '_')
+    {
+      $key = substr($key, 1);
+      if($key === 'query')
+      {
+        report_error(400, "This query parameter must not be redefined (name <q>$name</q>)!");
+      }
+      $query[$key] = $value;
+    }
+  }
+  return $query;
+}
