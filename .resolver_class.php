@@ -564,6 +564,8 @@ class Resolver
       $query[] = '}';
     }
     
+    $query[] = '';
+    
     if(!is_option($options, 'print'))
     {
       $query_filtered = array();
