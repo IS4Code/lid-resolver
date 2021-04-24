@@ -45,7 +45,7 @@ require '.resolver_class.php';
 
 $uri = analyze_uri($uri, $components, $identifier, $query);
 
-function create_query($options, $uri, $components, $identifier, $query, &$unresolved_prefixes)
+function create_query(&$options, $uri, $components, $identifier, $query, &$unresolved_prefixes)
 {
   $data = get_context();
   $context = &$data['@context'];
