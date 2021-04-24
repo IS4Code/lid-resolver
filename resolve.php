@@ -60,35 +60,40 @@ $resolver->parse_properties($components);
 
 $identifier = $resolver->parse_identifier($identifier);
 
-$query = $resolver->build_query($uri, $components, $identifier);
+$sparql = $resolver->build_query($uri, $components, $identifier);
 
 $unresolved_prefixes = $resolver->unresolved_prefixes;
 
-if(isset($options['path']))
+if(!empty($options['path']))
 {
   $uri['path'] = "/$options[path]";
 }else{
   $uri['path'] = '/sparql/';
 }
 
-if(isset($options['scheme']))
+if(!empty($options['scheme']))
 {
   $uri['scheme'] = $options['scheme'];
 }else{
   $uri['scheme'] = @$_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 }
 
-if(is_option($options, 'print'))
+if(!is_option($options, 'print'))
 {
+  $uri['query'] = get_query_string(create_query_array($sparql, $options));
+  $target_uri = unparse_url($uri);
+  http_response_code(303);
+  header("Location: $target_uri");
+}else{
   $target_uri = unparse_url($uri);
   if(!is_option($options, 'html'))
   {
     header('Content-Type: application/sparql-query');
     header('Content-Disposition: inline; filename="query.sparql"');
     echo "# This query would be sent to $target_uri\n\n";
-    echo $query;
+    echo $sparql;
   }else{
-    $query = htmlspecialchars($query);
+    $sparql = htmlspecialchars($sparql);
     $inputs = create_query_array(null, $options);
     unset($uri['query']);
     $target_uri = htmlspecialchars($target_uri);
@@ -106,7 +111,7 @@ if(is_option($options, 'print'))
 <pre><code class="language-sparql"><?php
 
     echo "# This query would be sent to $target_uri\n\n";
-    echo $query;
+    echo $sparql;
 
 ?></code></pre>
 <script src="prism.js"></script>
@@ -122,7 +127,7 @@ if(is_option($options, 'print'))
     }
 
 ?>
-<textarea name="query" style="display:none"><?=$query?></textarea>
+<textarea name="query" style="display:none"><?=$sparql?></textarea>
 <input type="submit" value="Send">
 </form>
 <form style="display:inline" method="GET" action="<?=$endpoint_uri?>">
@@ -137,7 +142,7 @@ if(is_option($options, 'print'))
 
 ?>
 <input type="hidden" name="explain" value="on">
-<textarea name="query" style="display:none"><?=$query?></textarea>
+<textarea name="query" style="display:none"><?=$sparql?></textarea>
 <input type="submit" value="Analyze">
 </form>
 <form style="display:inline" method="POST" action="http://www.sparql.org/validate/query">
@@ -153,7 +158,7 @@ if(is_option($options, 'print'))
       }
       echo "\n";
     }
-    echo $query;
+    echo $sparql;
 
 ?></textarea>
 <input type="hidden" name="languageSyntax" value="SPARQL">
@@ -164,9 +169,4 @@ if(is_option($options, 'print'))
 </body>
 </html><?php
   }
-}else{
-  $uri['query'] = get_query_string(create_query_array($query, $options));
-  $target_uri = unparse_url($uri);
-  http_response_code(303);
-  header("Location: $target_uri");
 }
