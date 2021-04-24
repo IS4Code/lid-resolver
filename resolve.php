@@ -59,9 +59,9 @@ function create_query($options, $uri, $components, $identifier, $query, &$unreso
   
   $resolver->parse_properties($components);
   
-  $identifier = $resolver->parse_identifier($identifier, $language, $langRange, $datatype);
+  $identifier = $resolver->parse_identifier($identifier);
   
-  $result = $resolver->build_query($uri, $components, $identifier, $language, $langRange, $datatype);
+  $result = $resolver->build_query($uri, $components, $identifier);
   
   $unresolved_prefixes = $resolver->unresolved_prefixes;
   

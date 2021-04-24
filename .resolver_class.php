@@ -67,46 +67,49 @@ class Resolver
     });
   }
   
-  function parse_identifier($identifier, &$lang, &$langRange, &$datatype)
+  function parse_identifier($identifier)
   {
     $identifier = explode('@', $identifier, 2);
-    $is_prefixed = false;
+    $kind = 'plain';
+    $type = null;
+    
+    $is_name = false;
     if(isset($identifier[1]))
     {
-      $language = urldecode($identifier[1]);
-      if(empty($language))
+      $type = $identifier[1];
+      if(empty($type))
       {
-        $is_prefixed = true;
-      }else if(substr($language, 0, 1) === '@' && strlen($language) > 1)
+        $is_name = true;
+      }else if(substr($type, 0, 1) === '@' && strlen($type) > 1)
       {
-        $is_prefixed = true;
-        $language = substr($language, 1);
+        $is_name = true;
+        $type = substr($type, 1);
       }
-      if(empty($language))
+      if(!empty($type))
       {
-        unset($language);
-      }else if(!preg_match('/^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$/', $language))
-      {
-        if(preg_match('/^(?:[a-zA-Z]{1,8}|\*)(-(?:[a-zA-Z0-9]{1,8}|\*))*-?$/', $language))
+        if(preg_match('/^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$/', $type))
         {
-          $langRange = rtrim($language, '-');
+          $type = urldecode($type);
+          $kind = 'language';
+        }else if(preg_match('/^(?:[a-zA-Z]{1,8}|\*)(-(?:[a-zA-Z0-9]{1,8}|\*))*-?$/', $type))
+        {
+          $type = rtrim(urldecode($type), '-');
+          $kind = 'langrange';
         }else{
-          $datatype = $this->resolve_name($language);
+          $type = $this->resolve_name($type);
+          $kind = 'datatype';
         }
-        unset($language);
       }
     }
-    if($is_prefixed)
+    
+    if($is_name)
     {
       $identifier = $this->resolve_name($identifier[0]);
     }else{
       $identifier = urldecode($identifier[0]);
     }
-    if(isset($language))
-    {
-      $lang = $language;
-    }
-    return $identifier;
+    
+    return array($identifier, $kind, $type);
   }
   
   function parse_query($query)
@@ -175,9 +178,11 @@ class Resolver
     $prefix = $name.$suffix;
   }
   
-  function build_query(&$uri, $components, $identifier, $language, $langRange, $datatype)
+  function build_query(&$uri, $components, $identifier)
   {
     $options = &$this->options;
+    
+    list($identifier, $idkind, $idtype) = $identifier;
     
     $query = array();
     
@@ -224,7 +229,7 @@ class Resolver
     if(!empty($components))
     {
       $last = $components[count($components) - 1];
-      if(get_special_name($last[0]) == 'uri' && !$last[1] && !isset($language) && !isset($langRange) && (!isset($datatype) || $datatype === 'http://www.w3.org/2001/XMLSchema#anyURI'))
+      if(get_special_name($last[0]) === 'uri' && !$last[1] && ($idkind === 'plain' || ($idkind === 'datatype' && $idtype === 'http://www.w3.org/2001/XMLSchema#anyURI')))
       {
         array_pop($components);
         $identifier_is_literal = false;
@@ -244,31 +249,31 @@ class Resolver
         $identifier = '"'.addslashes($identifier).'"';
       }
       
-      if(isset($language))
+      if($idkind === 'language')
       {
         if($needs_filter)
         {
-          $language = '"'.addslashes($language).'"';
-          $filter = "$filter && LANG(?id) = $language";
-          $constructor = "STRLANG($identifier, $language)";
+          $idtype = '"'.addslashes($idtype).'"';
+          $filter = "$filter && LANG(?id) = $idtype";
+          $constructor = "STRLANG($identifier, $idtype)";
         }else{
-          $identifier = "$identifier@$language";
+          $identifier = "$identifier@$idtype";
         }
-      }else if(isset($datatype))
+      }else if($idkind === 'datatype')
       {
-        $datatype = $this->format_name($datatype);
+        $idtype = $this->format_name($idtype);
         if($needs_filter)
         {
-          $filter = "$filter && DATATYPE(?id) = $datatype";
-          $constructor = "STRDT($identifier, $datatype)";
+          $filter = "$filter && DATATYPE(?id) = $idtype";
+          $constructor = "STRDT($identifier, $idtype)";
         }else{
-          $identifier = "$identifier^^$datatype";
+          $identifier = "$identifier^^$idtype";
         }
-      }else if(isset($langRange))
+      }else if($idkind === 'langrange')
       {
         $needs_filter = true;
-        $langRange = '"'.addslashes($langRange).'"';
-        $filter = "$filter && LANGMATCHES(lang(?id), $langRange)";
+        $idtype = '"'.addslashes($idtype).'"';
+        $filter = "$filter && LANGMATCHES(lang(?id), $idtype)";
       }else{
         $needs_filter = true;
       }
