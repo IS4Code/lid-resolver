@@ -127,7 +127,7 @@ if(!is_option($options, 'print'))
     }
 
 ?>
-<textarea name="query" style="display:none"><?=$sparql?></textarea>
+<textarea name="query" hidden style="display:none"><?=$sparql?></textarea>
 <input type="submit" value="Send">
 </form>
 <form style="display:inline" method="GET" action="<?=$endpoint_uri?>">
@@ -142,11 +142,11 @@ if(!is_option($options, 'print'))
 
 ?>
 <input type="hidden" name="explain" value="on">
-<textarea name="query" style="display:none"><?=$sparql?></textarea>
+<textarea name="query" hidden style="display:none"><?=$sparql?></textarea>
 <input type="submit" value="Analyze">
 </form>
 <form style="display:inline" method="POST" action="http://www.sparql.org/validate/query">
-<textarea name="query" style="display:none"><?php
+<textarea name="query" hidden style="display:none"><?php
 
     if(count($unresolved_prefixes) > 0)
     {
