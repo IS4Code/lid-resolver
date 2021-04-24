@@ -344,18 +344,23 @@ class Resolver
       $unify_path = "($skos:exactMatch|^$skos:exactMatch)*";
     }
     
+    if(is_option($options, 'first'))
+    {
+      $selection = 'SELECT';
+    }else{
+      $selection = 'SELECT DISTINCT';
+    }
+    
     if(!isset($filter) || isset($constructor))
     {
-      $query2[] = "SELECT DISTINCT $initial";
-      $query2[] = "WHERE {";
+      $query2[] = "$selection $initial";
     }else if(empty($components) && !isset($unify_path))
     {
-      $query2[] = "SELECT DISTINCT $identifier";
-      $query2[] = "WHERE {";
+      $query2[] = "$selection $identifier";
     }else{
-      $query2[] = "SELECT DISTINCT $initial $identifier";
-      $query2[] = "WHERE {";
+      $query2[] = "$selection $initial $identifier";
     }
+    $query2[] = "WHERE {";
     
     $subproperty_path = "($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*";
     $inverse_path = "/$owl:inverseOf/($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*";
