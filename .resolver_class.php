@@ -418,7 +418,7 @@ class Resolver
       if(isset($unify_path))
       {
         $query_inner[] = "  $initial $unify_path $identifier .";
-      }else if($constructor)
+      }else if(isset($constructor))
       {
         $query_inner[] = "  BIND ($constructor AS $initial)";
         unset($filter);
