@@ -10,7 +10,7 @@
 <p>This website is configured to resolve URIs in the form: <mark><code>https://<?=$_SERVER[HTTP_HOST]?>/lid://<span contenteditable="true">example.org/ex:id/1</span></code></mark>.<br>
 You may also use the form below:</p>
 <form method="GET" action="resolve">
-<p><textarea name="uri" rows="1" cols="100" onkeypress="if(event.which===13&&!event.shiftKey){event.target.form.submit();event.preventDefault();}">lid://dbpedia.org/'foaf:depiction/myprefix:label/Earth?myprefix=rdfs:</textarea></p>
+<p><textarea name="uri" rows="1" cols="100" onkeypress="if(event.which===13&&!event.shiftKey){event.target.form.submit();event.preventDefault();}">lid://my.data.is4.site/:nick/IS4?=foaf:</textarea></p>
 <input type="checkbox" name="print" id="print" checked><label for="print">Just print the SPARQL query; do not redirect (_print).</label><br>
 <input type="checkbox" name="html" id="html" checked><label for="html">Display as HTML; only with _print (_html).</label><br>
 <input type="checkbox" name="check" id="check"><label for="check">Check functional properties (_check).</label><br>
