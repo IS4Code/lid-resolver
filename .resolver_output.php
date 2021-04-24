@@ -41,7 +41,7 @@ var rows = container.getElementsByTagName('tr');
 if(rows.length == 0)
 {
   document.write('<p>The SPARQL endopoint did not return any loadable results, executing directly...</p>');
-  location.replace(document.body.getAttribute('data-redirect').href);
+  location.replace(document.body.getAttribute('data-redirect'));
 }else{
   var header = rows[0].getElementsByTagName('th');
   var index = -1;
@@ -55,7 +55,7 @@ if(rows.length == 0)
   if(index == -1)
   {
     document.write('<p>Unrecognized results were returned, executing directly...</p>');
-    location.replace(document.body.getAttribute('data-redirect').href);
+    location.replace(document.body.getAttribute('data-redirect'));
   }else{
     if(rows.length == 1)
     {
