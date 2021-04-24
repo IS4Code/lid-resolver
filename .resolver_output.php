@@ -25,6 +25,7 @@ function output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_
 <head>
 <title><?=htmlspecialchars($reconstructed_uri)?></title>
 <link rel="stylesheet" href="//is4.site/styles/terminal.css?theme=4">
+<base href="<?=htmlspecialchars($target_uri)?>">
 <noscript>
 <meta http-equiv="refresh" content="2;url=<?=htmlspecialchars($target_uri)?>">
 </noscript>
