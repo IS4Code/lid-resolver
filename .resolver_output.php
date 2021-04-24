@@ -26,10 +26,10 @@ function output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_
 <title><?=htmlspecialchars($reconstructed_uri)?></title>
 <link rel="stylesheet" href="//is4.site/styles/terminal.css?theme=4">
 <noscript>
-<meta http-equiv="refresh" content="1;url=<?=htmlspecialchars($target_uri)?>">
+<meta http-equiv="refresh" content="2;url=<?=htmlspecialchars($target_uri)?>">
 </noscript>
 </head>
-<body>
+<body data-redirect="<?=htmlspecialchars($target_uri)?>">
 <p>Querying the server...</p>
 <noscript>
 <p>You have scripts disabled, you will be redirected to the <a id="redirect" href="<?=htmlspecialchars($target_uri)?>">query results</a>.</p>
@@ -41,7 +41,7 @@ var rows = container.getElementsByTagName('tr');
 if(rows.length == 0)
 {
   document.write('<p>The SPARQL endopoint did not return any loadable results, executing directly...</p>');
-  location.replace(document.getElementById('redirect').href);
+  location.replace(document.body.getAttribute('data-redirect').href);
 }else{
   var header = rows[0].getElementsByTagName('th');
   var index = -1;
@@ -55,7 +55,7 @@ if(rows.length == 0)
   if(index == -1)
   {
     document.write('<p>Unrecognized results were returned, executing directly...</p>');
-    location.replace(document.getElementById('redirect').href);
+    location.replace(document.body.getAttribute('data-redirect').href);
   }else{
     if(rows.length > 2)
     {
