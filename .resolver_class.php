@@ -413,26 +413,26 @@ class Resolver
       }
     }
     
+    if(isset($constructor))
+    {
+        $query_inner[] = "  BIND ($constructor AS $identifier)";
+    }
+    
     if(empty($components))
     {
       if(isset($unify_path))
       {
         $query_inner[] = "  $initial $unify_path $identifier .";
-      }else if(isset($constructor))
+      }else if(!isset($constructor))
       {
-        $query_inner[] = "  BIND ($constructor AS $initial)";
-        unset($filter);
-      }else if(isset($filter))
-      {
-        $query_inner[] = "  ?ls ?lp $identifier .";
-      }else{
-        $query_inner[] = "  BIND ($identifier AS $initial)";
+        if(isset($filter))
+        {
+          $query_inner[] = "  ?ls ?lp $identifier .";
+        }else{
+          $query_inner[] = "  BIND ($identifier AS $initial)";
+        }
       }
     }else{
-      if(isset($constructor))
-      {
-          $query_inner[] = "  BIND ($constructor AS $identifier)";
-      }
       
       if(!is_option($options, 'infer') && !array_any($components, function($val)
       {
