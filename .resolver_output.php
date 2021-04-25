@@ -80,7 +80,7 @@ if(rows.length == 0)
         location.replace(links[0].href);
       }else{
         document.write('<p>Only data was returned...</p>');
-        location.replace("data:text/html;charset=utf-8;base64," + btoa(cell.innerHTML));
+        location.replace('data:text/html;charset=utf-8;base64,' + btoa(unescape(encodeURIComponent(cell.innerHTML))));
       }
     }else{
       document.write('<p>More than one result returned:</p><ul>');
