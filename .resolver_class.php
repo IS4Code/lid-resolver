@@ -58,7 +58,10 @@ class Resolver
   {
     array_walk($components, function(&$value)
     {
-      if(substr($value, 0, 1) === "'")
+      if(substr($value, 0, 3) === '%27')
+      {
+        $value = array($this->resolve_name(substr($value, 3)), true);
+      }else if(substr($value, 0, 1) === "'")
       {
         $value = array($this->resolve_name(substr($value, 1)), true);
       }else{
