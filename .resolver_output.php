@@ -46,12 +46,21 @@ if(rows.length == 0)
 }else{
   var header = rows[0].getElementsByTagName('th');
   var index = -1;
+  var idIndex = -1;
   for(var i = 0; i < header.length; i++)
   {
     if(header[i].textContent === 's')
     {
       index = i;
     }
+    if(header[i].textContent === 'id')
+    {
+      idIndex = i;
+    }
+  }
+  if(index == -1)
+  {
+    index = idIndex;
   }
   if(index == -1)
   {
@@ -63,14 +72,15 @@ if(rows.length == 0)
       document.write('<p>No results found.</p>');
     }else if(rows.length == 2)
     {
-      var links = rows[1].getElementsByTagName('td')[index].getElementsByTagName('a');
+      var cell = rows[1].getElementsByTagName('td')[index];
+      var links = cell.getElementsByTagName('a');
       if(links.length >= 1)
       {
         document.write('<p>Navigating to entity...</p>');
         location.replace(links[0].href);
       }else{
-        document.write('<p>Unrecognized results were returned, executing directly...</p>');
-        location.replace(document.body.getAttribute('data-redirect'));
+        document.write('<p>Only data was returned...</p>');
+        location.replace("data:text/html;charset=utf-8;base64," + btoa(cell.innerHTML));
       }
     }else{
       document.write('<p>More than one result returned:</p><ul>');
