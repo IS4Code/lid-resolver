@@ -50,7 +50,7 @@ $context = &$data['@context'];
 
 $resolver = new Resolver($context, $options);
 
-if(!empty($query))
+if(isset($query))
 {
   $resolver->parse_query($query);
 }
@@ -61,7 +61,10 @@ foreach($options as $key => $value)
 {
   $query[] = '_'.rawurlencode($key).'='.rawurlencode($value);
 }
-$reconstructed_uri['query'] = implode('&', $query);
+if(isset($query))
+{
+  $reconstructed_uri['query'] = implode('&', $query);
+}
 $reconstructed_uri['path'] = implode('/', array_merge(isset($uri['host']) ? array('') : array(), $components, array($identifier)));
   
 $resolver->parse_properties($components);
