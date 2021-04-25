@@ -139,6 +139,7 @@ function get_context()
       $context['owl'] = 'http://www.w3.org/2002/07/owl#';
       $context['skos'] = 'http://www.w3.org/2004/02/skos/core#';
       $context['xsd'] = 'http://www.w3.org/2001/XMLSchema#';
+      $context['xs'] = $context['xsd'];
       
       foreach(array('http', 'https', 'urn', 'tag', 'mailto', 'data', 'file', 'ftp', 'lid') as $name)
       {
