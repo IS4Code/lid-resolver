@@ -46,6 +46,8 @@ PREFIX urn: &lt;urn:&gt;
 PREFIX tag: &lt;tag:&gt;
 PREFIX mailto: &lt;mailto:&gt;
 PREFIX data: &lt;data:&gt;
+PREFIX file: &lt;file:&gt;
+PREFIX ftp: &lt;ftp:&gt;
 PREFIX lid: &lt;lid:&gt;</pre>
 <p>These prefixes are defined in order to make it possible to write <q>:</q> instead of <mark><code>%3A</code></mark> in a <mark><code>name</code></mark> without relying on the target endpoint to support these prefixes.</p></li>
 <dt>Supplemental prefixes</dt><dd><pre>PREFIX base: &lt;&gt;</pre>
