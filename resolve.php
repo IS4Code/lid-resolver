@@ -90,8 +90,8 @@ require '.resolver_output.php';
 
 switch(@$options['action'])
 {
-  case 'navigate':
-    output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes);
+  case 'redirect':
+    output_redirect($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes);
     break;
   case 'debug':
     output_debug($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes);
@@ -100,6 +100,6 @@ switch(@$options['action'])
     output_print($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes);
     break;
   default:
-    output_redirect($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes);
+    output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes);
     break;
 }
