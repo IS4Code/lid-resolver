@@ -11,6 +11,12 @@ function output_redirect($uri, $sparql, $sparql_inner, $options, $reconstructed_
 
 function output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes)
 {
+  if(isset($uri['fragment']))
+  {
+    $fragment = "#$uri[fragment]";
+  }else{
+    $fragment = '';
+  }
   $uri['query'] = get_query_string(create_query_array($sparql, $options));
   $target_uri = unparse_url($uri);
   
@@ -30,19 +36,44 @@ function output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_
 <meta http-equiv="refresh" content="2;url=<?=htmlspecialchars($target_uri)?>">
 </noscript>
 </head>
-<body data-redirect="<?=htmlspecialchars($target_uri)?>">
+<body data-redirect="<?=htmlspecialchars($target_uri)?>" data-fragment="<?=htmlspecialchars($fragment)?>">
 <p>Querying the server...</p>
 <noscript>
 <p>You have scripts disabled, you will be redirected to the <a id="redirect" href="<?=htmlspecialchars($target_uri)?>">query results</a>.</p>
 </noscript>
 <div id="query_results" hidden style="display:none"><script type="text/javascript" src="<?=htmlspecialchars($javascript_uri)?>"></script></div>
 <script type="text/javascript">
+var redirect = document.body.getAttribute('data-redirect');
+var fragment = document.body.getAttribute('data-fragment');
+
+function process_uri(uri)
+{
+  var href = location.href;
+  var hash = fragment;
+  var pos = href.indexOf('#');
+  if(pos !== -1)
+  {
+    hash = href.substr(pos);
+  }
+  if(hash)
+  {
+    var pos2 = uri.indexOf('#');
+    if(pos2 === -1)
+    {
+      return uri + hash;
+    }else{
+      return uri.substr(0, pos2) + hash;
+    }
+  }
+  return uri;
+}
+
 var container = document.getElementById('query_results');
 var rows = container.getElementsByTagName('tr');
 if(rows.length == 0)
 {
   document.write('<p>The SPARQL endopoint did not return any loadable results, executing directly...</p>');
-  location.replace(document.body.getAttribute('data-redirect'));
+  location.replace(redirect);
 }else{
   var header = rows[0].getElementsByTagName('th');
   var index = -1;
@@ -65,7 +96,7 @@ if(rows.length == 0)
   if(index == -1)
   {
     document.write('<p>Unrecognized results were returned, executing directly...</p>');
-    location.replace(document.body.getAttribute('data-redirect'));
+    location.replace(redirect);
   }else{
     if(rows.length == 1)
     {
@@ -76,8 +107,8 @@ if(rows.length == 0)
       var links = cell.getElementsByTagName('a');
       if(links.length >= 1)
       {
-        document.write('<p>Navigating to entity...</p>');
-        location.replace(links[0].href);
+        document.write('<p>Navigating to the entity...</p>');
+        location.replace(process_uri(links[0].href));
       }else{
         document.write('<p>Only data was returned...</p>');
         location.replace('data:text/html;charset=utf-8;base64,' + btoa(unescape(encodeURIComponent(cell.innerHTML))));
@@ -87,7 +118,13 @@ if(rows.length == 0)
       for(var i = 1; i < rows.length; i++)
       {
         document.write('<li>');
-        document.write(rows[i].getElementsByTagName('td')[index].innerHTML);
+        var cell = rows[i].getElementsByTagName('td')[index];
+        var links = cell.getElementsByTagName('a');
+        for(var j = 0; j < links.length; j++)
+        {
+          links[j].href = process_uri(links[j].href);
+        }
+        document.write(cell.innerHTML);
         document.write('</li>');
       }
       document.write('</ul>')

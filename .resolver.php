@@ -46,7 +46,14 @@ function parse_uri($uri)
     $uri = "$uri?";
   }
   
-  return parse_url($uri);
+  $result = parse_url($uri);
+  
+  if(substr($uri, -1) === '#')
+  {
+    $result['fragment'] = '';
+  }
+  
+  return $result;
 }
 
 function analyze_uri($uri, &$components, &$identifier, &$query)
