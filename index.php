@@ -18,10 +18,10 @@ You may also use the form below:</p>
 <input type="checkbox" name="unify_skos" id="unify_skos"><label for="unify_skos">Unify with skos:exactMatch (_unify_skos).</label><br>
 <input type="checkbox" name="first" id="first"><label for="first">Output only the first result (_first).</label><br>
 <label for="method">Query action (_action): </label><select id="action" name="action">
-<option value="redirect">Redirect</option>
-<option value="print" selected>Print</option>
-<option value="debug" selected>Debug</option>
 <option value="navigate" selected>Navigate</option>
+<option value="redirect">Redirect</option>
+<option value="print">Print</option>
+<option value="debug">Debug</option>
 </select><br>
 <label for="form">Query form (_form): </label><select id="form" name="form">
 <option value="construct">CONSTRUCT</option><option value="select">SELECT</option><option value="describe">DESCRIBE</option>
