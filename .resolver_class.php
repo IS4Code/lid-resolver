@@ -359,7 +359,7 @@ class Resolver
       $selection = 'SELECT DISTINCT';
     }
     
-    if(!isset($filter) || isset($constructor))
+    if(!isset($filter) && !isset($constructor))
     {
       $query_inner[] = "$selection $initial";
     }else if(empty($components) && !isset($unify_path))
@@ -429,6 +429,11 @@ class Resolver
         $query_inner[] = "  BIND ($identifier AS $initial)";
       }
     }else{
+      if(isset($constructor))
+      {
+          $query_inner[] = "  BIND ($constructor AS $identifier)";
+      }
+      
       if(!is_option($options, 'infer') && !array_any($components, function($val)
       {
         return get_special_name($val[0]);
@@ -552,7 +557,7 @@ class Resolver
       }
     }
     
-    if(isset($filter))
+    if(isset($filter) && !isset($constructor))
     {
       $query_inner[] = "  FILTER ($filter)";
     }
