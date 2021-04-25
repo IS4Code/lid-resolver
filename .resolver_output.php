@@ -42,6 +42,8 @@ function output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_
 <p>You have scripts disabled, you will be redirected to the <a id="redirect" href="<?=htmlspecialchars($target_uri)?>">query results</a>.</p>
 </noscript>
 <div id="query_results" hidden style="display:none"><script type="text/javascript" src="<?=htmlspecialchars($javascript_uri)?>"></script></div>
+<?php
+$script = <<<'EOD'
 <script type="text/javascript">
 var redirect = document.body.getAttribute('data-redirect');
 var fragment = document.body.getAttribute('data-fragment');
@@ -127,11 +129,20 @@ if(rows.length == 0)
         document.write(cell.innerHTML);
         document.write('</li>');
       }
-      document.write('</ul>')
+      document.write('</ul>');
     }
   }
 }
 </script>
+EOD;
+$script = explode("\n", $script);
+array_walk($script, function(&$value)
+{
+  $value = trim($value);
+});
+echo implode('', $script);
+?>
+
 <p><a href=".">Back to the main page.</a></p>
 </body>
 </html><?php
