@@ -7,14 +7,14 @@
 <body>
 <h1><code>lid:</code> URI scheme</h1>
 <p>A <mark><code>lid:</code></mark> URI has the following structure:</p>
-<pre><mark><q>lid:</q> [ <q>//</q> host <q>/</q> ] ( [ <q>'</q> ] name <q>/</q> )+ value [ <q>@</q> ] [ <q>@</q> type ] [ <q>?</q> context ] [ <q>#</q> fragment ]</mark></pre>
+<pre><mark><q>lid:</q> [ <q>//</q> host <q>/</q> ] ( [ <q>'</q> ] name <q>/</q> )* value [ <q>@</q> ] [ <q>@</q> type ] [ <q>?</q> context ] [ <q>#</q> fragment ]</mark></pre>
 <dl>
 <dt><code>host</code></dt>
 <dd>The hostname of the server storing the target dataset. The server is queried, usually with the HTTP or HTTPS protocol, for the entity represented by the URI.</dd>
 <dt><code>name</code></dt>
 <dd>A URI name, as an absolute URI reference or a prefix (may be empty) and a local name, separated with <q>:</q>.</dd>
 <dt><code>value</code></dt>
-<dd>the compared value of the property chain. If followed by the <q>@</q>, it is treated as a <mark><code>name</code></mark> and expanded accordingly.</dd>
+<dd>the compared value of the property chain. If followed by the <q>@</q>, it is treated as a <mark><code>name</code></mark> and expanded accordingly. May be empty.</dd>
 <dt><code>type</code></dt>
 <dd>Specifies the type of the literal value. Could be a language code, a language range or a <mark><code>name</code></mark>. If it is omitted, the literal is simply compared by its string value, without a type comparison. A valid language code or language range with an additional hyphen (<q>-</q>) at the end is always interpreted as a language range stripped of it. Special names listed below are not applicable here, as they already match a language code.</dd>
 <dt><code>context</code></dt>
