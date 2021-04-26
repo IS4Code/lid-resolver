@@ -7,7 +7,7 @@
 <body>
 <h1><code>lid:</code> URI scheme</h1>
 <p>A <mark><code>lid:</code></mark> URI has the following structure:</p>
-<pre><mark><q>lid:</q> [ <q>//</q> host <q>/</q> ] ( [ <q>'</q> ] name <q>/</q> )+ value [ <q>@</q> ] [ <q>@</q> type ] [ <q>?</q> context ]</mark></pre>
+<pre><mark><q>lid:</q> [ <q>//</q> host <q>/</q> ] ( [ <q>'</q> ] name <q>/</q> )+ value [ <q>@</q> ] [ <q>@</q> type ] [ <q>?</q> context ] [ <q>#</q> fragment ]</mark></pre>
 <dl>
 <dt><code>host</code></dt>
 <dd>The hostname of the server storing the target dataset. The server is queried, usually with the HTTP or HTTPS protocol, for the entity represented by the URI.</dd>
@@ -19,6 +19,8 @@
 <dd>Specifies the type of the literal value. Could be a language code, a language range or a <mark><code>name</code></mark>. If it is omitted, the literal is simply compared by its string value, without a type comparison. A valid language code or language range with an additional hyphen (<q>-</q>) at the end is always interpreted as a language range stripped of it. Special names listed below are not applicable here, as they already match a language code.</dd>
 <dt><code>context</code></dt>
 <dd>Additional key-value pairs. If the key starts on <mark><code>_</code></mark>, it is an option, otherwise it is a prefix (re)definition. The prefixes are processed in order. Assigning an empty literal value to a prefix name undefines the prefix.</dd>
+<dt><code>fragment</code></dt>
+<dd>Used to find the target entity within the resource specified by the URI by the navigator. If the location of the resource already contains a fragment, it is replaced.</dd>
 </dl>
 <p>All of special characters may be escaped with <q>%</q> per standard URI rules to be interpreted literally, without a special meaning.</p>
 <p>The path portion of the URI consists of a property path, followed by an identifier. Each property corresponds to a step in the corresponding property chain with the identifier at its end and the identified entity at its beginning. <q>'</q> before a property represents its inverse. The initial node in the property path is considered the queried the entity, while the final node is the identifier (final component of the URI path).</p>
