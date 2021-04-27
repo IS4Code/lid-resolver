@@ -19,7 +19,7 @@
 <dt><code>type</code></dt>
 <dd>Specifies the type of the literal value. Could be a language code, a language range or a <mark><code>name</code></mark>. If it is omitted, the literal is simply compared by its string value, without a type comparison. A valid language code or language range with an additional hyphen (<q>-</q>) at the end is always interpreted as a language range stripped of it. Special names listed below are not applicable here, as they already match a language code.</dd>
 <dt><code>context</code></dt>
-<dd>Additional key-value pairs. If the key starts on <mark><code>_</code></mark>, it is an option, otherwise it is a prefix (re)definition. The prefixes are processed in order. Assigning an empty literal value to a prefix name undefines the prefix.</dd>
+<dd>Additional key-value pairs. If the key starts on <mark><code>_</code></mark>, it is an option, otherwise it is a prefix (re)definition (without the <q>:</q>) and the value is treated as a <mark><code>name</code></mark>. The prefixes are processed in order, that is the second prefix definition uses the context creates by the first prefix definition, and so on. Assigning an empty literal value to a prefix name undefines the prefix.</dd>
 <dt><code>fragment</code></dt>
 <dd>Used to find the target entity within the resource specified by the URI by the navigator. If the location of the resource already contains a fragment, it is replaced.</dd>
 </dl>
