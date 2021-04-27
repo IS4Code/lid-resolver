@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="//is4.site/styles/terminal.css?theme=4">
 </head>
 <body>
+<p style="float:right"><a href=".">Back to the resolver.</a></p>
 <h1><code>lid:</code> URI scheme</h1>
 <p>A <mark><code>lid:</code></mark> URI has the following structure:</p>
 <pre><mark><q>lid:</q> [ <q>//</q> host <q>/</q> ] ( [ <q>'</q> ] name <q>/</q> )* value [ <q>@</q> ] [ <q>@</q> type ] [ <q>?</q> context ] [ <q>#</q> fragment ]</mark></pre>
@@ -23,7 +24,7 @@
 <dd>Used to find the target entity within the resource specified by the URI by the navigator. If the location of the resource already contains a fragment, it is replaced.</dd>
 </dl>
 <p>All of special characters may be escaped with <q>%</q> per standard URI rules to be interpreted literally, without a special meaning. If an escaped character is found in an invalid place, it may be interpreted as its unescaped variant, if that would lead to a valid syntax.</p>
-<p>The path portion of the URI consists of a property path, followed by an identifier. Each property corresponds to a step in the corresponding property chain with the identifier at its end and the identified entity at its beginning. <q>'</q> before a property represents its inverse. The initial node in the property path is considered the queried the entity, while the final node is the identifier (final component of the URI path).</p>
+<p>The path portion of the URI consists of a property path, followed by an identifier. Each property corresponds to a step in the corresponding property chain with the identifier at its end and the identified entity at its beginning. <q>'</q> before a property represents its inverse. The initial node in the property path is considered the queried entity, while the final node is the identifier (final component of the URI path).</p>
 <p>When a <mark><code>name</code></mark> is expected, a special identifier may be used instead, if it doesn't match a valid production in its place. These are:</p>
 <dl>
 <dt><code>a</code></dt>
@@ -67,7 +68,7 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <p>The list of default prefixes (<a href="context.jsonld">JSON-LD context</a>) is periodically synchronized with the source documents.</p>
 <section>
 <h2>Examples of valid syntax</h2>
-<p>All of the URIs below are valid, with or without a host portion.</p>
+<p>All of the URIs below are valid, with or without a host portion (<q>//example.org/</q> after <q>lid:</q>).</p>
 <dt><code>lid:</code></dt>
 <dd>The path may be omitted completely, in which case the URI refers to any empty literal value.</dd>
 <dt><code>lid:1@xs:integer</code></dt>
@@ -87,6 +88,5 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <dt><code>lid:rdfs:label/'uri/rdf:value/x</code></dt>
 <dd>This URI refers to an entity that has a textual label which can be interpreted as the URI of an entity with value <q>x</q>.</dd>
 </section>
-<p><a href=".">Back to the main page.</a></p>
 </body>
 </html>
