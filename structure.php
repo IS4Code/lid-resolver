@@ -22,7 +22,7 @@
 <dt><code>fragment</code></dt>
 <dd>Used to find the target entity within the resource specified by the URI by the navigator. If the location of the resource already contains a fragment, it is replaced.</dd>
 </dl>
-<p>All of special characters may be escaped with <q>%</q> per standard URI rules to be interpreted literally, without a special meaning.</p>
+<p>All of special characters may be escaped with <q>%</q> per standard URI rules to be interpreted literally, without a special meaning. If an escaped character is found in an invalid place, it may be interpreted as its unescaped variant, if that would lead to a valid syntax.</p>
 <p>The path portion of the URI consists of a property path, followed by an identifier. Each property corresponds to a step in the corresponding property chain with the identifier at its end and the identified entity at its beginning. <q>'</q> before a property represents its inverse. The initial node in the property path is considered the queried the entity, while the final node is the identifier (final component of the URI path).</p>
 <p>When a <mark><code>name</code></mark> is expected, a special identifier may be used instead, if it doesn't match a valid production in its place. These are:</p>
 <dl>
@@ -65,6 +65,28 @@ PREFIX lid: &lt;lid:&gt;</pre>
 </ol>
 <p>This means that some common prefixes may be treated as URI schemes (see <a href="conflicts">here</a> for examples). The syntax still allows to redefine any such prefix manually.</p>
 <p>The list of default prefixes (<a href="context.jsonld">JSON-LD context</a>) is periodically synchronized with the source documents.</p>
+<section>
+<h2>Examples of valid syntax</h2>
+<p>All of the URIs below are valid, with or without a host portion.</p>
+<dt><code>lid:</code></dt>
+<dd>The path may be omitted completely, in which case the URI refers to any empty literal value.</dd>
+<dt><code>lid:1@xs:integer</code></dt>
+<dd>If typed, the URI refers to the literal value <mark><code>"1"^^xsd:integer</code></mark> itself.</dd>
+<dt><code>lid:example@en</code></dt>
+<dd>The URI refers to the string <q>example</q> in the English language.</dd>
+<dt><code>lid:a@</code></dt>
+<dd>The URI refers to the string <q>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</q> (with any datatype).</dd>
+<dt><code>lid:uri/mailto:user%40example.org@</code></dt>
+<dd>This URI refers to the entity identified by the URI <q>mailto:user@example.org</q>.</dd>
+<dt><code>lid:mailto:user%40example.org@@xsd:anyURI</code></dt>
+<dd>This URI refers to the actual URI string that identifies the entity above.</dd>
+<dt><code>lid:mailto:user%40example.org@xsd:anyURI</code></dt>
+<dd>This URI refers to the same thing as above, since <q>mailto:</q> is defined as itself.</dd>
+<dt><code>lid:rdfs:isDefinedBy/uri/foaf:@</code></dt>
+<dd>This URI refers to any entity that is defined by the FOAF vocabulary.</dd>
+<dt><code>lid:rdfs:label/'uri/rdf:value/x</code></dt>
+<dd>This URI refers to an entity that has a textual label which can be interpreted as the URI of an entity with value <q>x</q>.</dd>
+</section>
 <p><a href=".">Back to the main page.</a></p>
 </body>
 </html>
