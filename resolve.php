@@ -75,9 +75,9 @@ list($sparql, $sparql_inner) = $resolver->build_query($uri, $components, $identi
 
 $unresolved_prefixes = $resolver->unresolved_prefixes;
 
-if(!empty($options['path']))
+if(!empty($options['sparql']))
 {
-  $uri['path'] = "/$options[path]";
+  $uri['path'] = "/$options[sparql]";
 }else{
   $uri['path'] = '/sparql/';
 }
@@ -102,7 +102,10 @@ switch(@$options['action'])
   case 'print':
     output_print($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes);
     break;
+  case 'describe':
+    output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes, true);
+    break;
   default:
-    output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes);
+    output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes, false);
     break;
 }

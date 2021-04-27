@@ -9,7 +9,7 @@ function output_redirect($uri, $sparql, $sparql_inner, $options, $reconstructed_
   header("Location: $target_uri");
 }
 
-function output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes)
+function output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes, $describe)
 {
   if(isset($uri['fragment']))
   {
@@ -24,7 +24,21 @@ function output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_
   
   $options['_format'] = 'application/javascript';
   $uri['query'] = get_query_string(create_query_array($sparql_inner, $options));
-  $javascript_uri = unparse_url($uri); 
+  $javascript_uri = unparse_url($uri);
+  
+  if($describe)
+  {
+    if(!empty($options['describe']))
+    {
+      $uri['path'] = "/$options[describe]";
+    }else{
+      $uri['path'] = '/describe/';
+    }
+    $uri['query'] = 'url=';
+    unset($uri['fragment']);
+    
+    $describe_uri = unparse_url($uri);
+  }
   
   ?><!DOCTYPE html>
 <html lang="en">
@@ -36,7 +50,7 @@ function output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_
 <meta http-equiv="refresh" content="2;url=<?=htmlspecialchars($target_uri)?>">
 </noscript>
 </head>
-<body data-redirect="<?=htmlspecialchars($target_uri)?>" data-fragment="<?=htmlspecialchars($fragment)?>">
+<body data-redirect="<?=htmlspecialchars($target_uri)?>" data-fragment="<?=htmlspecialchars($fragment)?>"<?=$describe?' data-describe="'.htmlspecialchars($describe_uri).'"':''?>>
 <p>Querying the server...</p>
 <noscript>
 <p>You have scripts disabled, you will be redirected to the <a id="redirect" href="<?=htmlspecialchars($target_uri)?>">query results</a>.</p>
@@ -47,7 +61,9 @@ $script = <<<'EOD'
 <script type="text/javascript">
 var redirect = document.body.getAttribute('data-redirect');
 var fragment = document.body.getAttribute('data-fragment');
-
+EOD;
+if($describe) $script .= "var describe = document.body.getAttribute('data-describe');\n";
+$script .= <<<'EOD'
 function process_uri(uri)
 {
   var href = location.href;
@@ -62,11 +78,14 @@ function process_uri(uri)
     var pos2 = uri.indexOf('#');
     if(pos2 === -1)
     {
-      return uri + hash;
+      uri = uri + hash;
     }else{
-      return uri.substr(0, pos2) + hash;
+      uri = uri.substr(0, pos2) + hash;
     }
   }
+EOD;
+if($describe) $script .= "uri = describe + encodeURIComponent(uri);\n";
+$script .= <<<'EOD'
   return uri;
 }
 

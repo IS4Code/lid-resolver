@@ -19,6 +19,7 @@ You may also use the form below:</p>
 <input type="checkbox" name="first" id="first"><label for="first">Output only the first result (_first).</label><br>
 <label for="method">Query action (_action): </label><select id="action" name="action">
 <option value="navigate" selected>Navigate</option>
+<option value="describe">Describe</option>
 <option value="redirect">Redirect</option>
 <option value="print">Print</option>
 <option value="debug">Debug</option>
