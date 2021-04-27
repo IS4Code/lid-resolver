@@ -34,11 +34,11 @@ class Resolver
         $context[$prefix] = array($prefix, '');
         return $qname;
       }
-    }else if(empty($name))
+    }else if($name === '')
     {
       if($allowEmpty) return null;
       report_error(400, "URI component must be a prefixed name or an absolute URI (was empty)!");
-    }else if(strpos($qname[0], ':') === false)
+    }else if(!is_absolute_uri($qname[0]))
     {
       switch($qname[0])
       {
@@ -80,7 +80,7 @@ class Resolver
     if(isset($identifier[1]))
     {
       $type = $identifier[1];
-      if(empty($type))
+      if($type === '')
       {
         $is_name = true;
       }else if(substr($type, 0, 1) === '@' && strlen($type) > 1)
@@ -88,7 +88,7 @@ class Resolver
         $is_name = true;
         $type = substr($type, 1);
       }
-      if(!empty($type))
+      if($type !== '')
       {
         if(preg_match('/^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$/', $type))
         {
@@ -256,7 +256,7 @@ class Resolver
     {
       $uriquery = create_query_array(null, $options);
       $uri['query'] = get_query_string($uriquery);
-      if(empty($uri['query']))
+      if($uri['query'] === '')
       {
         unset($uri['query']);
       }
