@@ -41,7 +41,6 @@ PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
 PREFIX owl: &lt;http://www.w3.org/2002/07/owl#&gt;
 PREFIX skos: &lt;http://www.w3.org/2004/02/skos/core#&gt;
 PREFIX xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;
-PREFIX xs: xsd:</pre>
 <p>These prefixes are always available and commonly used in the constructed queries. Redefining them will only affect their specific usage in the URI, not their generated usage in the query.</p></dd>
 <dt>Common URI schemes</dt><dd><pre>PREFIX http: &lt;http:&gt;
 PREFIX https: &lt;https:&gt;
@@ -71,7 +70,7 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <p>All of the URIs below are valid, with or without a host portion (<q>//example.org/</q> after <q>lid:</q>).</p>
 <dt><code>lid:</code></dt>
 <dd>The path may be omitted completely, in which case the URI refers to any empty literal value.</dd>
-<dt><code>lid:1@xs:integer</code></dt>
+<dt><code>lid:1@xsd:integer</code></dt>
 <dd>If typed, the URI refers to the literal value <mark><code>"1"^^xsd:integer</code></mark> itself.</dd>
 <dt><code>lid:example@en</code></dt>
 <dd>The URI refers to the string <q>example</q> in the English language.</dd>
