@@ -96,9 +96,30 @@ function analyze_uri($uri, &$components, &$identifier, &$query)
   return $uri;
 }
 
+function is_absolute_uri($uri)
+{
+  return preg_match('/^[a-z-A-Z][a-z-A-Z0-9+.-]*:/', $uri);
+}
+
+function is_absolute_uri_sparql($uri)
+{
+  //return strpos($uri, ':') !== false;
+  return preg_match('/^[^\/?#]*:/', $uri);
+}
+
 function concat_prefixed($a, $b)
 {
-  if(is_string($a)) return $a.$b;
+  if(is_string($a))
+  {
+    $b = $a.$b;
+    if(!is_absolute_uri_sparql($a) && is_absolute_uri_sparql($b))
+    {
+      $a = htmlspecialchars($a);
+      $b = htmlspecialchars($b);
+      report_error(400, "Absolute URI must not be produced from a prefix denoting a relative URI (<q>$b</q> produced from <q>$a</q>)!");
+    }
+    return $b;
+  }
   return array($a[0], $a[1].$b);
 }
 
