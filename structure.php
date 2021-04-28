@@ -53,7 +53,8 @@ PREFIX ftp: &lt;ftp:&gt;
 PREFIX lid: &lt;lid:&gt;</pre>
 <p>These prefixes are defined in order to make it possible to write <q>:</q> instead of <mark><code>%3A</code></mark> in a <mark><code>name</code></mark> without relying on the target endpoint to support these prefixes.</p></li>
 <dt>Supplemental prefixes</dt><dd><pre>PREFIX base: &lt;&gt;</pre>
-<p>Relative URIs are not allowed by the syntax, thus they have to be represted via <mark><code>base:</code></mark>. <q>.</q> and <q>..</q> are not handled in any special manner.</p>
+<p>Relative URIs are not allowed by the syntax, thus they have to be represented via <mark><code>base:</code></mark>. <q>.</q> and <q>..</q> are not handled in any special manner.</p>
+<p></p>
 </dd>
 </dl>
 <p>The empty prefix is always undefined initially. Any undefined prefix may still be used in any <mark><code>name</code></mark>, but it is up to the target endpoint to know them. This is the only case an invalid SPARQL query may be generated.</p>

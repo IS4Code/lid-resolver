@@ -38,7 +38,7 @@ You may also use the form below:</p>
 </select><br>
 <input type="submit" value="Resolve">
 </form>
-<p>The prefixes recognized by the service are combined from the <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a> and the registered <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml">IANA URI schemes</a>. A JSON-LD context can be found <a href="context.jsonld">here</a>.</p>
+<p>The prefixes recognized by the service are combined from the <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a> and the registered <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml">IANA URI schemes</a>. A JSON-LD context can be found <a href="context.jsonld">here</a>. Using an undefined prefix is valid, but requires the target endpoint to understand it.</p>
 <section>
 <h2>Examples</h2>
 <p>The options above can be also specified in the query part of the URI. Any query parameter starting with <mark><code>__</code></mark> is passed to the target endpoint.</p>
