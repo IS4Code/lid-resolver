@@ -39,9 +39,9 @@ if(isset($_SERVER['REDIRECT_URL']) && $_SERVER['REDIRECT_URL'] !== '/lid/resolve
   die;
 }
 
-require '.internal.php';
-require '.resolver.php';
-require '.resolver_class.php';
+require_once '.internal.php';
+require_once '.resolver.php';
+require_once '.resolver_class.php';
 
 $uri = analyze_uri($uri, $components, $identifier, $query);
 
@@ -89,7 +89,7 @@ if(!empty($options['scheme']))
   $uri['scheme'] = @$_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 }
 
-require '.resolver_output.php';
+require_once '.resolver_output.php';
 
 switch(@$options['action'])
 {

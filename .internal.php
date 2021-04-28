@@ -1,5 +1,7 @@
 <?php
 
+require_once '.resolver.php';
+
 function get_updated_json_file($file, &$renew)
 {
   if(file_exists($file))
@@ -108,7 +110,7 @@ function get_context()
       
       foreach($context as $key => $value)
       {
-        if($key !== '' && is_string($value))
+        if($key !== '' && is_string($value) && is_absolute_uri($value))
         {
           $char = substr($value, -1);
           if($char === '#' || $char === '/' || $char === ':')
