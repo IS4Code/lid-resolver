@@ -15,6 +15,11 @@ function unparse_url($uri)
   return "$scheme$start$user$pass$host$port$path$query$fragment";
 }
 
+function uridecode($uri)
+{
+  return urldecode(str_replace('+', '%2B', $uri));
+}
+
 function get_query_string($query)
 {
   return http_build_query($query, null, '&', PHP_QUERY_RFC3986);

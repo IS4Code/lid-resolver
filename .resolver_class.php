@@ -18,10 +18,10 @@ class Resolver
     $context = &$this->context;
     
     $qname = explode(':', $name, 2);
-    $qname[0] = urldecode($qname[0]);
+    $qname[0] = uridecode($qname[0]);
     if(isset($qname[1]))
     {
-      $qname[1] = urldecode($qname[1]);
+      $qname[1] = uridecode($qname[1]);
       list($prefix, $local) = $qname;
       if(isset($context[$prefix]))
       {
@@ -92,11 +92,11 @@ class Resolver
       {
         if(preg_match('/^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$/', $type))
         {
-          $type = urldecode($type);
+          $type = uridecode($type);
           $kind = 'language';
         }else if(preg_match('/^(?:[a-zA-Z]{1,8}|\*)(-(?:[a-zA-Z0-9]{1,8}|\*))*-?$/', $type))
         {
-          $type = rtrim(urldecode($type), '-');
+          $type = rtrim(uridecode($type), '-');
           $kind = 'langrange';
         }else{
           $type = $this->resolve_name($type);
@@ -109,7 +109,7 @@ class Resolver
     {
       $identifier = $this->resolve_name($identifier[0]);
     }else{
-      $identifier = urldecode($identifier[0]);
+      $identifier = uridecode($identifier[0]);
     }
     
     return array($identifier, $kind, $type);
@@ -123,11 +123,11 @@ class Resolver
     foreach($query as $index => &$item)
     {
       $part = explode('=', $item, 2);
-      $key = urldecode($part[0]);
+      $key = uridecode($part[0]);
       $value = @$part[1];
       if(substr($part[0], 0, 1) === '_')
       {
-        $options[substr($key, 1)] = urldecode($value);
+        $options[substr($key, 1)] = uridecode($value);
         unset($query[$index]);
       }else if(isset($part[1]))
       {
