@@ -68,6 +68,17 @@ function get_common_context()
   return $data;
 }
 
+function is_reserved_prefix($key)
+{
+  return $key === '' || substr($key, 0, 2) === 'x.';
+}
+
+function is_uri_namespace($value)
+{
+  $char = substr($value, -1);
+  return $char === '#' || $char === '/' || $char === ':';
+}
+
 function get_context()
 {
   static $cache_file = __DIR__ . '/.context.json';
@@ -110,13 +121,9 @@ function get_context()
       
       foreach($context as $key => $value)
       {
-        if($key !== '' && substr($key, 0, 2) !== 'x.' && is_string($value) && is_absolute_uri($value))
+        if(!is_reserved_prefix($key) && is_string($value) && is_absolute_uri($value) && is_uri_namespace($value))
         {
-          $char = substr($value, -1);
-          if($char === '#' || $char === '/' || $char === ':')
-          {
-            continue;
-          }
+          continue;
         }
         unset($context[$key]);
       }
@@ -124,7 +131,7 @@ function get_context()
       foreach($xpath->query('//reg:record[reg:status = "Permanent"]/reg:value/text()') as $scheme)
       {
         $name = trim($scheme->wholeText);
-        if(substr($name, 0, 2) !== 'x.')
+        if(!is_reserved_prefix($name))
         {
           $context[$name] = "$name:";
         }
@@ -133,7 +140,7 @@ function get_context()
       foreach($xpath->query('//reg:record[reg:status != "Permanent"]/reg:value/text()') as $scheme)
       {
         $name = trim($scheme->wholeText);
-        if(!isset($context[$name]) && strlen($name) >= 4 && substr($name, 0, 2) !== 'x.')
+        if(!isset($context[$name]) && strlen($name) >= 4 && !is_reserved_prefix($name))
         {
           $context[$name] = "$name:";
         }
