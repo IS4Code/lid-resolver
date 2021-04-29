@@ -65,7 +65,8 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <li>Provisional and historical IANA URI schemes longer than 3 characters. Defined like the other schemes.</li>
 </ol>
 <p>This means that some common prefixes may be overwritten by URI schemes (see <a href="conflicts">here</a> for examples). The syntax still allows to redefine any such prefix manually.</p>
-<p>The list of default prefixes (<a href="context.jsonld">JSON-LD context</a>) is periodically synchronized with the source documents. This could result in ambiguities between different resolvers or points in time, since a particular prefix could turn from undefined to defined when one of the two lists is modified. This is easily prevented by undefining the prefix manually in the URI, or by using a prefix that starts on <q>x.</q>.</p>
+<p>The list of default prefixes (<a href="context.jsonld">JSON-LD context</a>) is periodically synchronized with the source documents. This could result in ambiguities between different resolvers or points in time, since a particular prefix could turn from undefined to defined when one of the two lists is modified. This is easily prevented by undefining the prefix manually in the URI, or by using the empty prefix or a prefix that starts on <q>x.</q>.</p>
+<p>If an entry is removed from the source lists, it could also prevent this resolver from correctly processing URIs that use the prefix. It is assumed entries are never removed from the sources, and if so, it is worth the consequences.</p>
 <section>
 <h2>Examples of valid syntax</h2>
 <p>All of the URIs below are valid, with or without a host portion (<q>//example.org/</q> after <q>lid:</q>).</p>
