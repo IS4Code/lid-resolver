@@ -57,15 +57,15 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <p>This prefix would make it possible to express an absolute URI, like in <mark><code>base:urn:something</code></mark>. Producing absolute URIs this way is therefore explicitly disallowed: a prefix that denotes a relative URI cannot be used to produce an absolute URI (the converse is already true by definition for absolute URIs).</p>
 </dd>
 </dl>
-<p>The empty prefix is always undefined initially. Any undefined prefix may still be used in any <mark><code>name</code></mark>, but it is up to the target endpoint to know them. This is the only case an invalid SPARQL query may be generated.</p>
+<p>The empty prefix is always undefined initially, as well as any prefix that starts on <q>x.</q>. Any undefined prefix may still be used in any <mark><code>name</code></mark>, but it is up to the target endpoint to recognize it. This is the only case an invalid SPARQL query may be generated.</p>
 <p>In addition to the prefixes declared above, a particular resolver (such as the one on this site) may define additional prefixes. The ones used here are as follows (ordered by priority):</p>
 <ol>
 <li>Permanent <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml">IANA URI schemes</a>. They are defined as themselves, like above.</li>
 <li>Recommended <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a>. Only defintions that end on <mark><code>#</code></mark>, <mark><code>/</code></mark> or <mark><code>:</code></mark> are considered.</li>
 <li>Provisional and historical IANA URI schemes longer than 3 characters. Defined like the other schemes.</li>
 </ol>
-<p>This means that some common prefixes may be treated as URI schemes (see <a href="conflicts">here</a> for examples). The syntax still allows to redefine any such prefix manually.</p>
-<p>The list of default prefixes (<a href="context.jsonld">JSON-LD context</a>) is periodically synchronized with the source documents.</p>
+<p>This means that some common prefixes may be overwritten by URI schemes (see <a href="conflicts">here</a> for examples). The syntax still allows to redefine any such prefix manually.</p>
+<p>The list of default prefixes (<a href="context.jsonld">JSON-LD context</a>) is periodically synchronized with the source documents. This could result in ambiguities between different resolvers or points in time, since a particular prefix could turn from undefined to defined when one of the two lists is modified. This is easily prevented by undefining the prefix manually in the URI, or by using a prefix that starts on <q>x.</q>.</p>
 <section>
 <h2>Examples of valid syntax</h2>
 <p>All of the URIs below are valid, with or without a host portion (<q>//example.org/</q> after <q>lid:</q>).</p>
@@ -76,7 +76,7 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <dt><code>lid:example@en</code></dt>
 <dd>The URI refers to the string <q>example</q> in the English language.</dd>
 <dt><code>lid:a@</code></dt>
-<dd>The URI refers to the string <q>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</q> (with any datatype).</dd>
+<dd>The URI refers to the literal <q>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</q> (with any datatype).</dd>
 <dt><code>lid:uri/mailto:user%40example.org@</code></dt>
 <dd>This URI refers to the entity identified by the URI <q>mailto:user@example.org</q>.</dd>
 <dt><code>lid:mailto:user%40example.org@@xsd:anyURI</code></dt>

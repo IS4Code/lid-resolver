@@ -110,7 +110,7 @@ function get_context()
       
       foreach($context as $key => $value)
       {
-        if($key !== '' && is_string($value) && is_absolute_uri($value))
+        if($key !== '' && substr($key, 0, 2) !== 'x.' && is_string($value) && is_absolute_uri($value))
         {
           $char = substr($value, -1);
           if($char === '#' || $char === '/' || $char === ':')
@@ -124,13 +124,16 @@ function get_context()
       foreach($xpath->query('//reg:record[reg:status = "Permanent"]/reg:value/text()') as $scheme)
       {
         $name = trim($scheme->wholeText);
-        $context[$name] = "$name:";
+        if(substr($name, 0, 2) !== 'x.')
+        {
+          $context[$name] = "$name:";
+        }
       }
       
       foreach($xpath->query('//reg:record[reg:status != "Permanent"]/reg:value/text()') as $scheme)
       {
         $name = trim($scheme->wholeText);
-        if(!isset($context[$name]) && strlen($name) >= 4)
+        if(!isset($context[$name]) && strlen($name) >= 4 && substr($name, 0, 2) !== 'x.')
         {
           $context[$name] = "$name:";
         }
