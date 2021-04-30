@@ -132,7 +132,14 @@ if(rows.length == 0)
         location.replace(process_uri(links[0].href));
       }else{
         document.write('<p>Only data was returned...</p>');
-        location.replace('data:text/html;charset=utf-8;base64,' + btoa(unescape(encodeURIComponent(cell.innerHTML))));
+        try{
+          var file = new Blob([cell.textContent], { type: 'text/plain;charset=utf-8' });
+          var url = URL.createObjectURL(file);
+          location.replace(url);
+        }catch(e)
+        {
+          location.replace('data:text/plain;charset=utf-8;base64,' + btoa(unescape(encodeURIComponent(cell.textContent))));
+        }
       }
     }else{
       document.write('<p>More than one result returned:</p><ul>');
