@@ -51,7 +51,7 @@ PREFIX data: &lt;data:&gt;
 PREFIX file: &lt;file:&gt;
 PREFIX ftp: &lt;ftp:&gt;
 PREFIX lid: &lt;lid:&gt;</pre>
-<p>These prefixes are defined in order to make it possible to write <q>:</q> instead of <mark><code>%3A</code></mark> in a <mark><code>name</code></mark> without relying on the target endpoint to support these prefixes.</p></li>
+<p>These prefixes are defined in order to make it possible to write <q>:</q> instead of <q>%3A</q> in a <mark><code>name</code></mark> without relying on the target endpoint to support these prefixes.</p></li>
 <dt>Supplemental prefixes</dt><dd><pre>PREFIX base: &lt;&gt;</pre>
 <p>Relative URIs are not allowed by the syntax, thus they have to be represented via <mark><code>base:</code></mark>. <q>.</q> and <q>..</q> are not handled in any special manner.</p>
 <p>This prefix would make it possible to express an absolute URI, like in <mark><code>base:urn:something</code></mark>. Producing absolute URIs this way is therefore explicitly disallowed: a prefix that denotes a relative URI cannot be used to produce an absolute URI (the converse is already true by definition for absolute URIs).</p>
@@ -66,7 +66,7 @@ PREFIX lid: &lt;lid:&gt;</pre>
 </ol>
 <p>This means that some common prefixes may be overwritten by URI schemes (see <a href="conflicts">here</a> for examples). The syntax still allows to redefine any such prefix manually.</p>
 <p>The list of default prefixes (<a href="context.jsonld">JSON-LD context</a>) is periodically synchronized with the source documents. This could result in ambiguities between different resolvers or points in time, since a particular prefix could turn from undefined to defined when one of the two lists is modified. This is easily prevented by undefining the prefix manually in the URI, or by using the empty prefix or a prefix that starts on <q>x.</q>.</p>
-<p>If an entry is removed from the source lists, it could also prevent this resolver from correctly processing URIs that use the prefix. It is assumed entries are never removed from the sources, and if so, it is worth the consequences.</p>
+<p>If an entry is removed from the source lists, it could also prevent this resolver from correctly processing URIs that use the prefix. It is assumed entries are never removed from the sources, and if so, it justifies the consequences.</p>
 <section>
 <h2>Examples of valid syntax</h2>
 <p>All of the URIs below are valid, with or without a host portion (<q>//example.org/</q> after <q>lid:</q>).</p>
