@@ -40,7 +40,7 @@
 PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
 PREFIX owl: &lt;http://www.w3.org/2002/07/owl#&gt;
 PREFIX skos: &lt;http://www.w3.org/2004/02/skos/core#&gt;
-PREFIX xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;
+PREFIX xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;</pre>
 <p>These prefixes are always available and commonly used in the constructed queries. Redefining them will only affect their specific usage in the URI, not their generated usage in the query.</p></dd>
 <dt>Common URI schemes</dt><dd><pre>PREFIX http: &lt;http:&gt;
 PREFIX https: &lt;https:&gt;
@@ -51,7 +51,7 @@ PREFIX data: &lt;data:&gt;
 PREFIX file: &lt;file:&gt;
 PREFIX ftp: &lt;ftp:&gt;
 PREFIX lid: &lt;lid:&gt;</pre>
-<p>These prefixes are defined in order to make it possible to write <q>:</q> instead of <q>%3A</q> in a <mark><code>name</code></mark> without relying on the target endpoint to support these prefixes.</p></li>
+<p>These prefixes are defined in order to make it possible to write <q>:</q> instead of <q>%3A</q> in a <mark><code>name</code></mark> without relying on the target endpoint to support these prefixes.</p><dd>
 <dt>Supplemental prefixes</dt><dd><pre>PREFIX base: &lt;&gt;</pre>
 <p>Relative URIs are not allowed by the syntax, thus they have to be represented via <mark><code>base:</code></mark>. <q>.</q> and <q>..</q> are not handled in any special manner.</p>
 <p>This prefix would make it possible to express an absolute URI, like in <mark><code>base:urn:something</code></mark>. Producing absolute URIs this way is therefore explicitly disallowed: a prefix that denotes a relative URI cannot be used to produce an absolute URI (the converse is already true by definition for absolute URIs).</p>
