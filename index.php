@@ -10,7 +10,7 @@
 <p>The webserver is also configured to resolve URIs in the form: <mark><code>https://<?=$_SERVER[HTTP_HOST]?>/lid:<span contenteditable="true">//example.org/ex:id/1<br></span></code></mark>
 You may also use the form below:</p>
 <form method="GET" action="resolve">
-<p><textarea name="uri" rows="1" cols="100" onkeypress="if(event.which===13&&!event.shiftKey){event.target.form.submit();event.preventDefault();}">lid://my.data.is4.site/:nick/IS4?=foaf:</textarea></p>
+<p><textarea name="uri" rows="1" cols="100" onkeypress="if(event.which===13&amp;&amp;!event.shiftKey){event.target.form.submit();event.preventDefault();}">lid://my.data.is4.site/:nick/IS4?=foaf:</textarea></p>
 <input type="checkbox" name="check" id="check"><label for="check">Check functional properties (<code>_check</code>).</label><br>
 <input type="checkbox" name="infer" id="infer"><label for="infer">Infer from subproperties (<code>_infer</code>).</label><br>
 <input type="checkbox" name="inverse" id="inverse"><label for="inverse">Include additional owl:inverseOf in paths (<code>_inverse</code>).</label><br>
