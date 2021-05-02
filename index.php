@@ -11,23 +11,23 @@
 You may also use the form below:</p>
 <form method="GET" action="resolve">
 <p><textarea name="uri" rows="1" cols="100" onkeypress="if(event.which===13&&!event.shiftKey){event.target.form.submit();event.preventDefault();}">lid://my.data.is4.site/:nick/IS4?=foaf:</textarea></p>
-<input type="checkbox" name="check" id="check"><label for="check">Check functional properties (_check).</label><br>
-<input type="checkbox" name="infer" id="infer"><label for="infer">Infer from subproperties (_infer).</label><br>
-<input type="checkbox" name="inverse" id="inverse"><label for="inverse">Include additional owl:inverseOf in paths (_inverse).</label><br>
-<input type="checkbox" name="unify_owl" id="unify_owl"><label for="unify_owl">Unify with owl:sameAs (_unify_owl).</label><br>
-<input type="checkbox" name="unify_skos" id="unify_skos"><label for="unify_skos">Unify with skos:exactMatch (_unify_skos).</label><br>
-<input type="checkbox" name="first" id="first"><label for="first">Output only the first result (_first).</label><br>
-<label for="method">Query action (_action): </label><select id="action" name="action">
+<input type="checkbox" name="check" id="check"><label for="check">Check functional properties (<code>_check</code>).</label><br>
+<input type="checkbox" name="infer" id="infer"><label for="infer">Infer from subproperties (<code>_infer</code>).</label><br>
+<input type="checkbox" name="inverse" id="inverse"><label for="inverse">Include additional owl:inverseOf in paths (<code>_inverse</code>).</label><br>
+<input type="checkbox" name="unify_owl" id="unify_owl"><label for="unify_owl">Unify with owl:sameAs (<code>_unify_owl</code>).</label><br>
+<input type="checkbox" name="unify_skos" id="unify_skos"><label for="unify_skos">Unify with skos:exactMatch (<code>_unify_skos</code>).</label><br>
+<input type="checkbox" name="first" id="first"><label for="first">Output only the first result (<code>_first</code>).</label><br>
+<label for="method">Query action (<code>_action</code>): </label><select id="action" name="action">
 <option value="navigate" selected>Navigate</option>
 <option value="describe">Describe</option>
 <option value="redirect">Redirect</option>
 <option value="print">Print</option>
 <option value="debug">Debug</option>
 </select><br>
-<label for="form">Query form (_form): </label><select id="form" name="form">
+<label for="form">Query form (<code>_form</code>): </label><select id="form" name="form">
 <option value="construct">CONSTRUCT</option><option value="select">SELECT</option><option value="describe">DESCRIBE</option>
 </select><br>
-<label for="_format">Results format (__format): </label><select id="_format" name="_format">
+<label for="_format">Results format (<code>__format</code>): </label><select id="_format" name="_format">
 <option disabled selected value></option>
 <optgroup label="Graph formats">
 <option value="text/turtle">Turtle</option><option value="application/x-nice-turtle">Turtle (beautified)</option><option value="application/rdf+json">RDF/JSON</option><option value="application/rdf+xml">RDF/XML</option><option value="text/plain">N-Triples</option><option value="application/xhtml+xml">XHTML+RDFa</option><option value="application/atom+xml">ATOM+XML</option><option value="application/odata+json">ODATA/JSON</option><option value="application/x-ld+json">JSON-LD (plain)</option><option value="application/ld+json">JSON-LD (with context)</option><option value="text/x-html+ul">HTML (list)</option><option value="text/x-html+tr">HTML (table)</option><option value="text/html">HTML+Microdata (basic)</option><option value="application/x-nice-microdata">HTML+Microdata (table)</option><option value="text/x-html-script-ld+json">HTML+JSON-LD (basic)</option><option value="text/x-html-script-turtle">HTML+Turtle (basic)</option><option value="text/x-html-nice-turtle">Turtle (beautified - browsing oriented)</option><option value="application/microdata+json">Microdata/JSON</option><option value="text/csv">CSV</option><option value="text/tab-separated-values">TSV</option><option value="application/x-trig">TriG</option><option value="text/cxml">CXML (Pivot Collection)</option><option value="text/cxml+qrcode">CXML (Pivot Collection with QRcodes)</option>
