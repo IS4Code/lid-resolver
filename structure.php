@@ -89,5 +89,13 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <dt><code>lid:rdfs:label/'uri/rdf:value/x</code></dt>
 <dd>This URI refers to an entity that has a textual label which can be interpreted as the URI of an entity with value <q>x</q>.</dd>
 </section>
+<section>
+<h2>Automatic entailment</h2>
+<p>A <code>lid:</code> URI can be constructed to point to specific resources which can be thought of as synonymous under the RDF semantics. Here are some examples of possible entailment that may arise automatically from the use of a <code>lid:</code> URI.</p><pre>&lt;lid:example@en&gt; owl:sameAs "example"@en .
+&lt;lid:urn:something&gt; owl:sameAs &lt;urn:something&gt; .
+&lt;lid:15&gt; skos:narrower "15", 15, "15"^^xsd:double .
+&lt;lid://hostname1/anything&gt; owl:sameAs &lt;lid://hostname2/anything&gt; . # if there are no unbound prefixes in the URI
+</pre>
+</section>
 </body>
 </html>
