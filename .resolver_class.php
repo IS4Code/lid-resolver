@@ -166,6 +166,10 @@ class Resolver
       report_error(400, "Special name <q>$special</q> was used in an unsupported position!");
     }
     validate_name($name[1]);
+    if($name[0] === null)
+    {
+      return "<$name[1]>";
+    }
     $unresolved_prefixes[$name[0]] = null;
     return $name[0].':'.addcslashes($name[1], $escape);
   }

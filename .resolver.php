@@ -123,6 +123,10 @@ function concat_prefixed($a, $b)
       $b = htmlspecialchars($b);
       report_error(400, "Absolute URI must not be produced from a prefix denoting a relative URI (<q>$b</q> produced from <q>$a</q>)!");
     }
+    if($a === '')
+    {
+      return array(null, $b);
+    }
     return $b;
   }
   return array($a[0], $a[1].$b);
