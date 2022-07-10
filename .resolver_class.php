@@ -478,9 +478,14 @@ class Resolver
           
           $inverse = $value[1];
           
-          $not_variable = $last && !isset($unify_path);
+          $not_variable = $last && !isset($unify_path);          
           $step_input = $index > 0 ? "?s$index" : $initial;
           $step_output = isset($unify_path) ? "?r$next" : ($not_variable ? $identifier : "?s$next");
+          
+          if($last && isset($filter) && !isset($constructor))
+          {
+            $not_variable = false;
+          }
           
           $special = get_special_name($value[0]);
           if($special === 'uri')
