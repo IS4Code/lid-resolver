@@ -299,7 +299,7 @@ class Resolver
     if(!empty($components))
     {
       $last = $components[count($components) - 1];
-      if(get_special_name($last[0]) === 'uri' && !$last[1] && ($idkind === 'plain' || ($idkind === 'datatype' && $idtype === 'http://www.w3.org/2001/XMLSchema#anyURI')))
+      if(get_special_name($last[0]) === 'uri' && !$last[1] && is_absolute_uri($identifier) && ($idkind === 'plain' || ($idkind === 'datatype' && $idtype === 'http://www.w3.org/2001/XMLSchema#anyURI')))
       {
         array_pop($components);
         $identifier_is_literal = false;
