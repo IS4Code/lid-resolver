@@ -247,7 +247,7 @@ function output_debug($uri, $sparql, $sparql_inner, $options, $reconstructed_uri
 <textarea name="query" hidden style="display:none"><?=$sparql?></textarea>
 <input type="submit" value="Analyze">
 </form>
-<form style="display:inline" method="POST" action="http://www.sparql.org/validate/query">
+<form style="display:inline" method="POST" action="http://www.sparql.org/$/validate/query">
 <textarea name="query" hidden style="display:none"><?php
 
   if(count($unresolved_prefixes) > 0)
