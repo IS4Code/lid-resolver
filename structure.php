@@ -19,7 +19,7 @@
 <dt><code>type</code></dt>
 <dd>Specifies the type of the literal value. Could be a language code, a language range or a <mark><code>name</code></mark>. If it is omitted, the literal is simply compared by its string value, without a type comparison. A valid language code or language range with an additional hyphen (<q>-</q>) at the end is always interpreted as a language range stripped of it. Special names listed below are not applicable here, as they already match a language code.</dd>
 <dt><code>context</code></dt>
-<dd>Additional key-value pairs. If the key starts on <mark><code>_</code></mark>, it is an option, otherwise it is a prefix (re)definition (without the <q>:</q>) and the value is treated as a <mark><code>name</code></mark>. The prefixes are processed in order, that is the second prefix definition uses the context creates by the first prefix definition, and so on. Assigning an empty literal value to a prefix name undefines the prefix.</dd>
+<dd>Additional key-value pairs. If the key starts on <mark><code>_</code></mark>, it is an option, otherwise it is a prefix (re)definition (without the <q>:</q>) and the value is treated as a <mark><code>name</code></mark>. The prefixes are processed in order, that is the second prefix definition uses the context created by the first prefix definition, and so on. Assigning an empty literal value to a prefix name undefines the prefix.</dd>
 <dt><code>fragment</code></dt>
 <dd>Used to find the target entity within the resource specified by the URI by the navigator. If the location of the resource already contains a fragment, it is replaced.</dd>
 </dl>
@@ -61,7 +61,7 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <p>In addition to the prefixes declared above, a particular resolver (such as the one on this site) may define additional prefixes. The ones used here are as follows (ordered by priority):</p>
 <ol>
 <li>Permanent <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml">IANA URI schemes</a>. They are defined as themselves, like above.</li>
-<li>Recommended <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a>. Only defintions that end on <mark><code>#</code></mark>, <mark><code>/</code></mark> or <mark><code>:</code></mark> are considered.</li>
+<li>Recommended <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a>. Only definitions that end on <mark><code>#</code></mark>, <mark><code>/</code></mark> or <mark><code>:</code></mark> are considered.</li>
 <li>Provisional and historical IANA URI schemes longer than 3 characters. Defined like the other schemes.</li>
 </ol>
 <p>This means that some common prefixes may be overwritten by URI schemes (see <a href="conflicts">here</a> for examples). The syntax still allows to redefine any such prefix manually.</p>
@@ -73,7 +73,7 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <dt><code>lid:</code></dt>
 <dd>The path may be omitted completely, in which case the URI refers to any empty literal value.</dd>
 <dt><code>lid:1@xsd:integer</code></dt>
-<dd>If typed, the URI refers to the literal value <mark><code>"1"^^xsd:integer</code></mark> itself.</dd>
+<dd>The URI refers to the literal value <mark><code>"1"^^xsd:integer</code></mark> itself.</dd>
 <dt><code>lid:example@en</code></dt>
 <dd>The URI refers to the string <q>example</q> in the English language.</dd>
 <dt><code>lid:a@</code></dt>
