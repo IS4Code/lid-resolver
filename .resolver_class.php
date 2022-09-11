@@ -301,11 +301,21 @@ class Resolver
     if(!empty($components))
     {
       $last = $components[count($components) - 1];
-      if(get_special_name($last[0]) === 'uri' && !$last[1] && is_absolute_uri($identifier) && ($idkind === 'plain' || ($idkind === 'datatype' && $idtype === 'http://www.w3.org/2001/XMLSchema#anyURI')))
+      if(get_special_name($last[0]) === 'uri' && !$last[1])
       {
-        array_pop($components);
-        $identifier_is_literal = false;
-        $identifier = $this->format_name($identifier);
+        if($idkind === 'plain' || ($idkind === 'datatype' && $idtype === 'http://www.w3.org/2001/XMLSchema#anyURI'))
+        {
+          if(!is_string($identifier) || is_absolute_uri($identifier))
+          {
+            array_pop($components);
+            $identifier_is_literal = false;
+            $identifier = $this->format_name($identifier);
+          }else{
+            report_error(400, "A relative URI (<q>$identifier</q>) must be prefixed with <q>\$base:</q> in the identifier!");
+          }
+        }else{
+          report_error(400, "The datatype of the value of the special property <q>uri</q> must be either unspecified or xsd:anyURI!");
+        }
       }
     } 
     
