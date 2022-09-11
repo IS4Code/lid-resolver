@@ -45,20 +45,26 @@ You may also use the form below:</p>
 <dl>
 <dt><code>lid://example.org/rdfs:label/1</code></dt>
 <dd>Identifies anything that has a property <mark><code>rdfs:label</code></mark> (known prefix) with a literal value of <mark><q>1</q></mark> (any type).</dd>
+<dt><code>lid://example.org/rdfs:label/1@</code></dt>
+<dd>Identifies anything that has the property with a literal value of <mark><code>"1"</code></mark> (plain untagged literal in RDF 1.0, <code>xsd:string</code> in RDF 1.1).</dd>
 <dt><code>lid://example.org/rdfs:label/1@xsd:integer</code></dt>
 <dd>Identifies anything that has the property with a literal value of <mark><code>"1"^^xsd:integer</code></mark>.</dd>
 <dt><code>lid://example.org/rdfs:label/Person@en</code></dt>
 <dd>Identifies anything that has the property with a literal value of <mark><code>"Person"@en</code></mark> (English language tag).</dd>
 <dt><code>lid://example.org/ex:id/1</code></dt>
-<dd>Identifies anything that has a property <mark><code>ex:id</code></mark> with the specified value. The resolution of <mark><code>ex:</code></mark> is performed by the target endpoint, as it is an undefined prefix.</dd>
-<dt><code>lid://example.org/foaf:mbox/uri/mailto:address%40example.org@</code></dt>
-<dd>Identifies anything that has a property <mark><code>foaf:mbox</code></mark> (known prefix) with a value of <mark><code>&lt;mailto:address@example.org&gt;</code></mark>.</dd>
-<dt><code>lid://example.org/'foaf:age/foaf:mbox/mailto:address%40example.org@</code></dt>
+<dd>Identifies anything that has a property <mark><code>ex:id</code></mark> with the specified value. The resolution of <mark><code>ex:</code></mark> is performed by the target endpoint, because it is an undefined prefix.</dd>
+<dt><code>lid://example.org/foaf:mbox/uri/mailto:address%40example.org</code></dt>
+<dd>Identifies anything that has a property <mark><code>foaf:mbox</code></mark> (known prefix) with a value of <mark><code>&lt;mailto:address@example.org&gt;</code></mark> (a URI).</dd>
+<dt><code>lid://example.org/'foaf:age/foaf:mbox/uri/mailto:address%40example.org</code></dt>
 <dd>Identifies the <mark><code>foaf:age</code></mark> of the specified entity.</dd>
+<dt><code>lid://example.org/rdf:value/uri/rdf:nil</code></dt>
+<dd>Identifies anything that has the property with a value of <mark><code>&lt;rdf:nil&gt;</code></mark> (a URI) &ndash; likely incorrect!</dd>
+<dt><code>lid://example.org/rdf:value/uri/$rdf:nil</code></dt>
+<dd>Identifies anything that has the property with a value of <mark><code>rdf:nil</code></mark> (using the known prefix).</dd>
 <dt><code>lid://example.org/ex:id/1?ex=http://example.org/</code></dt>
-<dd>Identifies anything with the specified value of <mark><code>&lt;http://example.org/id&gt;</code></mark> (<mark><code>http:</code></mark> is a known prefix).</dd>
+<dd>Identifies anything with the specified value of the <mark><code>&lt;http://example.org/id&gt;</code></mark> property (<mark><code>http:</code></mark> is treated as a known prefix).</dd>
 <dt><code>lid://example.org/base:id/1</code></dt>
-<dd>Identifies anything with the specified value of <mark><code>&lt;id&gt;</code></mark> (<mark><code>base:</code></mark> is a known prefix).</dd>
+<dd>Identifies anything with the specified value of the <mark><code>&lt;id&gt;</code></mark> property (<mark><code>base:</code></mark> is a known prefix for producing relative URIs).</dd>
 </dl>
 </section>
 </body>

@@ -8,16 +8,16 @@
 <p style="float:right"><a href=".">Back to the resolver.</a></p>
 <h1><code>lid:</code> URI scheme</h1>
 <p>A <mark><code>lid:</code></mark> URI has the following structure:</p>
-<pre><mark><q>lid:</q> [ <q>//</q> host <q>/</q> ] ( [ <q>'</q> ] name <q>/</q> )* value [ <q>@</q> ] [ <q>@</q> type ] [ <q>?</q> context ] [ <q>#</q> fragment ]</mark></pre>
+<pre><mark><q>lid:</q> [ <q>//</q> host <q>/</q> ] ( [ <q>'</q> ] name <q>/</q> )* [ <q>$</q> ] value [ <q>@</q> type ] [ <q>?</q> context ] [ <q>#</q> fragment ]</mark></pre>
 <dl>
 <dt><code>host</code></dt>
 <dd>The hostname of the server storing the target dataset. The server is queried, usually with the HTTP or HTTPS protocol, for the entity represented by the URI.</dd>
 <dt><code>name</code></dt>
 <dd>A URI name, as an absolute URI reference or a prefix (may be empty) and a local name, separated with <q>:</q>.</dd>
 <dt><code>value</code></dt>
-<dd>the compared value of the property chain. If followed by the <q>@</q>, it is treated as a <mark><code>name</code></mark> and expanded accordingly. May be empty.</dd>
+<dd>the compared value of the property chain. If preceded by the <q>$</q>, it is treated as a <mark><code>name</code></mark> and expanded accordingly. May be empty.</dd>
 <dt><code>type</code></dt>
-<dd>Specifies the type of the literal value. Could be a language code, a language range or a <mark><code>name</code></mark>. If it is omitted, the literal is simply compared by its string value, without a type comparison. A valid language code or language range with an additional hyphen (<q>-</q>) at the end is always interpreted as a language range stripped of it. Special names listed below are not applicable here, as they already match a language code.</dd>
+<dd>Specifies the type of the literal value. Could be a language code, a language range, a <mark><code>name</code></mark>, or empty. If it is omitted altogether, the literal is simply compared by its string value, without a type comparison. A valid language code or language range with an additional hyphen (<q>-</q>) at the end is always interpreted as a language range stripped of it. Special names listed below are not applicable here, as they already match a language code.</dd>
 <dt><code>context</code></dt>
 <dd>Additional key-value pairs. If the key starts on <mark><code>_</code></mark>, it is an option, otherwise it is a prefix (re)definition (without the <q>:</q>) and the value is treated as a <mark><code>name</code></mark>. The prefixes are processed in order, that is the second prefix definition uses the context created by the first prefix definition, and so on. Assigning an empty literal value to a prefix name undefines the prefix.</dd>
 <dt><code>fragment</code></dt>
@@ -73,21 +73,22 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <dt><code>lid:</code></dt>
 <dd>The path may be omitted completely, in which case the URI refers to any empty literal value.</dd>
 <dt><code>lid:1@xsd:integer</code></dt>
-<dd>The URI refers to the literal value <mark><code>"1"^^xsd:integer</code></mark> itself.</dd>
+<dd>This refers to the literal value <mark><code>"1"^^xsd:integer</code></mark> itself.</dd>
+<dt><code>lid:1@</code></dt>
+<dd>This refers to the literal value <mark><code>"1"</code></mark>, which is treated as a plain untagged literal in RDF 1.0 and an <mark><code>xsd:string</code></mark>-typed literal in RDF 1.1, which may be considered distinct entities by the SPARQL endpoint.</dd>
 <dt><code>lid:example@en</code></dt>
-<dd>The URI refers to the string <q>example</q> in the English language.</dd>
-<dt><code>lid:a@</code></dt>
-<dd>The URI refers to the literal <q>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</q> (with any datatype).</dd>
-<dt><code>lid:uri/mailto:user%40example.org@</code></dt>
-<dd>This URI refers to the entity identified by the URI <q>mailto:user@example.org</q>.</dd>
-<dt><code>lid:mailto:user%40example.org@@xsd:anyURI</code></dt>
-<dd>This URI refers to the actual URI string that identifies the entity above.</dd>
-<dt><code>lid:mailto:user%40example.org@xsd:anyURI</code></dt>
-<dd>This URI refers to the same thing as above, since <q>mailto:</q> is defined as itself.</dd>
-<dt><code>lid:rdfs:isDefinedBy/uri/foaf:@</code></dt>
-<dd>This URI refers to any entity that is defined by the FOAF vocabulary.</dd>
+<dd>This refers to the string <q>example</q> in the English language.</dd>
+<dt><code>lid:$a</code></dt>
+<dd>This refers to the literal <q>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</q> (with any datatype).</dd>
+<dt><code>lid:uri/mailto%3Auser%40example.org</code></dt>
+<dt><code>lid:uri/mailto:user%40example.org</code></dt>
+<dt><code>lid:uri/$mailto%3Auser%40example.org</code></dt>
+<dt><code>lid:uri/$mailto:user%40example.org</code></dt>
+<dd>This refers to the entity identified by the URI <q>mailto:user@example.org</q>. Only in the last case, the <q>mailto:</q> part is treated as an actual prefix (defined as itself) and other vocabulary prefixes may be used.</dd>
+<dt><code>lid:rdfs:isDefinedBy/uri/$foaf:</code></dt>
+<dd>This refers to any entity that is defined by the FOAF vocabulary.</dd>
 <dt><code>lid:rdfs:label/'uri/rdf:value/x</code></dt>
-<dd>This URI refers to an entity that has a textual label which can be interpreted as the URI of an entity with value <q>x</q>.</dd>
+<dd>This refers to an entity that has a textual label (as <mark><code>xsd:anyURI</code></mark>) which can be interpreted as the URI of an entity with value <q>x</q>.</dd>
 </section>
 <section>
 <h2>Automatic entailment</h2>

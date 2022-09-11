@@ -72,24 +72,23 @@ class Resolver
   
   function parse_identifier($identifier)
   {
-    $identifier = explode('@', $identifier, 2);
+    @list($identifier, $type) = explode('@', $identifier, 2);
     $kind = 'plain';
-    $type = null;
     
-    $is_name = false;
-    if(isset($identifier[1]))
+    if(substr($identifier, 0, 1) === '$')
     {
-      $type = $identifier[1];
+      $identifier = $this->resolve_name(substr($identifier, 1));
+    }else{
+      $identifier = uridecode($identifier);
+    }
+    
+    if(isset($type))
+    {
       if($type === '')
       {
-        $is_name = true;
-      }else if(substr($type, 0, 1) === '@' && strlen($type) > 1)
-      {
-        $is_name = true;
-        $type = substr($type, 1);
-      }
-      if($type !== '')
-      {
+        $type = null;
+        $kind = 'datatype';
+      }else{
         if(preg_match('/^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$/', $type))
         {
           $type = uridecode($type);
@@ -103,13 +102,8 @@ class Resolver
           $kind = 'datatype';
         }
       }
-    }
-    
-    if($is_name)
-    {
-      $identifier = $this->resolve_name($identifier[0]);
     }else{
-      $identifier = uridecode($identifier[0]);
+      $type = null;
     }
     
     return array($identifier, $kind, $type);
@@ -210,13 +204,21 @@ class Resolver
       }
     }else if($idkind === 'datatype')
     {
-      $idtype = $this->format_name($idtype);
-      if($needs_filter)
+      if($idtype !== null)
       {
-        $filter = "$filter && DATATYPE(?id) = $idtype";
-        $constructor = "STRDT($identifier, $idtype)";
+        $idtype = $this->format_name($idtype);
+        if($needs_filter)
+        {
+          $filter = "$filter && DATATYPE(?id) = $idtype";
+          $constructor = "STRDT($identifier, $idtype)";
+        }else{
+          $identifier = "$identifier^^$idtype";
+        }
       }else{
-        $identifier = "$identifier^^$idtype";
+        if($needs_filter)
+        {
+          $constructor = $identifier;
+        }
       }
     }else if($idkind === 'langrange')
     {
