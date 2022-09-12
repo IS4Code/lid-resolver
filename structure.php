@@ -91,12 +91,19 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <dd>This refers to an entity that has a textual label (as <mark><code>xsd:anyURI</code></mark>) which can be interpreted as the URI of an entity with value <q>x</q>.</dd>
 </section>
 <section>
-<h2>Automatic entailment</h2>
-<p>A <code>lid:</code> URI can be constructed to point to specific resources which can be thought of as synonymous under the RDF semantics. Here are some examples of possible entailment that may arise automatically from the use of a <code>lid:</code> URI.</p><pre>&lt;lid:example@en&gt; owl:sameAs "example"@en .
-&lt;lid:uri/urn:something&gt; owl:sameAs &lt;urn:something&gt; .
-&lt;lid:15&gt; skos:narrower "15", 15, "15"^^xsd:double .
-&lt;lid://hostname1/anything&gt; owl:sameAs &lt;lid://hostname2/anything&gt; . # if there are no unbound prefixes in the URI
+<h2>Semantics</h2>
+<p>A <code>lid:</code> URI can be constructed to point to specific resources which can be thought of as synonymous under the RDF semantics. Here are some examples of possible entailment that may arise automatically from the use of a <code>lid:</code> URI.</p>
+<pre>&lt;lid:example@en&gt; owl:sameAs "example"@en . # a property-less lid: URI is a way to identify a literal value
+&lt;lid:uri/urn:something&gt; owl:sameAs &lt;urn:something&gt; . # a way to encode a normal URI if needed, or to shorten it via a known prefix
+&lt;lid:15&gt; skos:narrower "15", 15, "15"^^xsd:double . # the concept of a literal value with unspecified type is broader than any of the concrete literals
+&lt;lid:hello@en-*&gt; skos:narrower "hello"@en-us, "hello"@en-gb . # likewise for language ranges
 </pre>
+<p>Additionally, the presence of a hostname in the URI might change its meaning in these ways:</p>
+<ul>
+  <li>If an unbound prefix is used, its resolution depends solely on the target endpoint and may produce different results, leading to completely unrelated URIs for different endpoints.</li>
+  <li>Even if the URI is unambiguous, its resolution could very easily be affected by the knowledge the target endpoint has access to, and could yield different, but semantically linked, results. This link depends on the kind of properties used in the path, e.g. using only inverse functional properties implies <mark><code>owl:sameAs</code></mark>, but other properties may warrant weaker links.</li>
+  <li>Even for unambiguous entities (literals or URIs), the interpretation of such URIs could require the participation of the endpoint in further description of the entity. If two endpoints give conflicting facts about the entity, the issue could be resolved by treating the two URIs as different entities, each belonging to its endpoint's world-view.</li>
+</ul>
 </section>
 </body>
 </html>
