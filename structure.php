@@ -11,7 +11,7 @@
 <pre><mark><q>lid:</q> [ <q>//</q> host <q>/</q> ] ( [ <q>'</q> ] name <q>/</q> )* [ <q>$</q> ] value [ <q>@</q> type ] [ <q>?</q> context ] [ <q>#</q> fragment ]</mark></pre>
 <dl>
 <dt><code>host</code></dt>
-<dd>The hostname of the server storing the target dataset. The server is queried, usually with the HTTP or HTTPS protocol, for the entity represented by the URI.</dd>
+<dd>The hostname of the server storing the target dataset. The server is queried, usually with the HTTP or HTTPS protocol, for the entity represented by the remainder of the URI.</dd>
 <dt><code>name</code></dt>
 <dd>A URI name, as an absolute URI reference or a prefix (may be empty) and a local name, separated with <q>:</q>.</dd>
 <dt><code>value</code></dt>
@@ -57,16 +57,8 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <p>This prefix would make it possible to express an absolute URI, like in <mark><code>base:urn:something</code></mark>. Producing absolute URIs this way is therefore explicitly disallowed: a prefix that denotes a relative URI cannot be used to produce an absolute URI (the converse is already true by definition for absolute URIs).</p>
 </dd>
 </dl>
-<p>The empty prefix is always undefined initially, as well as any prefix that starts on <q>x.</q>. Any undefined prefix may still be used in any <mark><code>name</code></mark>, but it is up to the target endpoint to recognize it. This is the only case an invalid SPARQL query may be generated.</p>
-<p>In addition to the prefixes declared above, a particular resolver (such as the one on this site) may define additional prefixes. The ones used here are as follows (ordered by priority):</p>
-<ol>
-<li>Permanent <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml">IANA URI schemes</a>. They are defined as themselves, like above.</li>
-<li>Recommended <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a>. Only definitions that end on <mark><code>#</code></mark>, <mark><code>/</code></mark> or <mark><code>:</code></mark> are considered.</li>
-<li>Provisional and historical IANA URI schemes longer than 3 characters. Defined like the other schemes.</li>
-</ol>
-<p>This means that some common prefixes may be overwritten by URI schemes (see <a href="conflicts">here</a> for examples). The syntax still allows to redefine any such prefix manually.</p>
-<p>The list of default prefixes (<a href="context.jsonld">JSON-LD context</a>) is periodically synchronized with the source documents. This could result in ambiguities between different resolvers or points in time, since a particular prefix could turn from undefined to defined when one of the two lists is modified. This is easily prevented by undefining the prefix manually in the URI, or by using the empty prefix or a prefix that starts on <q>x.</q>.</p>
-<p>If an entry is removed from the source lists, it could also prevent this resolver from correctly processing URIs that use the prefix. It is assumed entries are never removed from the sources, and if so, it justifies the consequences.</p>
+<p>The empty prefix is always undefined initially, as well as any prefix that starts on <q>x.</q>. Any undefined prefix may still be used in any <mark><code>name</code></mark>, but it is up to the target to recognize it.</p>
+<p>In addition to the prefixes declared above, a particular resolver may define additional prefixes.</p>
 <section>
 <h2>Examples of valid syntax</h2>
 <p>All of the URIs below are valid, with or without a host portion (<q>//example.org/</q> after <q>lid:</q>).</p>
@@ -75,7 +67,7 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <dt><code>lid:1@xsd:integer</code></dt>
 <dd>This refers to the literal value <mark><code>"1"^^xsd:integer</code></mark> itself.</dd>
 <dt><code>lid:1@</code></dt>
-<dd>This refers to the literal value <mark><code>"1"</code></mark>, which is treated as a plain untagged literal in RDF 1.0 and an <mark><code>xsd:string</code></mark>-typed literal in RDF 1.1, which may be considered distinct entities by the SPARQL endpoint.</dd>
+<dd>This refers to the literal value <mark><code>"1"</code></mark>, which is treated as a plain untagged literal in RDF 1.0 and an <mark><code>xsd:string</code></mark>-typed literal in RDF 1.1, which may be considered distinct entities by the target.</dd>
 <dt><code>lid:example@en</code></dt>
 <dd>This refers to the string <q>example</q> in the English language.</dd>
 <dt><code>lid:$a</code></dt>
@@ -91,6 +83,11 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <dd>This refers to an entity that has a textual label (as <mark><code>xsd:anyURI</code></mark>) which can be interpreted as the URI of an entity with value <q>x</q>.</dd>
 </section>
 <section>
+<h2>Interpretation</h2>
+<p>A <code>lid:</code> URI on its own usually refers to entities described by a particular dataset. The purpose of creating such a URI is to produce a persistent identifier when one is unavailable (such as for a blank node) which is easy to read and interpret, and serves as a link into the dataset.</p>
+<p><code>lid:</code> URIs do not have a single possible resolution mechanism, but they are designed for use with SPARQL endpoints (located at <q>/sparql</q> under a particular host) and a particular resolver may use parts of the URI to construct a SPARQL query which retrieves the identified resource, in some form specific to the resolver.</p>
+<p>The basic translation to a SPARQL query is simple and only uses a single property path, coupled with a check on the identifier. More advanced resolvers, such as the one <a href=".">hosted here</a>, may however offer additional features, for example basic inference from subproperties, or unification based on standard properties like <mark><code>owl:sameAs</code></mark>, in which case the query may become more complex, while still resembling the simple one.</p>
+<p>The SPARQL query generated by a resolver should generally be valid, but there is one exception: unbound prefixes may be used. These are not part of the standard SPARQL syntax, but they are commonly understood by SPARQL endpoint implementations. Using an unbound prefix means using whichever namespace is understood by the endpoint for that prefix, if some at all.</p>
 <h2>Semantics</h2>
 <p>A <code>lid:</code> URI can be constructed to point to specific resources which can be thought of as synonymous under the RDF semantics. Here are some examples of possible entailment that may arise automatically from the use of a <code>lid:</code> URI.</p>
 <pre>&lt;lid:example@en&gt; owl:sameAs "example"@en . # a property-less lid: URI is a way to identify a literal value
