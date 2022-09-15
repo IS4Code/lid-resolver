@@ -23,9 +23,9 @@
 <dt><code>fragment</code></dt>
 <dd>Used to find the target entity within the resource specified by the URI by the navigator. If the location of the resource already contains a fragment, it is replaced.</dd>
 </dl>
-<p>All of special characters may be escaped with <q>%</q> per standard URI rules to be interpreted literally, without a special meaning. If an escaped character is found in an invalid place, it may be interpreted as its unescaped variant, if that would lead to a valid syntax.</p>
+<p>All of special characters may be escaped with <q>%</q> per standard URI rules to be interpreted literally, without a special meaning. Inside a <mark><code>name</code></mark>, characters <q>!</q>, <q>&amp;</q>, <q>(</q>, <q>)</q>, <q>*</q>, <q>+</q>, <q>,</q>, and <q>;</q> are reserved for future possible use and must be percent-encoded.</p>
 <p>The path portion of the URI consists of a property path, followed by an identifier. Each property corresponds to a step in the corresponding property chain with the identifier at its end and the identified entity at its beginning. <q>'</q> before a property represents its inverse. The initial node in the property path is considered the queried entity, while the final node is the identifier (final component of the URI path).</p>
-<p>When a <mark><code>name</code></mark> is expected, a special identifier may be used instead, if it doesn't match a valid production in its place. These are:</p>
+<p>When a <mark><code>name</code></mark> is expected, a special identifier may be used instead, which doesn't match its usual structure. These are:</p>
 <dl>
 <dt><code>a</code></dt>
 <dd>This is synonymous to the URI <mark><code>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</code></mark> with no additional meaning.</dd>
