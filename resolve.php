@@ -17,7 +17,7 @@ function report_error($code, $message)
 </head>
 <body>
 <p>The input URI or its parts could not be processed.</p>
-<p><mark><?=$message?></mark></p>
+<p><strong><?=$message?></strong></p>
 <p><a href=".">Back to the main page.</a></p>
 </body>
 </html><?php

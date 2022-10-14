@@ -6,8 +6,8 @@
 </head>
 <body>
 <h1><code>lid:</code> URI resolver</h1>
-<p>This service can be used as a resolver for URIs in the <mark><code>lid:</code></mark> scheme (described <a href="structure">here</a>).</p>
-<p>The webserver is also configured to resolve URIs in the form: <mark><code>https://<?=$_SERVER[HTTP_HOST]?>/lid:<span contenteditable="true">//example.org/ex:id/1<br></span></code></mark>
+<p>This service can be used as a resolver for URIs in the <b><code>lid:</code></b> scheme (described <a href="structure">here</a>).</p>
+<p>The webserver is also configured to resolve URIs in the form: <b><code>https://<?=$_SERVER[HTTP_HOST]?>/lid:<span contenteditable="true">//example.org/ex:id/1<br></span></code></b>
 You may also use the form below:</p>
 <form method="GET" action="resolve">
 <p><textarea name="uri" rows="1" cols="100" onkeypress="if(event.which===13&amp;&amp;!event.shiftKey){event.target.form.submit();event.preventDefault();}">lid://my.data.is4.site/:nick/IS4?=foaf:</textarea></p>
@@ -41,7 +41,7 @@ You may also use the form below:</p>
 <p>Using an undefined prefix is valid, but requires the target endpoint to understand it. The prefixes recognized by the service are as follows (ordered by priority):</p>
 <ol>
 <li>Permanent <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml">IANA URI schemes</a>. They are defined as themselves.</li>
-<li>Recommended <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a>. Only definitions that end on <mark><code>#</code></mark>, <mark><code>/</code></mark> or <mark><code>:</code></mark> are considered.</li>
+<li>Recommended <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a>. Only definitions that end on <b><code>#</code></b>, <b><code>/</code></b> or <b><code>:</code></b> are considered.</li>
 <li>Provisional and historical IANA URI schemes longer than 3 characters. Defined like the other schemes.</li>
 </ol>
 <p>This means that some common prefixes may be overwritten by URI schemes (see <a href="conflicts">here</a> for examples). The syntax still allows to redefine any such prefix manually.</p>
@@ -49,30 +49,30 @@ You may also use the form below:</p>
 <p>If an entry is removed from the source lists, it could also prevent this resolver from correctly processing URIs that use the prefix. It is assumed entries are never removed from the sources, and if so, it justifies the consequences.</p>
 <section>
 <h2>Examples</h2>
-<p>The options above can be also specified in the query part of the URI. Any query parameter starting with <mark><code>__</code></mark> is passed to the target endpoint.</p>
+<p>The options above can be also specified in the query part of the URI. Any query parameter starting with <b><code>__</code></b> is passed to the target endpoint.</p>
 <dl>
 <dt><code>lid://example.org/rdfs:label/1</code></dt>
-<dd>Identifies anything that has a property <mark><code>rdfs:label</code></mark> (known prefix) with a literal value of <mark><q>1</q></mark> (any type).</dd>
+<dd>Identifies anything that has a property <b><code>rdfs:label</code></b> (known prefix) with a literal value of <b><q>1</q></b> (any type).</dd>
 <dt><code>lid://example.org/rdfs:label/1@</code></dt>
-<dd>Identifies anything that has the property with a literal value of <mark><code>"1"</code></mark> (plain untagged literal in RDF 1.0, <code>xsd:string</code> in RDF 1.1).</dd>
+<dd>Identifies anything that has the property with a literal value of <b><code>"1"</code></b> (plain untagged literal in RDF 1.0, <code>xsd:string</code> in RDF 1.1).</dd>
 <dt><code>lid://example.org/rdfs:label/1@xsd:integer</code></dt>
-<dd>Identifies anything that has the property with a literal value of <mark><code>"1"^^xsd:integer</code></mark>.</dd>
+<dd>Identifies anything that has the property with a literal value of <b><code>"1"^^xsd:integer</code></b>.</dd>
 <dt><code>lid://example.org/rdfs:label/Person@en</code></dt>
-<dd>Identifies anything that has the property with a literal value of <mark><code>"Person"@en</code></mark> (English language tag).</dd>
+<dd>Identifies anything that has the property with a literal value of <b><code>"Person"@en</code></b> (English language tag).</dd>
 <dt><code>lid://example.org/ex:id/1</code></dt>
-<dd>Identifies anything that has a property <mark><code>ex:id</code></mark> with the specified value. The resolution of <mark><code>ex:</code></mark> is performed by the target endpoint, because it is an undefined prefix.</dd>
+<dd>Identifies anything that has a property <b><code>ex:id</code></b> with the specified value. The resolution of <b><code>ex:</code></b> is performed by the target endpoint, because it is an undefined prefix.</dd>
 <dt><code>lid://example.org/foaf:mbox/uri/mailto:address%40example.org</code></dt>
-<dd>Identifies anything that has a property <mark><code>foaf:mbox</code></mark> (known prefix) with a value of <mark><code>&lt;mailto:address@example.org&gt;</code></mark> (a URI).</dd>
+<dd>Identifies anything that has a property <b><code>foaf:mbox</code></b> (known prefix) with a value of <b><code>&lt;mailto:address@example.org&gt;</code></b> (a URI).</dd>
 <dt><code>lid://example.org/'foaf:age/foaf:mbox/uri/mailto:address%40example.org</code></dt>
-<dd>Identifies the <mark><code>foaf:age</code></mark> of the specified entity.</dd>
+<dd>Identifies the <b><code>foaf:age</code></b> of the specified entity.</dd>
 <dt><code>lid://example.org/rdf:value/uri/rdf:nil</code></dt>
-<dd>Identifies anything that has the property with a value of <mark><code>&lt;rdf:nil&gt;</code></mark> (a URI) &ndash; likely incorrect!</dd>
+<dd>Identifies anything that has the property with a value of <b><code>&lt;rdf:nil&gt;</code></b> (a URI) &ndash; likely incorrect!</dd>
 <dt><code>lid://example.org/rdf:value/uri/$rdf:nil</code></dt>
-<dd>Identifies anything that has the property with a value of <mark><code>rdf:nil</code></mark> (using the known prefix).</dd>
+<dd>Identifies anything that has the property with a value of <b><code>rdf:nil</code></b> (using the known prefix).</dd>
 <dt><code>lid://example.org/ex:id/1?ex=http://example.org/</code></dt>
-<dd>Identifies anything with the specified value of the <mark><code>&lt;http://example.org/id&gt;</code></mark> property (<mark><code>http:</code></mark> is treated as a known prefix).</dd>
+<dd>Identifies anything with the specified value of the <b><code>&lt;http://example.org/id&gt;</code></b> property (<b><code>http:</code></b> is treated as a known prefix).</dd>
 <dt><code>lid://example.org/base:id/1</code></dt>
-<dd>Identifies anything with the specified value of the <mark><code>&lt;id&gt;</code></mark> property (<mark><code>base:</code></mark> is a known prefix for producing relative URIs).</dd>
+<dd>Identifies anything with the specified value of the <b><code>&lt;id&gt;</code></b> property (<b><code>base:</code></b> is a known prefix for producing relative URIs).</dd>
 </dl>
 </section>
 </body>

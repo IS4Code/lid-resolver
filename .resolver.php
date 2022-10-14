@@ -92,13 +92,13 @@ function analyze_uri($uri, &$components, &$identifier, &$query)
   
   if(!isset($uri['scheme']))
   {
-    report_error(400, 'The URI must be absolute and have the <mark>lid:</mark> scheme!');
+    report_error(400, 'The URI must be absolute and have the <b>lid:</b> scheme!');
   }
   
   if($uri['scheme'] !== 'lid')
   {
     $scheme = htmlspecialchars($uri['scheme']);
-    report_error(400, "Scheme must be <mark>lid:</mark> (was <q>$scheme</q>)!");
+    report_error(400, "Scheme must be <b>lid:</b> (was <q>$scheme</q>)!");
   }
   unset($uri['scheme']);
   
