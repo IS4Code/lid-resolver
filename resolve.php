@@ -79,7 +79,12 @@ if(!empty($options['sparql']))
 {
   $uri['path'] = "/$options[sparql]";
 }else{
-  $uri['path'] = '/sparql/';
+  if(strcasecmp(@$uri['host'], 'query.wikidata.org') === 0)
+  {
+    $uri['path'] = '/sparql';
+  }else{
+    $uri['path'] = '/sparql/';
+  }
 }
 
 if(!empty($options['scheme']))
