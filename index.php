@@ -17,7 +17,7 @@ You may also use the form below:</p>
 <input type="checkbox" name="unify_owl" id="unify_owl"><label for="unify_owl">Unify with owl:sameAs (<code>_unify_owl</code>).</label><br>
 <input type="checkbox" name="unify_skos" id="unify_skos"><label for="unify_skos">Unify with skos:exactMatch (<code>_unify_skos</code>).</label><br>
 <input type="checkbox" name="first" id="first"><label for="first">Output only the first result (<code>_first</code>).</label><br>
-<label for="method">Query action (<code>_action</code>): </label><select id="action" name="action">
+<label for="action">Query action (<code>_action</code>): </label><select id="action" name="action">
 <option value="navigate" selected>Navigate</option>
 <option value="describe">Describe</option>
 <option value="redirect">Redirect</option>
