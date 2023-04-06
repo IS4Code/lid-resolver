@@ -75,15 +75,20 @@ list($sparql, $sparql_inner) = $resolver->build_query($uri, $components, $identi
 
 $unresolved_prefixes = $resolver->unresolved_prefixes;
 
-if(!empty($options['sparql']))
+if(!empty($options['endpoint']))
 {
-  $uri['path'] = "/$options[sparql]";
+  $uri['path'] = "/$options[endpoint]";
 }else{
-  if(strcasecmp(@$uri['host'], 'query.wikidata.org') === 0)
+  if(@$options['method'] === 'triples')
   {
-    $uri['path'] = '/sparql';
+    $uri['path'] = '/.well-known/void';
   }else{
-    $uri['path'] = '/sparql/';
+    if(strcasecmp(@$uri['host'], 'query.wikidata.org') === 0)
+    {
+      $uri['path'] = '/sparql';
+    }else{
+      $uri['path'] = '/sparql/';
+    }
   }
 }
 

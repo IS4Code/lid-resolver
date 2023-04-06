@@ -1,4 +1,29 @@
-<!DOCTYPE html>
+<?php
+function getVarText($name, $default)
+{
+  return htmlspecialchars(@$_GET[$name] ?? $default);
+}
+
+function getVarChecked($name)
+{
+  return @$_GET[$name] ? ' checked' : '';
+}
+
+function getVarSelected($name, $option, $default = false)
+{
+  return (($default && !isset($_GET[$name])) || (@$_GET[$name] === $option)) ? ' selected' : '';
+}
+
+function options($name, $list, $default = null)
+{
+  foreach($list as $key => $value)
+  {
+     ?><option value="<?=$key?>"<?=
+  getVarSelected($name, $key, $key === $default)
+?>><?=$value?></option><?php
+  }
+}
+?><!DOCTYPE html>
 <html lang="en">
 <head>
 <title>lid: resolver</title>
@@ -10,30 +35,70 @@
 <p>The webserver is also configured to resolve URIs in the form: <b><code>https://<?=$_SERVER[HTTP_HOST]?>/lid:<span contenteditable="true">//example.org/ex:id/1<br></span></code></b>
 You may also use the form below:</p>
 <form method="GET" action="resolve">
-<p><textarea name="uri" rows="1" cols="100" onkeypress="if(event.which===13&amp;&amp;!event.shiftKey){event.target.form.submit();event.preventDefault();}">lid://my.data.is4.site/:nick/IS4?=foaf:</textarea></p>
-<input type="checkbox" name="check" id="check"><label for="check">Check functional properties (<code>_check</code>).</label><br>
-<input type="checkbox" name="infer" id="infer"><label for="infer">Infer from subproperties (<code>_infer</code>).</label><br>
-<input type="checkbox" name="inverse" id="inverse"><label for="inverse">Include additional owl:inverseOf in paths (<code>_inverse</code>).</label><br>
-<input type="checkbox" name="unify_owl" id="unify_owl"><label for="unify_owl">Unify with owl:sameAs (<code>_unify_owl</code>).</label><br>
-<input type="checkbox" name="unify_skos" id="unify_skos"><label for="unify_skos">Unify with skos:exactMatch (<code>_unify_skos</code>).</label><br>
-<input type="checkbox" name="first" id="first"><label for="first">Output only the first result (<code>_first</code>).</label><br>
+<p><textarea name="uri" rows="1" cols="100" onkeypress="if(event.which===13&amp;&amp;!event.shiftKey){event.target.form.submit();event.preventDefault();}"><?=
+  getVarText('uri', 'lid://my.data.is4.site/:nick/IS4?=foaf:')
+?></textarea></p>
+<input type="checkbox" name="check" id="check"<?=
+  getVarChecked('check')
+?>><label for="check">Check functional properties (<code>_check</code>).</label><br>
+<input type="checkbox" name="infer" id="infer"<?=
+  getVarChecked('infer')
+?>><label for="infer">Infer from subproperties (<code>_infer</code>).</label><br>
+<input type="checkbox" name="inverse" id="inverse"<?=
+  getVarChecked('inverse')
+?>><label for="inverse">Include additional owl:inverseOf in paths (<code>_inverse</code>).</label><br>
+<input type="checkbox" name="unify_owl" id="unify_owl"<?=
+  getVarChecked('unify_owl')
+?>><label for="unify_owl">Unify with owl:sameAs (<code>_unify_owl</code>).</label><br>
+<input type="checkbox" name="unify_skos" id="unify_skos"<?=
+  getVarChecked('unify_skos')
+?>><label for="unify_skos">Unify with skos:exactMatch (<code>_unify_skos</code>).</label><br>
+<input type="checkbox" name="first" id="first"<?=
+  getVarChecked('first')
+?>><label for="first">Output only the first result (<code>_first</code>).</label><br>
 <label for="action">Query action (<code>_action</code>): </label><select id="action" name="action">
-<option value="navigate" selected>Navigate</option>
-<option value="describe">Describe</option>
-<option value="redirect">Redirect</option>
-<option value="print">Print</option>
-<option value="debug">Debug</option>
+<?php
+options('action', array(
+  'navigate' => "Navigate",
+  'describe' => "Describe",
+  'redirect' => "Redirect",
+  'print' => "Print",
+  'debug' => "Debug"
+), 'navigate');
+?>
 </select><br>
 <label for="form">Query form (<code>_form</code>): </label><select id="form" name="form">
-<option value="construct">CONSTRUCT</option><option value="select">SELECT</option><option value="describe">DESCRIBE</option>
+<?php
+options('form', array(
+  'construct' => "CONSTRUCT",
+  'select' => "SELECT",
+  'describe' => "DESCRIBE"
+));
+?>
+</select><br>
+<label for="method">Query method (<code>_method</code>): </label><select id="method" name="method">
+<?php
+options('form', array(
+  'sparql' => "SPARQL",
+  'triples' => "Triple Pattern Fragments"
+));
+?>
 </select><br>
 <label for="_format">Results format (<code>__format</code>): </label><select id="_format" name="_format">
 <option disabled selected value></option>
 <optgroup label="Graph formats">
-<option value="text/turtle">Turtle</option><option value="application/x-nice-turtle">Turtle (beautified)</option><option value="application/rdf+json">RDF/JSON</option><option value="application/rdf+xml">RDF/XML</option><option value="text/plain">N-Triples</option><option value="application/xhtml+xml">XHTML+RDFa</option><option value="application/atom+xml">ATOM+XML</option><option value="application/odata+json">ODATA/JSON</option><option value="application/x-ld+json">JSON-LD (plain)</option><option value="application/ld+json">JSON-LD (with context)</option><option value="text/x-html+ul">HTML (list)</option><option value="text/x-html+tr">HTML (table)</option><option value="text/html">HTML+Microdata (basic)</option><option value="application/x-nice-microdata">HTML+Microdata (table)</option><option value="text/x-html-script-ld+json">HTML+JSON-LD (basic)</option><option value="text/x-html-script-turtle">HTML+Turtle (basic)</option><option value="text/x-html-nice-turtle">Turtle (beautified - browsing oriented)</option><option value="application/microdata+json">Microdata/JSON</option><option value="text/csv">CSV</option><option value="text/tab-separated-values">TSV</option><option value="application/x-trig">TriG</option><option value="text/cxml">CXML (Pivot Collection)</option><option value="text/cxml+qrcode">CXML (Pivot Collection with QRcodes)</option>
+<?php
+options('_format', array(
+  'text/turtle' => "Turtle", 'application/x-nice-turtle' => "Turtle (beautified)", 'application/rdf+json' => "RDF/JSON", 'application/rdf+xml' => "RDF/XML", 'text/plain' => "N-Triples", 'application/xhtml+xml' => "XHTML+RDFa", 'application/atom+xml' => "ATOM+XML", 'application/odata+json' => "ODATA/JSON", 'application/x-ld+json' => "JSON-LD (plain)", 'application/ld+json' => "JSON-LD (with context)", 'text/x-html+ul' => "HTML (list)", 'text/x-html+tr' => "HTML (table)", 'text/html' => "HTML+Microdata (basic)", 'application/x-nice-microdata' => "HTML+Microdata (table)", 'text/x-html-script-ld+json' => "HTML+JSON-LD (basic)", 'text/x-html-script-turtle' => "HTML+Turtle (basic)", 'text/x-html-nice-turtle' => "Turtle (beautified - browsing oriented)", 'application/microdata+json' => "Microdata/JSON", 'text/csv' => "CSV", 'text/tab-separated-values' => "TSV", 'application/x-trig' => "TriG", 'text/cxml' => "CXML (Pivot Collection)", 'text/cxml+qrcode' => "CXML (Pivot Collection with QRcodes)"
+));
+?>
 </optgroup>
 <optgroup label="Table formats">
-<option value="text/html">HTML</option><option value="text/x-html+tr">HTML (Faceted Browsing Links)</option><option value="application/vnd.ms-excel">Spreadsheet</option><option value="application/sparql-results+xml">XML</option><option value="application/sparql-results+json">JSON</option><option value="application/javascript">Javascript</option><option value="text/turtle">Turtle</option><option value="application/rdf+xml">RDF/XML</option><option value="text/plain">N-Triples</option><option value="text/csv">CSV</option><option value="text/tab-separated-values">TSV</option>
+<?php
+options('_format', array(
+  'text/html' => "HTML", 'text/x-html+tr' => "HTML (Faceted Browsing Links)", 'application/vnd.ms-excel' => "Spreadsheet", 'application/sparql-results+xml' => "XML", 'application/sparql-results+json' => "JSON", 'application/javascript' => "Javascript", 'text/turtle' => "Turtle", 'application/rdf+xml' => "RDF/XML", 'text/plain' => "N-Triples", 'text/csv' => "CSV", 'text/tab-separated-values' => "TSV"
+));
+?>
 </optgroup>
 </select><br>
 <input type="submit" value="Resolve">

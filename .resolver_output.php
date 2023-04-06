@@ -2,8 +2,14 @@
 
 function output_redirect($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes)
 {
-  $uri['query'] = get_query_string(create_query_array($sparql, $options));
-  $target_uri = unparse_url($uri);
+  $query = get_query_string(create_query_array($sparql, $options));
+  if(@$options['method'] === 'triples')
+  {
+    $target_uri = 'http://client.linkeddatafragments.org/#datasources='.rawurlencode(unparse_url($uri)).'&'.$query;
+  }else{
+    $uri['query'] = $query;
+    $target_uri = unparse_url($uri);
+  }
   
   http_response_code(303);
   header("Location: $target_uri");
@@ -11,6 +17,10 @@ function output_redirect($uri, $sparql, $sparql_inner, $options, $reconstructed_
 
 function output_navigate($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes, $describe)
 {
+  if(@$options['method'] === 'triples')
+  {
+    return output_redirect($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes);
+  }
   if(isset($uri['fragment']))
   {
     $fragment = "#$uri[fragment]";
@@ -176,7 +186,12 @@ echo implode('', $script);
 
 function output_print($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes)
 {
-  $target_uri = unparse_url($uri);
+  if(@$options['method'] === 'triples')
+  {
+    $target_uri = 'http://client.linkeddatafragments.org/#datasources='.rawurlencode(unparse_url($uri));
+  }else{
+    $target_uri = unparse_url($uri);
+  }
   $reconstructed_uri = unparse_url($reconstructed_uri);
   
   header('Content-Type: application/sparql-query');
@@ -188,18 +203,27 @@ function output_print($uri, $sparql, $sparql_inner, $options, $reconstructed_uri
 
 function output_debug($uri, $sparql, $sparql_inner, $options, $reconstructed_uri, $unresolved_prefixes)
 {
-  $target_uri = unparse_url($uri);
   $reconstructed_uri = unparse_url($reconstructed_uri);
+  $query = get_query_string(create_query_array($sparql, $options));
+  if(@$options['method'] === 'triples')
+  {
+    $target_uri = 'http://client.linkeddatafragments.org/#datasources='.rawurlencode(unparse_url($uri));
+    
+    $inputs = array();
+    
+    $endpoint_uri = $target_uri.'&'.$query;
+  }else{
+    $target_uri = unparse_url($uri);
+    
+    $inputs = create_query_array(null, $options);
+    
+    unset($uri['query']);
+    $endpoint_uri = htmlspecialchars(unparse_url($uri));
+  }
   
   $sparql = htmlspecialchars($sparql);
-  $inputs = create_query_array(null, $options);
-  
   $target_uri = htmlspecialchars($target_uri);
   $reconstructed_uri = htmlspecialchars($reconstructed_uri);
-  
-  unset($uri['query']);
-  $endpoint_uri = htmlspecialchars(unparse_url($uri));
-  
   ?><!DOCTYPE html>
 <html lang="en">
 <head>
@@ -229,9 +253,18 @@ function output_debug($uri, $sparql, $sparql_inner, $options, $reconstructed_uri
   }
 
 ?>
-<textarea name="query" hidden style="display:none"><?=$sparql?></textarea>
+<?php
+if(@$options['method'] !== 'triples')
+{
+?><textarea name="query" hidden style="display:none"><?=$sparql?></textarea><?php
+}
+?>
 <input type="submit" value="Send">
 </form>
+<?php
+if(@$options['method'] !== 'triples')
+{
+?>
 <form style="display:inline" method="GET" action="<?=$endpoint_uri?>">
 <?php
 
@@ -247,6 +280,9 @@ function output_debug($uri, $sparql, $sparql_inner, $options, $reconstructed_uri
 <textarea name="query" hidden style="display:none"><?=$sparql?></textarea>
 <input type="submit" value="Analyze">
 </form>
+<?php
+}
+?>
 <form style="display:inline" method="POST" action="http://www.sparql.org/$/validate/query">
 <textarea name="query" hidden style="display:none"><?php
 
