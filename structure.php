@@ -19,11 +19,11 @@
 <dt><code>type</code></dt>
 <dd>Specifies the type of the literal value. Could be a language code, a language range, a <b><code>name</code></b>, or empty. If it is omitted altogether, the literal is simply compared by its string value, without a type comparison. A valid language code or language range with an additional hyphen (<q>-</q>) at the end is always interpreted as a language range stripped of it. Special names listed below are not applicable here, as they already match a language code.</dd>
 <dt><code>context</code></dt>
-<dd>Additional key-value pairs. If the key starts on <b><code>_</code></b>, it is an option, otherwise it is a prefix (re)definition (without the <q>:</q>) and the value is treated as a <b><code>name</code></b>. The prefixes are processed in order, that is the second prefix definition uses the context created by the first prefix definition, and so on. Assigning an empty literal value to a prefix name undefines the prefix.</dd>
+<dd>Additional key-value pairs. If the key starts on <b><code>_</code></b>, it is a resolver-specific option, otherwise it is a prefix (re)definition (without the <q>:</q>) and the value is treated as a <b><code>name</code></b>. The prefixes are processed in order, that is the second prefix definition uses the context created by the first prefix definition, and so on. Assigning an empty literal value to a prefix name undefines the prefix.</dd>
 <dt><code>fragment</code></dt>
 <dd>Used to find the target entity within the resource specified by the URI by the navigator. If the location of the resource already contains a fragment, it is replaced.</dd>
 </dl>
-<p>All of special characters may be escaped with <q>%</q> per standard URI rules to be interpreted literally, without a special meaning. Inside a <b><code>name</code></b>, characters <q>!</q>, <q>&amp;</q>, <q>(</q>, <q>)</q>, <q>*</q>, <q>+</q>, <q>,</q>, and <q>;</q> are reserved for future possible use and must be percent-encoded.</p>
+<p>All special characters may be escaped with <q>%</q> per standard URI rules to be interpreted literally, without a special meaning. Inside a <b><code>name</code></b>, characters <q>!</q>, <q>&amp;</q>, <q>(</q>, <q>)</q>, <q>*</q>, <q>+</q>, <q>,</q>, and <q>;</q> are reserved for future possible use and must be percent-encoded.</p>
 <p>The path portion of the URI consists of a property path, followed by an identifier. Each property corresponds to a step in the corresponding property chain with the identifier at its end and the identified entity at its beginning. <q>'</q> before a property represents its inverse. The initial node in the property path is considered the queried entity, while the final node is the identifier (final component of the URI path).</p>
 <p>When a <b><code>name</code></b> is expected, a special identifier may be used instead, which doesn't match its usual structure. These are:</p>
 <dl>
@@ -33,8 +33,7 @@
 <dd>This links a URI node to its actual string representation, and has to be used when looking for an entity by its URI, as only literal nodes are compared with the <b><code>value</code></b>. Blank nodes and literal nodes do not have this property. When this property is to be materialized, it is represented by <b><code>http://www.w3.org/2000/10/swap/log#uri</code></b>, but it is not synonymous with it in any other case.</dd>
 </dl>
 <p>Every occurence of a <b><code>name</code></b> with a prefix is interpreted according to the defined prefixes in the current context. Definitions in the query portion are processed first and they specify the context for the path.</p>
-<p>Every variable portion of the URI is eventually percent-decoded exactly once, even absolute URIs stored as a <b><code>name</code></b>. International characters (valid in IRI but not URI) are left unchanged.</p>
-<p>There are several prefixes known initially. They are divided into three categories:</p>
+<p>There are several prefixes defined initially. They are divided into three categories:</p>
 <dl>
 <dt>Common prefixes</dt><dd><pre>PREFIX rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
@@ -101,6 +100,19 @@ PREFIX lid: &lt;lid:&gt;</pre>
   <li>Even if the URI is unambiguous, its resolution could very easily be affected by the knowledge the target endpoint has access to, and could yield different, but semantically linked, results. This link depends on the kind of properties used in the path, e.g. using only inverse functional properties implies <b><code>owl:sameAs</code></b>, but other properties may warrant weaker links.</li>
   <li>Even for unambiguous entities (literals or URIs), the interpretation of such URIs could require the participation of the endpoint in further description of the entity. If two endpoints give conflicting facts about the entity, the issue could be resolved by treating the two URIs as different entities, each belonging to its endpoint's world-view.</li>
 </ul>
+</section>
+<section>
+<h2>Encoding considerations</h2>
+<p>Every variable portion of the URI is eventually percent-decoded exactly once, even absolute URIs stored as a <b><code>name</code></b>, including encoded UTF-8 characters. International characters (valid in IRI but not URI) are left unchanged. If a <b><code>name</code></b> is supposed to resolve to a URI with percent-encoded characters, the percent itself must be escaped in the <code>lid:</code> URI.</p>
+</section>
+<section>
+<h2>Interoperability considerations</h2>
+<p>A particular <code>lid:</code> URI may contain undefined prefixes whose resolution depends on the resolver or target, and if those prefixes are not defined explicitly in the URI, it may resolve to different entities even within otherwise equal graphs. It is however possible to define such prefixes explicitly.</p>
+<p>Another point of difference are resolver-specific options, whose interpretation is defined solely by the resolver and may affect which entities are identified by a particular <code>lid:</code> URI and which are not.</p>
+</section>
+<section>
+<h2>Security considerations</h2>
+<p>As <code>lid:</code> URIs may contain arbitrary identifiers, applications should not expose such URIs beyond the intended restrictions of used confidential or private identifiers. Additionally, while <code>lid:</code> URIs do not define a particular navigation mechanism, individual resolvers may choose redirecting to a URI identifying the resolved resource as an option. If such is the case, the same security precautions as when navigating to an arbitrary URI should be taken.</p>
 </section>
 </body>
 </html>
