@@ -391,6 +391,7 @@ class Resolver
     
     $subproperty_path = "($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*";
     $inverse_path = "/$owl:inverseOf/($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*";
+    $inverse_path_bare = "/$owl:inverseOf";
     if(is_option($options, 'inverse'))
     {
       $additional_path = "/($owl:inverseOf/($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*/$owl:inverseOf/($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*)*";
@@ -399,6 +400,7 @@ class Resolver
     }
     $infer_path = "$subproperty_path$additional_path";
     $infer_inverse_path = "$subproperty_path$inverse_path$additional_path";
+    $infer_inverse_path_bare = "$subproperty_path$inverse_path_bare$additional_path";
     
     if(is_option($options, 'check'))
     {
@@ -550,7 +552,7 @@ class Resolver
                 $query_inner[] = '    WHERE {';
                 $query_inner[] = "      ?p$index $infer_path $name .";
                 $query_inner[] = '      OPTIONAL {';
-                $query_inner[] = "        ?i$index $infer_inverse_path $name .";
+                $query_inner[] = "        ?i$index $infer_inverse_path_bare ?p$index .";
                 $query_inner[] = '      }';
                 $query_inner[] = '    }';
                 $query_inner[] = '  }';
