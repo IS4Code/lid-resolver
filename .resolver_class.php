@@ -4,6 +4,8 @@ class Resolver
 {
   public $unresolved_prefixes = array();
   
+  private $imported_prefixes = array();
+  
   private $context;
   private $options;
   
@@ -147,6 +149,7 @@ class Resolver
     
     if(is_string($name))
     {
+      // Full URI
       validate_name($name);
       return "<$name>";
     }
@@ -162,10 +165,28 @@ class Resolver
     validate_name($name[1]);
     if($name[0] === null)
     {
+      // Relative URI
       return "<$name[1]>";
     }
     $unresolved_prefixes[$name[0]] = null;
     return $name[0].':'.addcslashes($name[1], $escape);
+  }
+  
+  private function has_undefined_prefix($name)
+  {
+    if(is_string($name))
+    {
+      return false;
+    }
+    if(get_special_name($name) !== null)
+    {
+      return false;
+    }
+    if($name[0] === null)
+    {
+      return false;
+    }
+    return true;
   }
   
   private function use_prefix($name, &$prefix)
@@ -180,13 +201,21 @@ class Resolver
     $prefix = $name.$suffix;
   }
   
-  private function build_identifier_literal(&$identifier, &$idkind, &$idtype, &$constructor, &$filter_out)
+  private function build_identifier_literal(&$identifier, &$idkind, &$idtype, &$constructor, &$filter_out, &$imported_ns)
   {
+    $options = &$this->options;
+    
     $needs_filter = false;
     $filter = 'isLITERAL(?id)';
     if(!is_string($identifier))
     {
-      $identifier = 'STR('.$this->format_name($identifier).')';
+      if(is_option($options, 'prefixes') && $this->has_undefined_prefix($identifier))
+      {
+        $imported_ns = $identifier;
+        $identifier = 'STR(?idn)';
+      }else{
+        $identifier = 'STR('.$this->format_name($identifier).')';
+      }
       $needs_filter = true;
     }else{
       $identifier = '"'.addslashes($identifier).'"';
@@ -243,6 +272,55 @@ class Resolver
     }
   }
   
+  private function import_namespace(&$query_inner, $raw_name, $first, $owl, $rdfs, $vann, $rdfa, $__)
+  {
+    $options = &$this->options;
+    
+    $prefix = $raw_name[0];
+    $prefix_str = '"'.addslashes($prefix).'"';
+    
+    if(is_option($options, 'infer_prefixes'))
+    {
+      if($first)
+      {
+        $subproperty_path = "($rdfs:subPropertyOf|$owl:equivalentProperty|^$owl:equivalentProperty)*";
+        $query_inner[] = "${__}VALUES ?npb { $vann:preferredNamespacePrefix $rdfa:prefix }";
+        $query_inner[] = "$__?np $subproperty_path ?npb .";
+        $query_inner[] = "${__}VALUES ?nub { $vann:preferredNamespaceUri $rdfa:uri }";
+        $query_inner[] = "$__?nu $subproperty_path ?nub .";
+      }
+      $query_inner[] = "$__?nv_$prefix ?np $prefix_str .";
+      $query_inner[] = "$__?nv_$prefix ?nu ?n_$prefix .";
+    }else{
+      $query_inner[] = "$__$prefix_str ^($vann:preferredNamespacePrefix|$rdfa:prefix)/($vann:preferredNamespaceUri|$rdfa:uri) ?n_$prefix .";
+    }
+    
+    $query_inner[] = "${__}FILTER isLiteral(?n_$prefix)";
+  }
+  
+  private function import_namespace_item(&$query_inner, $raw_name, $target, $global, $owl, $rdfs, $vann, $rdfa, $__)
+  {
+    $prefix = $raw_name[0];
+    if($global)
+    {
+      $imported_prefixes = &$this->imported_prefixes;
+      if(empty($imported_prefixes[$prefix]))
+      {
+        $this->import_namespace($query_inner, $raw_name, empty($imported_prefixes), $owl, $rdfs, $vann, $rdfa, $__);
+        $imported_prefixes[$prefix] = true;
+      }
+    }else{
+      $this->import_namespace($query_inner, $raw_name, true, $owl, $rdfs, $vann, $rdfa, $__);
+    }
+    if(empty($raw_name[1]))
+    {
+      $query_inner[] = "${__}BIND (URI(STR(?n_$prefix)) AS $target)";
+    }else{
+      $local_name = '"'.addslashes($raw_name[1]).'"';
+      $query_inner[] = "${__}BIND (URI(CONCAT(STR(?n_$prefix), $local_name)) AS $target)";
+    }
+  }
+  
   private function debug_mode()
   {
     $options = &$this->options;
@@ -268,7 +346,7 @@ class Resolver
       }
     }
     
-    if(is_option($options, 'check') || is_option($options, 'infer'))
+    if(is_option($options, 'check') || is_option($options, 'infer') || is_option($options, 'infer_prefixes'))
     {
       $this->use_prefix('rdfs', $rdfs);
       $query[] = "PREFIX $rdfs: <http://www.w3.org/2000/01/rdf-schema#>";
@@ -276,7 +354,7 @@ class Resolver
       $rdfs = '';
     }
     
-    if(is_option($options, 'check') || is_option($options, 'unify_owl') || is_option($options, 'infer'))
+    if(is_option($options, 'check') || is_option($options, 'unify_owl') || is_option($options, 'infer') || is_option($options, 'infer_prefixes'))
     {
       $this->use_prefix('owl', $owl);
       $query[] = "PREFIX $owl: <http://www.w3.org/2002/07/owl#>";
@@ -292,7 +370,18 @@ class Resolver
       $skos = '';
     }
     
-    if(!empty($rdf) || !empty($rdfs) || !empty($owl) || !empty($skos) || !empty($xsd))
+    if(is_option($options, 'prefixes'))
+    {
+      $this->use_prefix('vann', $vann);
+      $this->use_prefix('rdfa', $rdfa);
+      $query[] = "PREFIX $vann: <http://purl.org/vocab/vann/>";
+      $query[] = "PREFIX $rdfa: <http://www.w3.org/ns/rdfa#>";
+    }else{
+      $vann = '';
+      $rdfa = '';
+    }
+    
+    if(!empty($rdf) || !empty($rdfs) || !empty($owl) || !empty($skos) || !empty($xsd) || !empty($vann) || !empty($rdfa))
     {
       $query[] = '';
     }
@@ -309,7 +398,13 @@ class Resolver
           {
             array_pop($components);
             $identifier_is_literal = false;
-            $identifier = $this->format_name($identifier);
+            if(is_option($options, 'prefixes') && $this->has_undefined_prefix($identifier))
+            {
+              $imported_ns = $identifier;
+              $identifier = '?idn';
+            }else{
+              $identifier = $this->format_name($identifier);
+            }
           }else{
             report_error(400, "A relative URI (<q>$identifier</q>) must be prefixed with <q>\$base:</q> in the identifier!");
           }
@@ -321,7 +416,7 @@ class Resolver
     
     if($identifier_is_literal)
     {
-      $this->build_identifier_literal($identifier, $idkind, $idtype, $constructor, $filter);
+      $this->build_identifier_literal($identifier, $idkind, $idtype, $constructor, $filter, $imported_ns);
     }
     
     $initial = '?s';
@@ -434,13 +529,19 @@ class Resolver
       }
     }
     
+    if(isset($imported_ns))
+    {
+      $this->import_namespace_item($query_inner, $imported_ns, '?idn', true, $owl, $rdfs, $vann, $rdfa, '  ');
+    }
     if(isset($constructor))
     {
-        $query_inner[] = "  BIND ($constructor AS $identifier)";
+      $query_inner[] = "  BIND ($constructor AS $identifier)";
     }
     
     if(empty($components))
     {
+      // No path, only the identifier
+      
       if(isset($unify_path))
       {
         $query_inner[] = "  $initial $unify_path $identifier .";
@@ -454,12 +555,16 @@ class Resolver
         }
       }
     }else{
+      // A path is specified
       
-      if(!is_option($options, 'infer') && !array_any($components, function($val)
+      if(!is_option($options, 'infer') && !is_option($options, 'prefixes') && !array_any($components, function($val)
       {
+        // A specially handled property (e.g. 'uri') is used
         return get_special_name($val[0]);
       }))
       {
+        // Normal SPARQL property path can be used
+        
         array_walk($components, function(&$value)
         {
           $name = $this->format_name($value[0]);
@@ -475,6 +580,8 @@ class Resolver
           $query_inner[] = "  $initial ".implode($delimiter, $components)." $identifier .";
         }
       }else{
+        // Each predicate link has to be written one by one
+        
         if(isset($unify_path))
         {
           $query_inner[] = "  ?s $unify_path ?s0 .";
@@ -490,7 +597,7 @@ class Resolver
             $query_inner[] = "  ?r$index $unify_path ?s$index .";
           }
           
-          $inverse = $value[1];
+          list($raw_name, $is_inverse) = $value;
           
           $not_variable = $last && !isset($unify_path);          
           $step_input = $index > 0 ? "?s$index" : $initial;
@@ -501,10 +608,10 @@ class Resolver
             $not_variable = false;
           }
           
-          $special = get_special_name($value[0]);
+          $special = get_special_name($raw_name);
           if($special === 'uri')
           {
-            if($inverse)
+            if($is_inverse)
             {
               $query_inner[] = "  FILTER (DATATYPE($step_input) = <http://www.w3.org/2001/XMLSchema#anyURI>)";
               if($not_variable)
@@ -522,8 +629,16 @@ class Resolver
               }
             }
           }else{
-            $name = $this->format_name($value[0]);
-            if($inverse)
+            if(is_option($options, 'prefixes') && $this->has_undefined_prefix($raw_name))
+            {
+              $name = "?n$index";
+              $import_undefined = true;
+            }else{
+              $name = $this->format_name($raw_name);
+              $import_undefined = false;
+            }
+            
+            if($is_inverse)
             {
               $triple_subj = $step_output;
               $triple_obj = $step_input;
@@ -534,11 +649,19 @@ class Resolver
             
             if(!is_option($options, 'infer'))
             {
+              if($import_undefined)
+              {
+                $this->import_namespace_item($query_inner, $raw_name, $name, true, $owl, $rdfs, $vann, $rdfa, '  ');
+              }
               $query_inner[] = "  $triple_subj $name $triple_obj .";
             }else{
               if($last && !isset($unify_path) && $identifier_is_literal)
               {
-                if($inverse)
+                if($import_undefined)
+                {
+                  $this->import_namespace_item($query_inner, $raw_name, $name, true, $owl, $rdfs, $vann, $rdfa, '  ');
+                }
+                if($is_inverse)
                 {
                   $query_inner[] = "  ?i$index $infer_inverse_path $name .";
                   $query_inner[] = "  $step_input ?i$index $step_output .";
@@ -550,6 +673,12 @@ class Resolver
                 $query_inner[] = '  {';
                 $query_inner[] = "    SELECT ?p$index ?i$index";
                 $query_inner[] = '    WHERE {';
+                
+                if($import_undefined)
+                {
+                  $this->import_namespace_item($query_inner, $raw_name, $name, false, $owl, $rdfs, $vann, $rdfa, '      ');
+                }
+                
                 $query_inner[] = "      ?p$index $infer_path $name .";
                 $query_inner[] = '      OPTIONAL {';
                 $query_inner[] = "        ?i$index $infer_inverse_path_bare ?p$index .";

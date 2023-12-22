@@ -53,6 +53,9 @@ You may also use the form below:</p>
 <input type="checkbox" name="unify_skos" id="unify_skos"<?=
   getVarChecked('unify_skos')
 ?>><label for="unify_skos">Unify with skos:exactMatch (<code>_unify_skos</code>).</label><br>
+<input type="checkbox" name="prefixes" id="prefixes"<?=
+  getVarChecked('prefixes')
+?>><label for="prefixes">Resolve undefined prefixes (<code>_prefixes</code>).</label><br>
 <input type="checkbox" name="first" id="first"<?=
   getVarChecked('first')
 ?>><label for="first">Output only the first result (<code>_first</code>).</label><br>
