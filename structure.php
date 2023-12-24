@@ -50,8 +50,7 @@ PREFIX tag: &lt;tag:&gt;
 PREFIX mailto: &lt;mailto:&gt;
 PREFIX data: &lt;data:&gt;
 PREFIX file: &lt;file:&gt;
-PREFIX ftp: &lt;ftp:&gt;
-PREFIX lid: &lt;lid:&gt;</code></pre>
+PREFIX ftp: &lt;ftp:&gt;</code></pre>
 <p>These prefixes are defined in order to make it possible to write <q>:</q> instead of <q>%3A</q> in a <b><code>name</code></b> without relying on the target endpoint to support these prefixes.</p><dd>
 <dt>Supplemental prefixes</dt><dd><pre><code class="language-sparql">PREFIX base: &lt;&gt;</code></pre>
 <p>Relative URIs are not allowed by the syntax, thus they have to be represented via <b><code>base:</code></b>. <q>.</q> and <q>..</q> are not handled in any special manner.</p>
