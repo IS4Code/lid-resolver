@@ -3,10 +3,12 @@
 <head>
 <title>lid: scheme structure</title>
 <link rel="stylesheet" href="//is4.site/styles/terminal.css?theme=4">
+<link rel="stylesheet" href="prism.css">
 </head>
 <body>
 <p style="float:right"><a href=".">Back to the resolver.</a></p>
-<h1><code>lid:</code> URI scheme</h1>
+<h1><code>lid:</code> URI scheme (version 1.0)</h1>
+<section>
 <p>A <b><code>lid:</code></b> URI has the following structure:</p>
 <pre><b><q>lid:</q> [ <q>//</q> host <q>/</q> ] ( [ <q>'</q> ] name <q>/</q> )* [ <q>$</q> ] value [ <q>@</q> type ] [ <q>?</q> context ] [ <q>#</q> fragment ]</b></pre>
 <dl>
@@ -30,18 +32,18 @@
 <dt><code>a</code></dt>
 <dd>This is synonymous to the URI <b><code>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</code></b> with no additional meaning.</dd>
 <dt><code>uri</code></dt>
-<dd>This links a URI node to its actual string representation, and has to be used when looking for an entity by its URI, as only literal nodes are compared with the <b><code>value</code></b>. Blank nodes and literal nodes do not have this property. When this property is to be materialized, it is represented by <b><code>http://www.w3.org/2000/10/swap/log#uri</code></b>, but it is not synonymous with it in any other case.</dd>
+<dd>This links a URI node to its actual literal representation (as an <code>xsd:anyURI</code>), and has to be used when looking for an entity by its URI, as only literal nodes are compared with the <b><code>value</code></b>. Blank nodes and literal nodes do not have this property. When this property is to be materialized, it is represented by <b><code>http://www.w3.org/2000/10/swap/log#uri</code></b>, but it is not synonymous with it in any other case.</dd>
 </dl>
 <p>Every occurence of a <b><code>name</code></b> with a prefix is interpreted according to the defined prefixes in the current context. Definitions in the query portion are processed first and they specify the context for the path.</p>
 <p>There are several prefixes defined initially. They are divided into three categories:</p>
 <dl>
-<dt>Common prefixes</dt><dd><pre>PREFIX rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+<dt>Common prefixes</dt><dd><pre><code class="language-sparql">PREFIX rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
 PREFIX owl: &lt;http://www.w3.org/2002/07/owl#&gt;
 PREFIX skos: &lt;http://www.w3.org/2004/02/skos/core#&gt;
-PREFIX xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;</pre>
+PREFIX xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;</code></pre>
 <p>These prefixes are always available and commonly used in the constructed queries. Redefining them will only affect their specific usage in the URI, not their generated usage in the query.</p></dd>
-<dt>Common URI schemes</dt><dd><pre>PREFIX http: &lt;http:&gt;
+<dt>Common URI schemes</dt><dd><pre><code class="language-sparql">PREFIX http: &lt;http:&gt;
 PREFIX https: &lt;https:&gt;
 PREFIX urn: &lt;urn:&gt;
 PREFIX tag: &lt;tag:&gt;
@@ -49,15 +51,16 @@ PREFIX mailto: &lt;mailto:&gt;
 PREFIX data: &lt;data:&gt;
 PREFIX file: &lt;file:&gt;
 PREFIX ftp: &lt;ftp:&gt;
-PREFIX lid: &lt;lid:&gt;</pre>
+PREFIX lid: &lt;lid:&gt;</code></pre>
 <p>These prefixes are defined in order to make it possible to write <q>:</q> instead of <q>%3A</q> in a <b><code>name</code></b> without relying on the target endpoint to support these prefixes.</p><dd>
-<dt>Supplemental prefixes</dt><dd><pre>PREFIX base: &lt;&gt;</pre>
+<dt>Supplemental prefixes</dt><dd><pre><code class="language-sparql">PREFIX base: &lt;&gt;</code></pre>
 <p>Relative URIs are not allowed by the syntax, thus they have to be represented via <b><code>base:</code></b>. <q>.</q> and <q>..</q> are not handled in any special manner.</p>
 <p>This prefix would make it possible to express an absolute URI, like in <b><code>base:urn:something</code></b>. Producing absolute URIs this way is therefore explicitly disallowed: a prefix that denotes a relative URI cannot be used to produce an absolute URI (the converse is already true by definition for absolute URIs).</p>
 </dd>
 </dl>
-<p>The empty prefix is always undefined initially, as well as any prefix that starts on <q>x.</q>. Any undefined prefix may still be used in any <b><code>name</code></b>, but it is up to the target to recognize it.</p>
-<p>In addition to the prefixes declared above, a particular resolver may define additional prefixes.</p>
+<p>The empty prefix is always undefined initially, as well as any prefix that starts on <q>x.</q>. Any undefined prefix may still be used in any <b><code>name</code></b>, but it is up to the resolver or target to interpret it.</p>
+<p>In addition to the prefixes declared above, a particular resolver may define additional prefixes. It is recommended to include the <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a> in this set to simplify using other common prefixes, and to consider defining other <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml">URI schemes</a> to eliminate the confusion with prefixes.</p>
+</section>
 <section>
 <h2>Examples of valid syntax</h2>
 <p>All of the URIs below are valid, with or without a host portion (<q>//example.org/</q> after <q>lid:</q>).</p>
@@ -68,14 +71,25 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <dt><code>lid:1@</code></dt>
 <dd>This refers to the literal value <b><code>"1"</code></b>, which is treated as a plain untagged literal in RDF 1.0 and an <b><code>xsd:string</code></b>-typed literal in RDF 1.1, which may be considered distinct entities by the target.</dd>
 <dt><code>lid:example@en</code></dt>
-<dd>This refers to the string <q>example</q> in the English language.</dd>
+<dd>This refers to the string <q>example</q> in the English language (no dialect).</dd>
+<dt><code>lid:example@en-*</code></dt>
+<dd>This refers to any string <q>example</q> in any dialect of the English language.</dd>
+<dt><code>lid:example@en-</code></dt>
+<dd>This refers to any string <q>example</q> in English without any conditions regarding the dialect.</dd>
 <dt><code>lid:$a</code></dt>
 <dd>This refers to the literal <q>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</q> (with any datatype).</dd>
+<dt><code>lid:uri/$a</code></dt>
+<dd>This refers to the entity identified by the URI <q>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</q>.</dd>
+<dt><code>lid:uri/$a@xsd:anyURI</code></dt>
+<dd>Likewise ‒ the URI is considered to have the datatype <code>xsd:anyURI</code>, so both options work.</dd>
+<dt><code>lid:uri/$a@xsd:string</code></dt>
+<dd>This does not represent any meaningful entity, since the URI cannot have any other type than <code>xsd:anyURI</code>.</dd>
 <dt><code>lid:uri/mailto%3Auser%40example.org</code></dt>
 <dt><code>lid:uri/mailto:user%40example.org</code></dt>
 <dt><code>lid:uri/$mailto%3Auser%40example.org</code></dt>
+<dd>This refers to the entity identified by the URI <q>mailto:user@example.org</q>. The <q>mailto:</q> part is <strong>not</strong> treated as a prefix here (the first two cases are not a <b><code>name</code></b>, the last one does not have a prefix, so there is no point to <code>$</code>).</dd>
 <dt><code>lid:uri/$mailto:user%40example.org</code></dt>
-<dd>This refers to the entity identified by the URI <q>mailto:user@example.org</q>. Only in the last case, the <q>mailto:</q> part is treated as an actual prefix (defined as itself) and other vocabulary prefixes may be used.</dd>
+<dd>This refers to same entity, but the <q>mailto:</q> part is treated as an actual prefix (defined as itself), and so other vocabulary prefixes may be used in its place.</dd>
 <dt><code>lid:rdfs:isDefinedBy/uri/$foaf:</code></dt>
 <dd>This refers to any entity that is defined by the FOAF vocabulary.</dd>
 <dt><code>lid:rdfs:label/'uri/rdf:value/x</code></dt>
@@ -87,13 +101,60 @@ PREFIX lid: &lt;lid:&gt;</pre>
 <p><code>lid:</code> URIs do not have a single possible resolution mechanism, but they are designed for use with SPARQL endpoints (located at <q>/sparql</q> under a particular host) and a particular resolver may use parts of the URI to construct a SPARQL query which retrieves the identified resource, in some form specific to the resolver.</p>
 <p>The basic translation to a SPARQL query is simple and only uses a single property path, coupled with a check on the identifier. More advanced resolvers, such as the one <a href=".">hosted here</a>, may however offer additional features, for example basic inference from subproperties, or unification based on standard properties like <b><code>owl:sameAs</code></b>, in which case the query may become more complex, while still resembling the simple one.</p>
 <p>The SPARQL query generated by a resolver should generally be valid, but there is one exception: unbound prefixes may be used. These are not part of the standard SPARQL syntax, but they are commonly understood by SPARQL endpoint implementations. Using an unbound prefix means using whichever namespace is understood by the endpoint for that prefix, if some at all.</p>
+<p>As an example, the simple URI <code>lid:foaf:nick/John</code> could be translated to a SPARQL query as follows:</p>
+<pre><code class="language-sparql">PREFIX foaf: &lt;http://xmlns.com/foaf/0.1/&gt; # Assuming the resolver understands the prefix.
+
+DESCRIBE ?subject # Other clauses are possible, depending on the access method.
+WHERE {
+  ?subject foaf:nick ?id .
+  FILTER (isLITERAL(?id) && STR(?id) = "John") # Since datatype is not given, the value has to be compared.
+}</code></pre>
+<p>The <code>FILTER</code> clause can be avoided if the datatype is specified:</p>
+<pre><code class="language-sparql"># lid:foaf:nick/John@
+?subject foaf:nick "John" .
+# lid:foaf:nick/John@en
+?subject foaf:nick "John"@en .</code></pre>
+<p>But not if a language range is required:</p>
+<code class="language-sparql"># lid:foaf:nick/John@en-
+?subject foaf:nick ?id .
+FILTER (isLITERAL(?id) && LANGMATCHES(lang(?id), "en") && STR(?id) = "John")</code>
+<p>It is also possible to automatically use metadata in the query, such as by looking for any sub-property of <code>foaf:nick</code>:</p>
+<pre><code class="language-sparql">PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
+
+DESCRIBE ?subject
+WHERE {
+  ?nick rdfs:subPropertyOf* &lt;http://xmlns.com/foaf/0.1/nick&gt; .
+  ?subject ?nick "John" .
+}</code></pre>
+<p>This query will accept any predicate using the property <code>foaf:nick</code>, but also any sub-property of it.</p>
+<p>The particular handling of prefixes not in those mentioned in the specification is resolver-defined, so if the resolver is not aware of <code>foaf:</code>, the query might behave similarly as when the prefix is undefined:</p>
+<pre><code class="language-sparql"># lid:foaf:nick/John@?foaf=
+DESCRIBE ?subject
+WHERE {
+  ?subject foaf:nick "John" .
+}</code></pre>
+<p>This is invalid, but commonly understood SPARQL, leaving the definition of <code>foaf:</code> for the target triple store.</p>
+<p>A resolver may also decide to define the prefix through metadata, such as by:</p>
+<pre><code class="language-sparql"># lid:foaf:nick/John@?foaf=
+PREFIX rdfa: &lt;http://www.w3.org/ns/rdfa#&gt;
+
+DESCRIBE ?subject
+WHERE {
+  "foaf" ^rdfa:prefix/rdfa:uri ?foaf .
+  FILTER isLiteral(?foaf)
+  BIND (URI(CONCAT(STR(?foaf), "nick")) AS ?nick)
+  ?subject ?nick "John" .
+}</code></pre>
+<script src="prism.js"></script>
+</section>
+<section>
 <h2>Semantics</h2>
 <p>A <code>lid:</code> URI can be constructed to point to specific resources which can be thought of as synonymous under the RDF semantics. Here are some examples of possible entailment that may arise automatically from the use of a <code>lid:</code> URI.</p>
-<pre>&lt;lid:example@en&gt; owl:sameAs "example"@en . # a property-less lid: URI is a way to identify a literal value
-&lt;lid:uri/urn:something&gt; owl:sameAs &lt;urn:something&gt; . # a way to encode a normal URI if needed, or to shorten it via a known prefix
-&lt;lid:15&gt; skos:narrower "15", 15, "15"^^xsd:double . # the concept of a literal value with unspecified type is broader than any of the concrete literals
-&lt;lid:hello@en-*&gt; skos:narrower "hello"@en-us, "hello"@en-gb . # likewise for language ranges
-</pre>
+<pre><code class="language-turtle">&lt;lid:example@en&gt; owl:sameAs "example"@en . # A property-less lid: URI is a way to identify a literal value.
+&lt;lid:uri/urn:something&gt; owl:sameAs &lt;urn:something&gt; . # A way to encode a normal URI if needed, or to shorten it via a known prefix.
+&lt;lid:15&gt; skos:narrower "15", 15, "15"^^xsd:double . # The concept of a literal value with unspecified type is broader than any of the concrete literals.
+&lt;lid:hello@en-*&gt; skos:narrower "hello"@en-us, "hello"@en-gb . # Likewise for language ranges.
+</code></pre>
 <p>Additionally, the presence of a hostname in the URI might change its meaning in these ways:</p>
 <ul>
   <li>If an unbound prefix is used, its resolution depends solely on the target endpoint and may produce different results, leading to completely unrelated URIs for different endpoints.</li>

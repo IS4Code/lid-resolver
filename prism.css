@@ -6,7 +6,7 @@ https://prismjs.com/download.html#themes=prism&languages=sparql+turtle */
  * @author Lea Verou
  */
 
-code {
+code[class] {
   color: #999;
 }  
  
