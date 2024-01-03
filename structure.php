@@ -74,7 +74,7 @@ PREFIX ftp: &lt;ftp:&gt;</code></pre>
 <dt><code>lid:example@en-*</code></dt>
 <dd>This refers to any string <q>example</q> in any dialect of the English language.</dd>
 <dt><code>lid:example@en-</code></dt>
-<dd>This refers to any string <q>example</q> in English without any conditions regarding the dialect.</dd>
+<dd>This refers to any string <q>example</q> in English without any constraints on the dialect.</dd>
 <dt><code>lid:$a</code></dt>
 <dd>This refers to the literal <q>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</q> (with any datatype).</dd>
 <dt><code>lid:uri/$a</code></dt>
@@ -90,7 +90,7 @@ PREFIX ftp: &lt;ftp:&gt;</code></pre>
 <dt><code>lid:uri/$mailto:user%40example.org</code></dt>
 <dd>This refers to same entity, but the <q>mailto:</q> part is treated as an actual prefix (defined as itself), and so other vocabulary prefixes may be used in its place.</dd>
 <dt><code>lid:rdfs:isDefinedBy/uri/$foaf:</code></dt>
-<dd>This refers to any entity that is defined by the FOAF vocabulary.</dd>
+<dd>This refers to any entity that is defined by the FOAF vocabulary (assuming the prefix is understood).</dd>
 <dt><code>lid:rdfs:label/'uri/rdf:value/x</code></dt>
 <dd>This refers to an entity that has a textual label (as <b><code>xsd:anyURI</code></b>) which can be interpreted as the URI of an entity with value <q>x</q>.</dd>
 </section>

@@ -106,7 +106,7 @@ options('_format', array(
 </select><br>
 <input type="submit" value="Resolve">
 </form>
-<p>Using an undefined prefix is valid, but requires the target endpoint to understand it. The prefixes recognized by the service are as follows (ordered by priority):</p>
+<p>Using an undefined prefix is valid, but requires the target to understand it. The prefixes recognized by the service are as follows (ordered by priority):</p>
 <ol>
 <li>Permanent <a href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml">IANA URI schemes</a>. They are defined as themselves.</li>
 <li>Recommended <a href="https://www.w3.org/2011/rdfa-context/rdfa-1.1.html">RDFa Core Initial Context</a>. Only definitions that end on <b><code>#</code></b>, <b><code>/</code></b> or <b><code>:</code></b> are considered.</li>
@@ -117,7 +117,7 @@ options('_format', array(
 <p>If an entry is removed from the source lists, it could also prevent this resolver from correctly processing URIs that use the prefix. It is assumed entries are never removed from the sources, and if so, it justifies the consequences.</p>
 <section>
 <h2>Examples</h2>
-<p>The options above can be also specified in the query part of the URI. Any query parameter starting with <b><code>__</code></b> is passed to the target endpoint.</p>
+<p>The options above can be also specified in the query part of the URI. Any query parameter starting with <b><code>__</code></b> is stripped of it and passed to the target endpoint.</p>
 <dl>
 <dt><code>lid://example.org/rdfs:label/1</code></dt>
 <dd>Identifies anything that has a property <b><code>rdfs:label</code></b> (known prefix) with a literal value of <b><q>1</q></b> (any type).</dd>
