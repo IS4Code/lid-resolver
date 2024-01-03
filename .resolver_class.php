@@ -414,12 +414,16 @@ class Resolver
       }
     } 
     
+    $initial = '?s';
     if($identifier_is_literal)
     {
       $this->build_identifier_literal($identifier, $idkind, $idtype, $constructor, $filter, $imported_ns);
+      if(empty($components) && !is_option($options, 'unify_owl') && !is_option($options, 'unify_skos'))
+      {
+        $initial = '?id';
+      }
     }
     
-    $initial = '?s';
     switch(@$options['form'])
     {
     case 'select':
