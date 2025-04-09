@@ -238,7 +238,7 @@ class Resolver
         $idtype = $this->format_name($idtype);
         if($needs_filter)
         {
-          $filter = "$filter && DATATYPE(?id) = $idtype";
+          $filter = "$filter && COALESCE(?id = STRDT(STR(?id), $idtype), DATATYPE(?id) = $idtype)";
           $constructor = "STRDT($identifier, $idtype)";
         }else{
           $identifier = "$identifier^^$idtype";
