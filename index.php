@@ -36,7 +36,7 @@ function options($name, $list, $default = null)
 You may also use the form below:</p>
 <form method="GET" action="resolve">
 <p><textarea name="uri" rows="1" cols="100" onkeypress="if(event.which===13&amp;&amp;!event.shiftKey){event.target.form.submit();event.preventDefault();}"><?=
-  getVarText('uri', 'lid://my.data.is4.site/:nick/IS4?=foaf:')
+  getVarText('uri', 'lid://data.is4.site/:nick/IS4?=foaf:')
 ?></textarea></p>
 <input type="checkbox" name="check" id="check"<?=
   getVarChecked('check')
